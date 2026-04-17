@@ -1161,7 +1161,7 @@ async function ensureManagerShift(connection) {
 
   return insertResult.insertId;
 }
-
+console.log("CLIENT_ID:", process.env.GOOGLE_CLIENT_ID);
 function getCurrentWeekDates() {
   const today = new Date();
   const monday = new Date(today);
