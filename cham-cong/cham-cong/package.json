@@ -1,0 +1,12 @@
+{
+  "name": "pelaxy",
+  "version": "1.0.0",
+  "description": "JDD web interface served by Node.js with include partial support",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}

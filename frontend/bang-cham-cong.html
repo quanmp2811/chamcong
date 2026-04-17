@@ -1,0 +1,220 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JDD | Bảng chấm công</title>
+  <link rel="icon" href="public/logo-jm-den.png" type="image/x-icon">
+  <link rel="stylesheet" href="css/app.css" />
+  <link rel="stylesheet" href="css/nav.css" />
+  <link rel="stylesheet" href="css/footer.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/style.css" />
+</head>
+<body class="page-bang-cham-cong">
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="index.html" class="brand">
+        <img src="public/logo-jm.ico" alt="Logo Chấm công" style="height: 40px;">
+      </a>
+      <nav class="main-nav">
+        <a href="index.html" class="active">Lịch làm việc</a>
+        <a href="cau-hinh.html">Cấu hình</a>
+      </nav>
+      <div class="user-info" id="user-info" style="display: none; flex-direction: column; align-items: flex-end;">
+        <span id="user-name" style="font-weight: 500;"></span>
+        <span id="user-role" style="font-size: 0.85em;"></span>
+        <button id="logout-button" class="button button-secondary">Đăng xuất</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="schedule-container">
+    <div class="sidebar app-sidepanel">
+      <a href="index.html" class="menu-item app-sidepanel-link">Lịch làm</a>
+      <a href="bang-cham-cong.html" class="menu-item app-sidepanel-link active">Bảng chấm công</a>
+      <a href="cham-cong-nhan-vien.html" class="menu-item app-sidepanel-link">Chấm công nhân viên</a>
+    </div>
+
+    <div class="schedule-main">
+      <div class="schedule-overview">
+        <div>
+          <h1>Tổng Quan Lịch Chấm Công</h1>
+          <p>Theo dõi trạng thái chấm công theo cửa hàng trong tháng đã chọn.</p>
+        </div>
+        <label class="schedule-filter" for="schedule-month">
+          Tháng
+          <span class="schedule-filter-picker">
+            <input type="text" id="schedule-month" name="schedule-month" placeholder="Chọn tháng" />
+          </span>
+        </label>
+      </div>
+
+      <div class="schedule-table-wrap">
+        <table>
+          <thead>
+            <tr id="attendance-head-row">
+              <th class="store">Cửa hàng</th>
+            </tr>
+          </thead>
+          <tbody id="table-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <p>© 2026 chấm công. Thiết kế bởi Phạm Mạnh Quân 0862528119.</p>
+      <div class="footer-links">
+        <a href="index.html">Trang chủ</a>
+        <a href="#">Chính sách</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/index.js"></script>
+  <script src="js/script.js"></script>
+  <script type="module">
+    import { getChamCong, getStores } from "./js/api.js";
+
+    const tbody = document.getElementById("table-body");
+    const attendanceHeadRow = document.getElementById("attendance-head-row");
+    const scheduleMonthInput = document.getElementById("schedule-month");
+    const now = new Date();
+    const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+    const currentMonthLabel = `${String(now.getMonth() + 1).padStart(2, "0")}/${now.getFullYear()}`;
+
+    let activeMonth = currentMonth;
+    let stores = [];
+
+    function toMonthValue(value) {
+      if (!value) {
+        return currentMonth;
+      }
+
+      if (value.includes("/")) {
+        const [month, year] = value.split("/");
+        return `${year}-${month}`;
+      }
+
+      return value.slice(0, 7);
+    }
+
+    function getDaysInMonth(monthValue) {
+      const [year, month] = monthValue.split("-").map(Number);
+      return new Date(year, month, 0).getDate();
+    }
+
+    function getStatusLabel(status) {
+      if (status === "present") return "x";
+      if (status === "leave_paid") return "P";
+      if (status === "leave_unpaid") return "KP";
+      return "✕";
+    }
+
+    function getCellClass(status) {
+      if (status === "present") return "x";
+      return "";
+    }
+
+    function buildStoreDayMap(records) {
+      const map = new Map();
+
+      records.forEach((record) => {
+        const date = new Date(record.time);
+        const day = date.getDate();
+        const storeCode = record.ten;
+        const key = `${storeCode}-${day}`;
+        const currentStatus = map.get(key);
+
+        if (record.status === "present" || !currentStatus) {
+          map.set(key, record.status);
+        }
+      });
+
+      return map;
+    }
+
+    function renderAttendanceHeader(daysInMonth) {
+      attendanceHeadRow.innerHTML = '<th class="store">Cửa hàng</th>';
+
+      for (let day = 1; day <= daysInMonth; day += 1) {
+        attendanceHeadRow.innerHTML += `<th>${day}</th>`;
+      }
+    }
+
+    function renderAttendanceTable(daysInMonth, records) {
+      const storeDayMap = buildStoreDayMap(records);
+      tbody.innerHTML = "";
+
+      stores.forEach((store) => {
+        let row = `<tr><td class="store">${store.code}</td>`;
+
+        for (let day = 1; day <= daysInMonth; day += 1) {
+          const status = storeDayMap.get(`${store.code}-${day}`) || "";
+          row += `<td class="${getCellClass(status)}">${getStatusLabel(status)}</td>`;
+        }
+
+        row += "</tr>";
+        tbody.innerHTML += row;
+      });
+    }
+
+    async function loadData(monthValue) {
+      activeMonth = monthValue;
+      const daysInMonth = getDaysInMonth(monthValue);
+      renderAttendanceHeader(daysInMonth);
+
+      const [storeData, attendanceData] = await Promise.all([
+        getStores(),
+        getChamCong({ month: monthValue })
+      ]);
+
+      stores = [...storeData].sort((a, b) => a.code.localeCompare(b.code));
+      renderAttendanceTable(daysInMonth, attendanceData);
+    }
+
+    function updateAttendanceByMonth(value) {
+      const monthValue = toMonthValue(value);
+      loadData(monthValue).catch((error) => {
+        console.error("Cannot load attendance table:", error);
+        tbody.innerHTML = '<tr><td class="store">Không tải được dữ liệu</td></tr>';
+      });
+    }
+
+    if (window.flatpickr && window.monthSelectPlugin) {
+      flatpickr(scheduleMonthInput, {
+        defaultDate: `${currentMonth}-01`,
+        dateFormat: "m/Y",
+        disableMobile: true,
+        plugins: [
+          monthSelectPlugin({
+            shorthand: false,
+            dateFormat: "m/Y",
+            altFormat: "m/Y"
+          })
+        ],
+        onReady: (_, dateStr) => updateAttendanceByMonth(dateStr || currentMonthLabel),
+        onChange: (_, dateStr) => updateAttendanceByMonth(dateStr)
+      });
+    } else {
+      scheduleMonthInput.value = currentMonthLabel;
+      updateAttendanceByMonth(currentMonthLabel);
+    }
+
+    scheduleMonthInput.addEventListener("change", () => {
+      updateAttendanceByMonth(scheduleMonthInput.value);
+    });
+
+    window.addEventListener("attendance:ws-message", (event) => {
+      if (event.detail?.type === "attendance:created") {
+        loadData(activeMonth).catch((error) => {
+          console.error("Cannot refresh attendance table:", error);
+        });
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,135 @@
+/* Shared footer styles */
+
+.site-footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.footer-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.6rem 0;
+  color: var(--muted);
+}
+
+.footer-links {
+  display: flex;
+  gap: 1rem;
+}
+
+.footer-links a {
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.footer-links a:hover {
+  color: var(--text);
+}
+
+body.page-lich-lam-viec .site-footer,
+body.page-bang-cham-cong .site-footer,
+body.page-cham-cong-nhan-vien .site-footer,
+body.page-cau-hinh .site-footer {
+  position: relative;
+  margin-left: 220px;
+  width: calc(100% - 220px);
+}
+
+body.page-index .site-footer,
+body.page-product-sales .site-footer,
+body.page-customer-detail .site-footer,
+body.page-matrix-analysis .site-footer {
+  position: relative;
+  margin-left: 270px;
+  width: calc(100% - 270px);
+  border-top: 0;
+  background: #f3f6fb;
+}
+
+body.page-product-sales .site-footer {
+  background: #f4f7fc;
+}
+
+body.page-customer-detail .site-footer,
+body.page-matrix-analysis .site-footer {
+  background: #f3f7fc;
+}
+
+body.page-index .site-footer .footer-inner,
+body.page-product-sales .site-footer .footer-inner,
+body.page-customer-detail .site-footer .footer-inner,
+body.page-matrix-analysis .site-footer .footer-inner {
+  width: auto;
+  max-width: none;
+  margin: 0;
+  padding: 18px 24px 22px;
+  color: #8ea0bd;
+}
+
+body.page-index .site-footer .footer-links a,
+body.page-product-sales .site-footer .footer-links a,
+body.page-customer-detail .site-footer .footer-links a,
+body.page-matrix-analysis .site-footer .footer-links a {
+  color: #8ea0bd;
+}
+
+body.page-index .site-footer .footer-links a:hover,
+body.page-product-sales .site-footer .footer-links a:hover,
+body.page-customer-detail .site-footer .footer-links a:hover,
+body.page-matrix-analysis .site-footer .footer-links a:hover {
+  color: #6f84a6;
+}
+
+body.page-lich-lam-viec .site-footer::before,
+body.page-bang-cham-cong .site-footer::before,
+body.page-cham-cong-nhan-vien .site-footer::before,
+body.page-cau-hinh .site-footer::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -220px;
+  width: 220px;
+  background: #1f2328;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+body.page-index .site-footer::before,
+body.page-product-sales .site-footer::before,
+body.page-customer-detail .site-footer::before,
+body.page-matrix-analysis .site-footer::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -270px;
+  width: 270px;
+  background: #1f2328;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+@media (max-width: 860px) {
+  body.page-lich-lam-viec .site-footer,
+  body.page-bang-cham-cong .site-footer,
+  body.page-cham-cong-nhan-vien .site-footer,
+  body.page-cau-hinh .site-footer,
+  body.page-index .site-footer,
+  body.page-product-sales .site-footer,
+  body.page-customer-detail .site-footer,
+  body.page-matrix-analysis .site-footer {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  body.page-lich-lam-viec .site-footer::before,
+  body.page-bang-cham-cong .site-footer::before,
+  body.page-cham-cong-nhan-vien .site-footer::before,
+  body.page-cau-hinh .site-footer::before,
+  body.page-index .site-footer::before,
+  body.page-product-sales .site-footer::before,
+  body.page-customer-detail .site-footer::before,
+  body.page-matrix-analysis .site-footer::before {
+    display: none;
+  }
+}

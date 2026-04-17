@@ -1,0 +1,559 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JDD | Doanh số sản phẩm</title>
+  <link rel="stylesheet" href="app.css" />
+  <link rel="stylesheet" href="footer.css" />
+</head>
+<body class="page-product-sales">
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="index.html" class="brand">Chấm công</a>
+      <nav class="main-nav">
+        <a href="index.html" class="active">Báo cáo</a>
+        <a href="lich-lam-viec.html">Lịch làm việc</a>
+        <a href="cau-hinh.html">Cấu hình</a>
+      </nav>
+      <a href="#" id="auth-button" class="button button-primary">Đăng nhập</a>
+    </div>
+  </header>
+
+  <main class="report-layout">
+    <aside class="report-sidebar">
+      <nav class="report-menu">
+        <a href="index.html" class="report-menu-item"><span class="report-menu-icon">▣</span><span>Tổng quan cửa hàng</span></a>
+        <a href="#" class="report-menu-item"><span class="report-menu-icon">◢</span><span>Tổng quan khu vực</span></a>
+        <a href="product-sales.html" class="report-menu-item active"><span class="report-menu-icon">▤</span><span>Doanh số sản phẩm</span></a>
+        <a href="chi-tiet-khach-hang.html" class="report-menu-item"><span class="report-menu-icon">◔</span><span>Chi tiết khách hàng</span></a>
+        <a href="phan-tich-ma-tran.html" class="report-menu-item"><span class="report-menu-icon">⊞</span><span>Phân tích ma trận</span></a>
+        <a href="#" class="report-menu-item" onclick="document.getElementById('compare').checked = false;"><span class="report-menu-icon">⇆</span><span>So sánh cửa hàng</span></a>
+        <a href="#" class="report-menu-item"><span class="report-menu-icon">★</span><span>Yêu thích</span></a>
+      </nav>
+
+      <div class="report-sidebar-note">Theo dõi doanh số sản phẩm theo từng chu kỳ và nhìn nhanh tăng giảm bằng chỉ báo tam giác như trên báo cáo gốc.</div>
+      <div class="report-sidebar-footer">« Thu gọn</div>
+    </aside>
+
+    <section class="report-main">
+      <div class="sales-page">
+        <section class="sales-board">
+          <div class="sales-board-head">
+            <div>
+              <h1 class="sales-title">Top sản phẩm trong kỳ này</h1>
+              <p class="sales-note">* Sắp xếp theo doanh thu thuần giảm dần.</p>
+            </div>
+            <a href="#" class="sales-download" aria-label="Tải xuống">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" aria-hidden="true">
+                <path d="M160-80v-80h640v80H160Zm320-160L200-600h160v-280h240v280h160L480-240Zm0-130 116-150h-76v-280h-80v280h-76l116 150Zm0-150Z"/>
+              </svg>
+            </a>
+          </div>
+
+          <!-- Bộ lọc -->
+          <div class="filters">
+            <!-- Bộ lọc cửa hàng -->
+            <div class="filter-item">
+              <label>Bộ Lọc Cửa Hàng</label>
+              <select id="storeFilter">
+                <option>Tất cả cửa hàng</option>
+              </select>
+            </div>
+
+            <!-- 7 ngày trước vs. Chu kỳ trước -->
+            <div class="filter-item">
+              <label>7 ngày trước vs. Chu kỳ trước</label>
+              <div class="date-wrapper">
+                <div class="date-input" onclick="toggleMenu()">
+                  <span id="dateLabel">03 tháng 4, 2026 - 09 tháng 4, 2026</span>
+                  📅
+                </div>
+
+                <!-- Dropdown -->
+                <div class="menu" id="menu">
+                  <!-- LEFT -->
+                  <div class="menu-left">
+                    <div class="item active" onclick="openSub('today')">Hôm qua</div>
+                    <div class="item" onclick="openSub('week')">Tuần này</div>
+                    <div class="item" onclick="openSub('month')">Đầu tháng</div>
+                    <div class="item" onclick="openSub('year')">Năm nay</div>
+
+                    <div class="item" onclick="selectPreset('7days')">7 ngày trước</div>
+                    <div class="item" onclick="document.getElementById('compare').checked = !document.getElementById('compare').checked;">7 ngày trước so với chu kỳ trước</div>
+                    <div class="item" onclick="selectPreset('lastweek')">Tuần trước</div>
+                    <div class="item" onclick="selectPreset('lastmonth')">Tháng trước</div>
+                    <div class="item" onclick="selectPreset('lastyear')">Năm trước</div>
+
+                    <div class="item">Last 8 weeks</div>
+                    <div class="item">Last 13 months</div>
+
+                    <div class="item divider"></div>
+                    <div class="item no-arrow" onclick="custom()">Tùy chọn</div>
+
+                    <div class="compare">
+                      <input type="checkbox" id="compare">
+                      <label>So sánh</label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Ranking -->
+            <div class="filter-item">
+              <label>Ranking by</label>
+              <select id="ranking">
+                <option>Net Sales</option>
+                <option>Transaction</option>
+                <option>ATV</option>
+                <option>ASP</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="sales-table-wrap">
+            <table class="sales-table">
+              <thead>
+                <tr>
+                  <th>Tên sản phẩm</th>
+                  <th class="col-rank">Xếp hạng theo doanh thu thuần</th>
+                  <th class="col-metric">Doanh thu thuần</th>
+                  <th class="col-metric">Số lượng bán thuần</th>
+                  <th class="col-metric">Số giao dịch</th>
+                  <th class="col-metric">ATV</th>
+                  <th class="col-metric">ASP</th>
+                  <th class="col-contrib">Tỷ trọng doanh thu thuần</th>
+                  <th class="col-contrib">Tỷ trọng số lượng bán thuần</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><div class="product-main"><a href="#" class="product-name">Đầm Xuân Hè cổ đức, nhún chân 2 tầng - Kem - M</a><div class="product-meta"><span class="product-tag">Hiệu suất vượt trội ổn định</span><span class="product-sku">SKU: 40772300</span></div></div></td>
+                  <td><div class="rank-cell"><span class="rank-main">1</span><span class="delta up"><span class="triangle up"></span>0</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">25,960,870</span><span class="delta up"><span class="triangle up"></span>35.73%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">30</span><span class="delta up"><span class="triangle up"></span>36.36%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">30</span><span class="delta up"><span class="triangle up"></span>36.36%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">865,362</span><span class="delta down"><span class="triangle down"></span>0.46%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">865,362</span><span class="delta down"><span class="triangle down"></span>0.46%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">1.16%</span><span class="delta down"><span class="triangle down"></span>0.06pt</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">0.85%</span><span class="delta down"><span class="triangle down"></span>0.06pt</span></div></td>
+                </tr>
+                <tr>
+                  <td><div class="product-main"><a href="#" class="product-name">Đầm cổ đức xếp ly dài - Xanh Mint - L</a><div class="product-meta"><span class="product-tag trending">Xu hướng tăng</span><span class="product-sku">SKU: 40772566</span></div></div></td>
+                  <td><div class="rank-cell"><span class="rank-main">2</span><span class="delta up"><span class="triangle up"></span>185</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">23,063,602</span><span class="delta up"><span class="triangle up"></span>811.33%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">25</span><span class="delta up"><span class="triangle up"></span>733.33%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">25</span><span class="delta up"><span class="triangle up"></span>733.33%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">922,544</span><span class="delta up"><span class="triangle up"></span>9.36%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">922,544</span><span class="delta up"><span class="triangle up"></span>9.36%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">1.03%</span><span class="delta up"><span class="triangle up"></span>0.87pt</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">0.71%</span><span class="delta up"><span class="triangle up"></span>0.59pt</span></div></td>
+                </tr>
+                <tr>
+                  <td><div class="product-main"><a href="#" class="product-name">Đầm cổ đức xếp ly dài - Xanh Mint - M</a><div class="product-meta"><span class="product-tag">Hiệu suất vượt trội ổn định</span><span class="product-sku">SKU: 40772565</span></div></div></td>
+                  <td><div class="rank-cell"><span class="rank-main">3</span><span class="delta up"><span class="triangle up"></span>6</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">22,807,978</span><span class="delta up"><span class="triangle up"></span>108.71%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">25</span><span class="delta up"><span class="triangle up"></span>108.33%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">25</span><span class="delta up"><span class="triangle up"></span>108.33%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">912,319</span><span class="delta up"><span class="triangle up"></span>0.18%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">912,319</span><span class="delta up"><span class="triangle up"></span>0.18%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">1.02%</span><span class="delta up"><span class="triangle up"></span>0.32pt</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">0.71%</span><span class="delta up"><span class="triangle up"></span>0.21pt</span></div></td>
+                </tr>
+                <tr>
+                  <td><div class="product-main"><a href="#" class="product-name">Áo xuân hè cổ tròn phối bèo dọc - Xanh Dương Nhạt - M</a><div class="product-meta"><span class="product-tag">Hiệu suất vượt trội ổn định</span><span class="product-sku">SKU: 40771940</span></div></div></td>
+                  <td><div class="rank-cell"><span class="rank-main">4</span><span class="delta up"><span class="triangle up"></span>2</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">20,920,252</span><span class="delta up"><span class="triangle up"></span>57.44%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">29</span><span class="delta up"><span class="triangle up"></span>61.11%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">29</span><span class="delta up"><span class="triangle up"></span>61.11%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">721,388</span><span class="delta down"><span class="triangle down"></span>2.28%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">721,388</span><span class="delta down"><span class="triangle down"></span>2.28%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">0.94%</span><span class="delta up"><span class="triangle up"></span>0.08pt</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">0.83%</span><span class="delta up"><span class="triangle up"></span>0.07pt</span></div></td>
+                </tr>
+                <tr>
+                  <td><div class="product-main"><a href="#" class="product-name">Đầm Xuân Hè cổ đức, nhún chân 2 tầng - Kem - S</a><div class="product-meta"><span class="product-tag">Hiệu suất vượt trội ổn định</span><span class="product-sku">SKU: 40772299</span></div></div></td>
+                  <td><div class="rank-cell"><span class="rank-main">5</span><span class="delta down"><span class="triangle down"></span>2</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">20,816,387</span><span class="delta up"><span class="triangle up"></span>11.98%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">24</span><span class="delta up"><span class="triangle up"></span>14.29%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">24</span><span class="delta up"><span class="triangle up"></span>20%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">867,349</span><span class="delta down"><span class="triangle down"></span>6.68%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">867,349</span><span class="delta down"><span class="triangle down"></span>2.02%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">0.93%</span><span class="delta down"><span class="triangle down"></span>0.26pt</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">0.68%</span><span class="delta down"><span class="triangle down"></span>0.19pt</span></div></td>
+                </tr>
+                <tr>
+                  <td><div class="product-main"><a href="#" class="product-name">Đầm Xuân Hè cổ đức, nhún chân 2 tầng - Hồng - M</a><div class="product-meta"><span class="product-tag">Hiệu suất vượt trội ổn định</span><span class="product-sku">SKU: 40772297</span></div></div></td>
+                  <td><div class="rank-cell"><span class="rank-main">6</span><span class="delta up"><span class="triangle up"></span>4</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">20,759,539</span><span class="delta up"><span class="triangle up"></span>101.04%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">24</span><span class="delta up"><span class="triangle up"></span>100%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">24</span><span class="delta up"><span class="triangle up"></span>100%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">864,981</span><span class="delta up"><span class="triangle up"></span>0.52%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">864,981</span><span class="delta up"><span class="triangle up"></span>0.52%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">0.93%</span><span class="delta up"><span class="triangle up"></span>0.27pt</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">0.68%</span><span class="delta up"><span class="triangle up"></span>0.18pt</span></div></td>
+                </tr>
+                <tr>
+                  <td><div class="product-main"><a href="#" class="product-name">Áo xuân hè cổ tròn phối bèo dọc - Xanh Dương Nhạt - S</a><div class="product-meta"><span class="product-tag trending">Xu hướng tăng</span><span class="product-sku">SKU: 40771939</span></div></div></td>
+                  <td><div class="rank-cell"><span class="rank-main">7</span><span class="delta up"><span class="triangle up"></span>99</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">20,589,087</span><span class="delta up"><span class="triangle up"></span>445.41%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">28</span><span class="delta up"><span class="triangle up"></span>460%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">28</span><span class="delta up"><span class="triangle up"></span>460%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">735,325</span><span class="delta down"><span class="triangle down"></span>2.61%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">735,325</span><span class="delta down"><span class="triangle down"></span>2.61%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">0.92%</span><span class="delta up"><span class="triangle up"></span>0.68pt</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">0.8%</span><span class="delta up"><span class="triangle up"></span>0.59pt</span></div></td>
+                </tr>
+                <tr>
+                  <td><div class="product-main"><a href="#" class="product-name">Đầm Xuân Hè nhún chân dài cổ sen - Xanh Đá - M</a><div class="product-meta"><span class="product-tag">Hiệu suất vượt trội ổn định</span><span class="product-sku">SKU: 40771854</span></div></div></td>
+                  <td><div class="rank-cell"><span class="rank-main">8</span><span class="delta up"><span class="triangle up"></span>3</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">19,793,687</span><span class="delta up"><span class="triangle up"></span>93.63%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">23</span><span class="delta up"><span class="triangle up"></span>91.67%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">23</span><span class="delta up"><span class="triangle up"></span>91.67%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">860,595</span><span class="delta up"><span class="triangle up"></span>1.02%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">860,595</span><span class="delta up"><span class="triangle up"></span>1.02%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">0.89%</span><span class="delta up"><span class="triangle up"></span>0.23pt</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">0.65%</span><span class="delta up"><span class="triangle up"></span>0.15pt</span></div></td>
+                </tr>
+                <tr>
+                  <td><div class="product-main"><a href="#" class="product-name">Đầm Xuân Hè nhún chân dài cổ sen - Kem - M</a><div class="product-meta"><span class="product-tag trending">Xu hướng tăng</span><span class="product-sku">SKU: 40771850</span></div></div></td>
+                  <td><div class="rank-cell"><span class="rank-main">9</span><span class="delta neutral"><span class="triangle flat"></span>(New)</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">19,143,881</span><span class="delta neutral"><span class="triangle flat"></span>N/A</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">22</span><span class="delta neutral"><span class="triangle flat"></span>N/A</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">22</span><span class="delta neutral"><span class="triangle flat"></span>N/A</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">870,176</span><span class="delta neutral"><span class="triangle flat"></span>N/A</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">870,176</span><span class="delta neutral"><span class="triangle flat"></span>N/A</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">0.86%</span><span class="delta up"><span class="triangle up"></span>0.86pt</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">0.63%</span><span class="delta up"><span class="triangle up"></span>0.63pt</span></div></td>
+                </tr>
+                <tr>
+                  <td><div class="product-main"><a href="#" class="product-name">Đầm cổ đức xếp ly dài - Hồng - S</a><div class="product-meta"><span class="product-tag">Hiệu suất vượt trội ổn định</span><span class="product-sku">SKU: 40772561</span></div></div></td>
+                  <td><div class="rank-cell"><span class="rank-main">10</span><span class="delta up"><span class="triangle up"></span>5</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">16,163,460</span><span class="delta up"><span class="triangle up"></span>73.95%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">18</span><span class="delta up"><span class="triangle up"></span>80%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">18</span><span class="delta up"><span class="triangle up"></span>80%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">897,970</span><span class="delta down"><span class="triangle down"></span>3.36%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">897,970</span><span class="delta down"><span class="triangle down"></span>3.36%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">0.72%</span><span class="delta up"><span class="triangle up"></span>0.13pt</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">0.51%</span><span class="delta up"><span class="triangle up"></span>0.10pt</span></div></td>
+                </tr>
+                <tr>
+                  <td><div class="product-main"><a href="#" class="product-name">Đầm Xuân Hè cổ đức, nhún chân 2 tầng - Hồng - S</a><div class="product-meta"><span class="product-tag trending">Xu hướng tăng</span><span class="product-sku">SKU: 40772296</span></div></div></td>
+                  <td><div class="rank-cell"><span class="rank-main">11</span><span class="delta up"><span class="triangle up"></span>77</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">15,423,156</span><span class="delta up"><span class="triangle up"></span>259.97%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">18</span><span class="delta up"><span class="triangle up"></span>260%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">18</span><span class="delta up"><span class="triangle up"></span>260%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">856,842</span><span class="delta down"><span class="triangle down"></span>0.01%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">856,842</span><span class="delta down"><span class="triangle down"></span>0.01%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">0.69%</span><span class="delta up"><span class="triangle up"></span>0.42pt</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">0.51%</span><span class="delta up"><span class="triangle up"></span>0.30pt</span></div></td>
+                </tr>
+                <tr>
+                  <td><div class="product-main"><a href="#" class="product-name">Đầm cổ đức xếp ly chùm dải - Be - M</a><div class="product-meta"><span class="product-tag trending">Xu hướng tăng</span><span class="product-sku">SKU: 40769194</span></div></div></td>
+                  <td><div class="rank-cell"><span class="rank-main">12</span><span class="delta up"><span class="triangle up"></span>43</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">15,363,959</span><span class="delta up"><span class="triangle up"></span>201.7%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">18</span><span class="delta up"><span class="triangle up"></span>200%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">18</span><span class="delta up"><span class="triangle up"></span>200%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">853,553</span><span class="delta up"><span class="triangle up"></span>0.57%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">853,553</span><span class="delta up"><span class="triangle up"></span>0.57%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">0.69%</span><span class="delta up"><span class="triangle up"></span>0.36pt</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">0.51%</span><span class="delta up"><span class="triangle up"></span>0.26pt</span></div></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="sales-board">
+          <div class="sales-board-head">
+            <div>
+              <h2 class="sales-title">Biểu đồ sản phẩm suy giảm</h2>
+              <p class="sales-note">Các sản phẩm nằm trong top 50 ở kỳ so sánh nhưng tụt ít nhất 10 bậc xếp hạng.</p>
+              <p class="sales-note">* Sắp xếp theo doanh thu thuần giảm dần.</p>
+            </div>
+            <a href="#" class="sales-download" aria-label="Tải xuống">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" aria-hidden="true">
+                <path d="M160-80v-80h640v80H160Zm320-160L200-600h160v-280h240v280h160L480-240Zm0-130 116-150h-76v-280h-80v280h-76l116 150Zm0-150Z"/>
+              </svg>
+            </a>
+          </div>
+
+          <div class="sales-table-wrap">
+            <table class="sales-table">
+              <thead>
+                <tr>
+                  <th>Tên sản phẩm</th>
+                  <th class="col-rank">Xếp hạng theo doanh thu thuần</th>
+                  <th class="col-metric">Doanh thu thuần</th>
+                  <th class="col-metric">Số lượng bán thuần</th>
+                  <th class="col-metric">Số giao dịch</th>
+                  <th class="col-metric">ATV</th>
+                  <th class="col-metric">ASP</th>
+                  <th class="col-contrib">Tỷ trọng doanh thu thuần</th>
+                  <th class="col-contrib">Tỷ trọng số lượng bán thuần</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><div class="product-main"><a href="#" class="product-name">Đầm Xuân Hè nhún chân dài cổ sen - Kem - S</a><div class="product-meta"><span class="product-sku">SKU: 40771849</span></div></div></td>
+                  <td><div class="rank-cell"><span class="rank-main">15</span><span class="delta down"><span class="triangle down"></span>13</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">14,365,109</span><span class="delta down"><span class="triangle down"></span>23.02%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">17</span><span class="delta down"><span class="triangle down"></span>19.05%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">17</span><span class="delta down"><span class="triangle down"></span>19.05%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">845,006</span><span class="delta down"><span class="triangle down"></span>4.91%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">845,006</span><span class="delta down"><span class="triangle down"></span>4.91%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">0.64%</span><span class="delta down"><span class="triangle down"></span>0.55pt</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">0.48%</span><span class="delta down"><span class="triangle down"></span>0.39pt</span></div></td>
+                </tr>
+                <tr>
+                  <td><div class="product-main"><a href="#" class="product-name">Đầm Xuân Hè cổ bèo xẻ V, chân bèo 2 tầng - Xanh Dương Nhạt - M</a><div class="product-meta"><span class="product-sku">SKU: 40771839</span></div></div></td>
+                  <td><div class="rank-cell"><span class="rank-main">18</span><span class="delta down"><span class="triangle down"></span>11</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">13,259,573</span><span class="delta up"><span class="triangle up"></span>0.06%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">16</span><span class="delta up"><span class="triangle up"></span>0%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">16</span><span class="delta up"><span class="triangle up"></span>0%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">828,723</span><span class="delta up"><span class="triangle up"></span>0.06%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">828,723</span><span class="delta up"><span class="triangle up"></span>0.06%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">0.59%</span><span class="delta down"><span class="triangle down"></span>0.26pt</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">0.46%</span><span class="delta down"><span class="triangle down"></span>0.21pt</span></div></td>
+                </tr>
+                <tr>
+                  <td><div class="product-main"><a href="#" class="product-name">Áo xuân hè cổ tròn phối bèo dọc - Hồng - S</a><div class="product-meta"><span class="product-sku">SKU: 40771943</span></div></div></td>
+                  <td><div class="rank-cell"><span class="rank-main">20</span><span class="delta down"><span class="triangle down"></span>15</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">12,234,417</span><span class="delta down"><span class="triangle down"></span>12.08%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">17</span><span class="delta down"><span class="triangle down"></span>10.53%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">17</span><span class="delta down"><span class="triangle down"></span>10.53%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">719,672</span><span class="delta down"><span class="triangle down"></span>1.73%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">719,672</span><span class="delta down"><span class="triangle down"></span>1.73%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">0.55%</span><span class="delta down"><span class="triangle down"></span>0.34pt</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">0.48%</span><span class="delta down"><span class="triangle down"></span>0.31pt</span></div></td>
+                </tr>
+                <tr>
+                  <td><div class="product-main"><a href="#" class="product-name">Áo Xuân Hè cổ đức dáng rộng, tay chờm - Xanh dương nhạt - S</a><div class="product-meta"><span class="product-sku">SKU: 40772418</span></div></div></td>
+                  <td><div class="rank-cell"><span class="rank-main">21</span><span class="delta down"><span class="triangle down"></span>17</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">11,592,840</span><span class="delta down"><span class="triangle down"></span>23.44%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">23</span><span class="delta down"><span class="triangle down"></span>17.86%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">22</span><span class="delta down"><span class="triangle down"></span>21.43%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">526,947</span><span class="delta down"><span class="triangle down"></span>2.56%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">504,037</span><span class="delta down"><span class="triangle down"></span>6.79%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">0.52%</span><span class="delta down"><span class="triangle down"></span>0.45pt</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">0.65%</span><span class="delta down"><span class="triangle down"></span>0.51pt</span></div></td>
+                </tr>
+                <tr>
+                  <td><div class="product-main"><a href="#" class="product-name">Đầm Xuân Hè cổ bèo xẻ V, chân bèo 2 tầng - Hồng - S</a><div class="product-meta"><span class="product-sku">SKU: 40771835</span></div></div></td>
+                  <td><div class="rank-cell"><span class="rank-main">28</span><span class="delta down"><span class="triangle down"></span>15</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">10,738,800</span><span class="delta up"><span class="triangle up"></span>5.99%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">13</span><span class="delta up"><span class="triangle up"></span>8.33%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">13</span><span class="delta up"><span class="triangle up"></span>8.33%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">826,062</span><span class="delta down"><span class="triangle down"></span>2.16%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">826,062</span><span class="delta down"><span class="triangle down"></span>2.16%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">0.48%</span><span class="delta down"><span class="triangle down"></span>0.17pt</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">0.37%</span><span class="delta down"><span class="triangle down"></span>0.13pt</span></div></td>
+                </tr>
+                <tr>
+                  <td><div class="product-main"><a href="#" class="product-name">Áo xuân hè cổ tròn phối bèo dọc - Hồng - M</a><div class="product-meta"><span class="product-sku">SKU: 40771944</span></div></div></td>
+                  <td><div class="rank-cell"><span class="rank-main">32</span><span class="delta down"><span class="triangle down"></span>24</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">10,042,580</span><span class="delta down"><span class="triangle down"></span>24.21%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">14</span><span class="delta down"><span class="triangle down"></span>22.22%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">14</span><span class="delta down"><span class="triangle down"></span>22.22%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">717,327</span><span class="delta down"><span class="triangle down"></span>2.55%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">717,327</span><span class="delta down"><span class="triangle down"></span>2.55%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">0.45%</span><span class="delta down"><span class="triangle down"></span>0.40pt</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">0.40%</span><span class="delta down"><span class="triangle down"></span>0.35pt</span></div></td>
+                </tr>
+                <tr>
+                  <td><div class="product-main"><a href="#" class="product-name">Đầm Xuân Hè cổ sen cách điệu, phối chân xếp ly chùm - Nâu - M</a><div class="product-meta"><span class="product-sku">SKU: 40772307</span></div></div></td>
+                  <td><div class="rank-cell"><span class="rank-main">35</span><span class="delta down"><span class="triangle down"></span>14</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">9,440,395</span><span class="delta up"><span class="triangle up"></span>17.2%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">11</span><span class="delta up"><span class="triangle up"></span>22.22%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">11</span><span class="delta up"><span class="triangle up"></span>22.22%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">858,218</span><span class="delta down"><span class="triangle down"></span>4.11%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">858,218</span><span class="delta down"><span class="triangle down"></span>4.11%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">0.42%</span><span class="delta down"><span class="triangle down"></span>0.09pt</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">0.31%</span><span class="delta down"><span class="triangle down"></span>0.06pt</span></div></td>
+                </tr>
+                <tr>
+                  <td><div class="product-main"><a href="#" class="product-name">Đầm cổ đức xếp ly chùm dài - Be - S</a><div class="product-meta"><span class="product-sku">SKU: 40769193</span></div></div></td>
+                  <td><div class="rank-cell"><span class="rank-main">38</span><span class="delta down"><span class="triangle down"></span>26</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">9,299,884</span><span class="delta down"><span class="triangle down"></span>8.38%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">11</span><span class="delta down"><span class="triangle down"></span>8.33%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">11</span><span class="delta down"><span class="triangle down"></span>8.33%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">845,444</span><span class="delta down"><span class="triangle down"></span>0.05%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">845,444</span><span class="delta down"><span class="triangle down"></span>0.05%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">0.42%</span><span class="delta down"><span class="triangle down"></span>0.23pt</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">0.31%</span><span class="delta down"><span class="triangle down"></span>0.19pt</span></div></td>
+                </tr>
+                <tr>
+                  <td><div class="product-main"><a href="#" class="product-name">Đầm Xuân Hè tay cape cách điệu, đính hoa - Kem - M</a><div class="product-meta"><span class="product-sku">SKU: 40771862</span></div></div></td>
+                  <td><div class="rank-cell"><span class="rank-main">39</span><span class="delta down"><span class="triangle down"></span>12</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">9,157,851</span><span class="delta up"><span class="triangle up"></span>35.58%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">11</span><span class="delta up"><span class="triangle up"></span>37.5%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">11</span><span class="delta up"><span class="triangle up"></span>37.5%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">832,532</span><span class="delta down"><span class="triangle down"></span>1.4%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">832,532</span><span class="delta down"><span class="triangle down"></span>1.4%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">0.41%</span><span class="delta down"><span class="triangle down"></span>0.02pt</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">0.31%</span><span class="delta down"><span class="triangle down"></span>0.02pt</span></div></td>
+                </tr>
+                <tr>
+                  <td><div class="product-main"><a href="#" class="product-name">Đầm Xuân Hè nhún chân dài cổ sen - Xanh Đá - S</a><div class="product-meta"><span class="product-sku">SKU: 40771853</span></div></div></td>
+                  <td><div class="rank-cell"><span class="rank-main">48</span><span class="delta down"><span class="triangle down"></span>25</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">7,792,396</span><span class="delta up"><span class="triangle up"></span>1.59%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">9</span><span class="delta up"><span class="triangle up"></span>0%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">9</span><span class="delta up"><span class="triangle up"></span>0%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">865,822</span><span class="delta up"><span class="triangle up"></span>1.59%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">865,822</span><span class="delta up"><span class="triangle up"></span>1.59%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">0.35%</span><span class="delta down"><span class="triangle down"></span>0.14pt</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">0.26%</span><span class="delta down"><span class="triangle down"></span>0.12pt</span></div></td>
+                </tr>
+                <tr>
+                  <td><div class="product-main"><a href="#" class="product-name">Đầm Xuân Hè cổ đức phối vạt bồng - Be - S</a><div class="product-meta"><span class="product-sku">SKU: 40772310</span></div></div></td>
+                  <td><div class="rank-cell"><span class="rank-main">54</span><span class="delta down"><span class="triangle down"></span>40</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">7,370,375</span><span class="delta down"><span class="triangle down"></span>20.84%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">8</span><span class="delta down"><span class="triangle down"></span>20%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">8</span><span class="delta down"><span class="triangle down"></span>20%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">921,297</span><span class="delta down"><span class="triangle down"></span>1.06%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">921,297</span><span class="delta down"><span class="triangle down"></span>1.06%</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">0.33%</span><span class="delta down"><span class="triangle down"></span>0.27pt</span></div></td>
+                  <td><div class="metric-cell"><span class="metric-main">0.23%</span><span class="delta down"><span class="triangle down"></span>0.19pt</span></div></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+    </section>
+  </main>
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <p>© 2026 chấm công. Thiết kế bởi Phạm Mạnh Quân 0862528119.</p>
+      <div class="footer-links">
+        <a href="index.html">Trang chủ</a>
+        <a href="#">Chính sách</a>
+      </div>
+    </div>
+  </footer>
+  <script src="script.js"></script>
+  <script>
+    // Date picker functionality
+    function toggleMenu() {
+      const menu = document.getElementById('menu');
+      const dateWrapper = document.querySelector('.date-wrapper');
+      
+      // Close other menus first
+      document.querySelectorAll('.menu.show').forEach(m => {
+        if (m !== menu) m.classList.remove('show');
+      });
+      
+      // Toggle current menu
+      menu.classList.toggle('show');
+      
+      // Close menu when clicking outside
+      if (menu.classList.contains('show')) {
+        document.addEventListener('click', function closeMenu(e) {
+          if (!dateWrapper.contains(e.target)) {
+            menu.classList.remove('show');
+            document.removeEventListener('click', closeMenu);
+          }
+        });
+      }
+    }
+
+    function openSub(type) {
+      const submenu = document.getElementById('submenu');
+      submenu.innerHTML = '<div>Chọn ' + getSubmenuTitle(type) + '</div>';
+    }
+
+    function selectPreset(preset) {
+      const dateLabel = document.getElementById('dateLabel');
+      const menu = document.getElementById('menu');
+      
+      // Update the date label based on preset
+      switch(preset) {
+        case '7days':
+          dateLabel.textContent = '7 ngày trước';
+          break;
+        case '7days-compare':
+          dateLabel.textContent = '7 ngày trước so với chu kỳ trước';
+          break;
+        case 'lastweek':
+          dateLabel.textContent = 'Tuần trước';
+          break;
+        case 'lastmonth':
+          dateLabel.textContent = 'Tháng trước';
+          break;
+        case 'lastyear':
+          dateLabel.textContent = 'Năm trước';
+          break;
+        default:
+          dateLabel.textContent = '03 tháng 4, 2026 - 09 tháng 4, 2026';
+      }
+      
+      menu.classList.remove('show');
+    }
+
+    function custom() {
+      const submenu = document.getElementById('submenu');
+      submenu.innerHTML = '<div>Chọn khoảng thời gian tùy chỉnh</div>';
+    }
+
+    function getSubmenuTitle(type) {
+      switch(type) {
+        case 'today': return 'hôm qua';
+        case 'week': return 'tuần này';
+        case 'month': return 'đầu tháng';
+        case 'year': return 'năm nay';
+        default: return 'thời gian';
+      }
+    }
+
+    // Initialize active state
+    document.addEventListener('DOMContentLoaded', function() {
+      // Store data with regions
+      const stores = [
+        { code: "JMHCM01", name: "JDD Nguyễn Ảnh Thủ", region: "STORE - HCM", manager: "Lê Hoàng C" },
+        { code: "JMHCM05", name: "JDD Bình Tân", region: "STORE - HCM", manager: "Phan Thị D" },
+        { code: "JMHCM10", name: "JDD Thủ Đức", region: "STORE - HCM", manager: "Đỗ Minh E" },
+        { code: "JMHNI21", name: "JDD Long Biên", region: "STORE VÙNG 2 - HN THÁNG 3 new", manager: "Nguyễn Thu F" },
+        { code: "JMHNI22", name: "JDD Hà Đông", region: "STORE VÙNG 2 - HN THÁNG 3 new", manager: "Trần Văn G" },
+        { code: "JMHNI17", name: "JDD Đông Anh", region: "STORE VÙNG 2 - HN THÁNG 3 new", manager: "Lưu Hải H" },
+        { code: "JMHNI03", name: "JDD Cầu Giấy", region: "STORE VÙNG 01 - HN T3", manager: "Phạm Thu C" },
+        { code: "JMHNI08", name: "JDD Mỹ Đình", region: "STORE VÙNG 01 - HN T3", manager: "Vũ Lan K" },
+        { code: "JMHNI14", name: "JDD Hoàng Mai", region: "STORE VÙNG 01 - HN T3", manager: "Bùi Khánh L" },
+        { code: "JMBDG01", name: "JDD Bình Dương", region: "STORE VÙNG 01 - TỈNH T3", manager: "Ngô Quốc M" },
+        { code: "JMDNG01", name: "JDD Đà Nẵng", region: "STORE VÙNG 01 - TỈNH T3", manager: "Đặng Mai N" },
+        { code: "JMHUE01", name: "JDD Huế", region: "STORE VÙNG 01 - TỈNH T3", manager: "Hoàng Gia P" }
+      ];
+      
+      // Populate store filter grouped by region
+      const storeFilter = document.getElementById('storeFilter');
+      const regions = [...new Set(stores.map(s => s.region))];
+      
+      regions.forEach(region => {
+        const optgroup = document.createElement('optgroup');
+        optgroup.label = region;
+        
+        const regionStores = stores.filter(s => s.region === region);
+        regionStores.forEach(store => {
+          const option = document.createElement('option');
+          option.value = store.code;
+          option.textContent = `${store.name} (${store.code})`;
+          optgroup.appendChild(option);
+        });
+        
+        storeFilter.appendChild(optgroup);
+      });
+      
+      // Set default active item
+      const items = document.querySelectorAll('.item');
+      items.forEach(item => {
+        item.addEventListener('click', function() {
+          // Remove active class from all items
+          items.forEach(i => i.classList.remove('active'));
+          // Add active class to clicked item
+          this.classList.add('active');
+        });
+      });
+    });
+  </script>
+</body>
+</html>

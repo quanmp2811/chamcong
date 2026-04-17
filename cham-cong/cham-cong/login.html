@@ -1,0 +1,63 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập | Chấm công</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-card login-card-google">
+            <div class="card-accent"></div>
+
+            <div class="login-header">
+                <div class="logo">
+                    <svg width="48" height="48" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+                        <circle cx="24" cy="24" r="24" fill="url(#gradient)"/>
+                        <path d="M18 30V18h12v12H18zm2-10v8h8v-8h-8z" fill="white"/>
+                        <defs>
+                            <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#4285F4"/>
+                                <stop offset="100%" stop-color="#34A853"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </div>
+                <h1>Đăng nhập</h1>
+                <p>Chỉ hỗ trợ đăng nhập bằng tài khoản Google.</p>
+            </div>
+
+            <div class="google-login-panel">
+                <button type="button" class="signin-button google-only-button" id="googleSignIn">
+                    <span class="button-text">
+                        <img src="public/google-logo.png" alt="" class="google-button-logo" />
+                        Đăng nhập với Google
+                    </span>
+                    <div class="button-loader">
+                        <div class="loader-circle"></div>
+                    </div>
+                </button>
+            </div>
+
+            <div class="success-state" id="successMessage">
+                <div class="success-visual">
+                    <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+                        <circle cx="20" cy="20" r="20" fill="url(#successGradient)"/>
+                        <path d="M12 20l6 6 10-10" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <defs>
+                            <linearGradient id="successGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#4285F4"/>
+                                <stop offset="100%" stop-color="#34A853"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </div>
+                <h3>Đăng nhập thành công</h3>
+                <p>Đang chuyển bạn vào hệ thống...</p>
+            </div>
+        </div>
+    </div>
+    <script src="script1.js"></script>
+</body>
+</html>

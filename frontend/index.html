@@ -1,0 +1,2521 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JDD | Lịch làm</title>
+  <link rel="icon" href="public/logo-jm-den.png" type="image/x-icon">
+  <link rel="stylesheet" href="css/app.css" />
+  <link rel="stylesheet" href="css/nav.css" />
+  <link rel="stylesheet" href="css/footer.css" />
+  <link rel="stylesheet" href="css/lich-lam-viec.css" />
+</head>
+<body class="page-lich-lam-viec">
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="index.html" class="brand">
+        <img src="public/logo-jm.ico" alt="Logo Chấm công" style="height: 40px;">
+      </a>
+      <nav class="main-nav">
+        <a href="index.html" class="active">Lịch làm việc</a>
+        <a href="cau-hinh.html">Cấu hình</a>
+      </nav>
+      <button id="login-button" class="button button-primary" style="display: none;">Đăng nhập</button>
+      <div class="user-info" id="user-info" style="display: none; flex-direction: column; align-items: flex-end;">
+        <span id="user-name" style="font-weight: 500;"></span>
+        <span id="user-role" style="font-size: 0.85em;"></span>
+        <button id="logout-button" class="button button-secondary">Đăng xuất</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="schedule-container">
+    <div class="sidebar app-sidepanel">
+      <a href="index.html" class="menu-item app-sidepanel-link active">Lịch làm</a>
+      <a href="bang-cham-cong.html" class="menu-item app-sidepanel-link">Bảng chấm công</a>
+      <a href="cham-cong-nhan-vien.html" class="menu-item app-sidepanel-link">Chấm công nhân viên</a>
+    </div>
+
+    <div class="schedule-main">
+      <div class="schedule-overview">
+        <div>
+          <h1>Lịch Làm</h1>
+          <p>Lọc theo khu vực để xem số người làm việc trên từng ca của các cửa hàng trong khu vực đó.</p>
+        </div>
+      </div>
+
+      <div class="schedule-placeholder">
+        <div class="schedule-toolbar">
+          <div class="schedule-toolbar-main">
+            <label class="schedule-filter" for="region-filter">
+              Khu vực
+              <select id="region-filter" class="schedule-select"></select>
+            </label>
+            <div class="week-controls toolbar-week-controls">
+              <button type="button" class="week-button" id="prev-week-button">Tuần trước</button>
+              <button type="button" class="week-button" id="current-week-button">Tuần hiện tại</button>
+              <button type="button" class="week-button" id="next-week-button">Tuần tiếp theo</button>
+              <span class="week-label" id="week-label"></span>
+            </div>
+          </div>
+          <div class="region-summary" id="region-summary"></div>
+        </div>
+
+        <div class="timetable-section">
+          <div class="timetable-section-header">
+            <div class="timetable-section-copy">
+              <h2 id="timetable-title">Bảng Thời Gian Biểu</h2>
+              <p id="timetable-description">Bạn có thể đổi trực tiếp ca làm của từng nhân sự trong bảng bên dưới.</p>
+            </div>
+            <div class="export-panel">
+              <div class="export-controls">
+                <label class="export-field" for="export-week-input-top">
+                  Tuần xuất
+                  <input type="date" id="export-week-input-top" class="export-week-input" />
+                </label>
+                <button type="button" class="export-button" id="export-excel-button-top">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" aria-hidden="true">
+                    <path d="M160-80v-80h640v80H160Zm320-160L200-600h160v-280h240v280h160L480-240Zm0-130 116-150h-76v-280h-80v280h-76l116 150Zm0-150Z"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+          <div id="timetable-board"></div>
+        </div>
+
+        <div id="office-color-popover" class="office-color-popover" hidden></div>
+
+        <div class="schedule-editor">
+          <div class="schedule-editor-header">
+            <div>
+              <h2>Lịch Sử Chỉnh Sửa</h2>
+              <p>Hệ thống lưu lại người chỉnh sửa, nhân sự, cửa hàng, ngày và thay đổi ca làm/off ngay trong trình duyệt.</p>
+            </div>
+            <div class="export-panel">
+              <div class="export-controls">
+                <label class="export-field" for="export-month-input">
+                  Tháng xuất
+                  <input type="month" id="export-month-input" class="export-week-input" />
+                </label>
+                <button type="button" class="export-button" id="export-excel-button">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" aria-hidden="true">
+                    <path d="M160-80v-80h640v80H160Zm320-160L200-600h160v-280h240v280h160L480-240Zm0-130 116-150h-76v-280h-80v280h-76l116 150Zm0-150Z"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="history-list" id="history-list"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <p>© 2026 chấm công. Thiết kế bởi Phạm Mạnh Quân 0862528119.</p>
+      <div class="footer-links">
+        <a href="index.html">Trang chủ</a>
+        <a href="#">Chính sách</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script>
+    let currentUser = null;
+    let authToken = null;
+
+    try {
+      currentUser = JSON.parse(sessionStorage.getItem("user"));
+      authToken = sessionStorage.getItem("token");
+    } catch (e) {
+      currentUser = null;
+      authToken = null;
+    }
+
+    // Removed redirect for view-only access
+    console.log('Current user in index.html:', currentUser); // Debug log
+
+    let REGION_SHEETS = [];
+    const officeFavoriteColorsKey = "scheduleOfficeFavoriteColors";
+    const OFFICE_PRESET_COLORS = [
+      "#000000", "#4b5563", "#9ca3af", "#d1d5db", "#f3f4f6", "#ffffff",
+      "#7f1d1d", "#b91c1c", "#ef4444", "#f97316", "#facc15", "#22c55e",
+      "#06b6d4", "#3b82f6", "#2563eb", "#7c3aed", "#a855f7", "#d946ef",
+      "#fecaca", "#fed7aa", "#fde68a", "#bbf7d0", "#bfdbfe", "#c4b5fd",
+      "#fca5a5", "#fdba74", "#fcd34d", "#86efac", "#93c5fd", "#a78bfa",
+      "#f87171", "#fb923c", "#fbbf24", "#4ade80", "#60a5fa", "#8b5cf6",
+      "#dc2626", "#ea580c", "#d97706", "#16a34a", "#2563eb", "#7c3aed"
+    ];
+    const regionFilter = document.getElementById("region-filter");
+    const regionSummary = document.getElementById("region-summary");
+    const timetableTitle = document.getElementById("timetable-title");
+    const timetableDescription = document.getElementById("timetable-description");
+    const scheduleStatus = {
+      textContent: "",
+      classList: {
+        add() {},
+        remove() {}
+      }
+    };
+    const timetableBoard = document.getElementById("timetable-board");
+    const officeColorPopover = document.getElementById("office-color-popover");
+    const weekLabel = document.getElementById("week-label");
+    const prevWeekButton = document.getElementById("prev-week-button");
+    const currentWeekButton = document.getElementById("current-week-button");
+    const nextWeekButton = document.getElementById("next-week-button");
+    const timetableExportWeekInput = document.getElementById("export-week-input-top");
+    const historyExportMonthInput = document.getElementById("export-month-input");
+    const timetableExportButton = document.getElementById("export-excel-button-top");
+    const historyExportButton = document.getElementById("export-excel-button");
+    const historyList = document.getElementById("history-list");
+    const historyStorageKey = "scheduleEditHistory";
+    const officeSheetStorageKey = "scheduleOfficeSheetData";
+    let activeOfficeColorContext = null;
+    const SHIFT_DEFINITIONS = {
+      "CA QLS": { className: "shift-qls", fgColor: "FEE2E2", textColor: "B91C1C", requiresTime: true },
+      "CA F1": { className: "shift-f1", fgColor: "FEF3C7", textColor: "92400E", requiresTime: true },
+      "CA F2": { className: "shift-f2", fgColor: "DCFCE7", textColor: "166534", requiresTime: true },
+      "CA FD": { className: "shift-fd", fgColor: "E0E7FF", textColor: "3730A3", requiresTime: true },
+      "HỖ TRỢ": { className: "shift-support", fgColor: "DBEAFE", textColor: "1D4ED8", requiresTime: false },
+      "CA P2": { className: "shift-p2", fgColor: "FDE68A", textColor: "78350F", requiresTime: true },
+      "CA P3": { className: "shift-p3", fgColor: "FDE68A", textColor: "7C2D12", requiresTime: true },
+      "OFF TUẦN": { className: "shift-off", fgColor: "E5E7EB", textColor: "374151", requiresTime: false },
+      "NGHỈ PHÉP": { className: "shift-leave", fgColor: "BAE6FD", textColor: "0C4A6E", requiresTime: false },
+      "CA PD": { className: "shift-pd", fgColor: "EDE9FE", textColor: "5B21B6", requiresTime: true },
+      "CA CG": { className: "shift-cg", fgColor: "FED7AA", textColor: "9A3412", requiresTime: true }
+    };
+    const SHIFT_OPTIONS = Object.keys(SHIFT_DEFINITIONS);
+    const MANAGER_SHIFT_OPTIONS = ["CA QLS", "OFF TUẦN", "NGHỈ PHÉP"];
+    const STAFF_SHIFT_OPTIONS = ["CA F1", "CA F2", "HỖ TRỢ", "CA P2", "CA P3", "OFF TUẦN", "NGHỈ PHÉP", "CA PD", "CA CG"];
+    const SECURITY_SHIFT_OPTIONS = ["CA CG", "NGHỈ PHÉP"];
+    const SUPPORT_SHIFT_OPTIONS = ["HỖ TRỢ", "OFF TUẦN", "NGHỈ PHÉP"];
+    const LEGACY_SHIFT_MAP = {
+      QLS: "CA QLS",
+      "CA QLS": "CA QLS",
+      "CA QL": "CA QLS",
+      F1: "CA F1",
+      F2: "CA F2",
+      BV: "HỖ TRỢ",
+      OFF: "OFF TUẦN"
+    };
+    const DEFAULT_WEEK_START = getStartOfWeekISO(new Date());
+    const MIN_VIEWABLE_WEEK_OFFSET = -2;
+    const MAX_VIEWABLE_WEEK_OFFSET = 2;
+    const REGION_METADATA = {
+      "TPKD/QLV": { unitLabel: "bộ phận", pluralLabel: "bộ phận", scopeLabel: "khối văn phòng" }
+    };
+    const DEFAULT_STORE_SHIFTS = { F1: 3, F2: 3, BV: 1, QLS: 1, OFF: 0 };
+    const DEFAULT_STORE_ROLE_LIMITS = { "Quản lý": 1, "Nhân viên": 6, "Bảo vệ": 1, "Hỗ trợ": 0 };
+    const INDEX_API = (() => {
+      if (window.location.port === "3000") {
+        return `${window.location.origin}/api/index-data`;
+      }
+
+      if (!/^https?:$/.test(window.location.protocol)) {
+        return "http://localhost:3001/api/index-data";
+      }
+
+      return `${window.location.protocol}//${window.location.hostname || "localhost"}:3001/api/index-data`;
+    })();
+    let storeData = [];
+    let timetableWeekStart = DEFAULT_WEEK_START;
+    let scheduleData = {};
+
+    async function fetchIndexData() {
+      const headers = {};
+      if (authToken) {
+        headers['Authorization'] = `Bearer ${authToken}`;
+      }
+      const response = await fetch(INDEX_API, { headers });
+      if (!response.ok) {
+        if (response.status === 401 || response.status === 403) {
+          if (response.status === 403) {
+            alert("Bạn không có quyền truy cập");
+          } else {
+            sessionStorage.removeItem("user");
+            sessionStorage.removeItem("token");
+            window.location.replace("/login.html");
+          }
+          return;
+        }
+        const body = await response.text();
+        throw new Error(body || `Cannot load index data: ${response.status}`);
+      }
+      return response.json();
+    }
+
+    function cloneData(data) {
+      return JSON.parse(JSON.stringify(data));
+    }
+
+    function isLoggedIn() {
+      return !!currentUser && typeof currentUser.email === "string" && currentUser.email.trim() !== "";
+    }
+
+    function getRegionMeta(region) {
+      return REGION_METADATA[region] || { unitLabel: "cửa hàng", pluralLabel: "cửa hàng", scopeLabel: "khu vực cửa hàng" };
+    }
+
+    function getOfficeEntryClass(value) {
+      if (!value) {
+        return "";
+      }
+
+      if (value.includes("HC")) {
+        return "hc";
+      }
+
+      if (value.includes("Store")) {
+        return "store";
+      }
+
+      if (value.includes("NGHỈ PHÉP")) {
+        return "leave";
+      }
+
+      if (value.includes("OFF TUẦN")) {
+        return "off";
+      }
+
+      return "";
+    }
+
+    function buildOfficeSheetWeekData() {
+      return OFFICE_SHEET_TEMPLATE.map((item) => {
+        if (item.type === "note") {
+          return item;
+        }
+
+        return {
+          type: "section",
+          title: item.title,
+          rows: item.rows.map((row) => ({
+            label: row.label,
+            values: Array.from({ length: 7 }, (_, index) => row.values[index] || ""),
+            colors: Array.from({ length: 7 }, () => "")
+          }))
+        };
+      });
+    }
+
+    function getOfficeSheetStore() {
+      try {
+        return JSON.parse(localStorage.getItem(officeSheetStorageKey) || "{}");
+      } catch {
+        return {};
+      }
+    }
+
+    function saveOfficeSheetStore(data) {
+      localStorage.setItem(officeSheetStorageKey, JSON.stringify(data));
+    }
+
+    function getOfficeFavoriteColors() {
+      try {
+        const colors = JSON.parse(localStorage.getItem(officeFavoriteColorsKey) || "[]");
+        return Array.isArray(colors) ? colors.slice(0, 8) : [];
+      } catch {
+        return [];
+      }
+    }
+
+    function saveOfficeFavoriteColors(colors) {
+      localStorage.setItem(officeFavoriteColorsKey, JSON.stringify(colors.slice(0, 8)));
+    }
+
+    function addOfficeFavoriteColor(color) {
+      if (!color) {
+        return;
+      }
+
+      const favorites = getOfficeFavoriteColors().filter((item) => item !== color);
+      favorites.unshift(color);
+      saveOfficeFavoriteColors(favorites.slice(0, 8));
+    }
+
+    function getOfficeSheetWeekData(weekStart) {
+      const store = getOfficeSheetStore();
+      let hasChanges = false;
+
+      if (!Array.isArray(store[weekStart])) {
+        store[weekStart] = buildOfficeSheetWeekData();
+        hasChanges = true;
+      }
+
+      store[weekStart].forEach((item) => {
+        if (item.type !== "section") {
+          return;
+        }
+
+        item.rows.forEach((row) => {
+          if (!Array.isArray(row.colors)) {
+            row.colors = Array.from({ length: 7 }, () => "");
+            hasChanges = true;
+          }
+        });
+      });
+
+      if (hasChanges) {
+        saveOfficeSheetStore(store);
+      }
+
+      return store[weekStart];
+    }
+
+    function updateOfficeSheetWeekValue(weekStart, sectionTitle, rowLabel, dateIndex, value) {
+      const store = getOfficeSheetStore();
+      const weekData = Array.isArray(store[weekStart]) ? store[weekStart] : buildOfficeSheetWeekData();
+      const section = weekData.find((item) => item.type === "section" && item.title === sectionTitle);
+      const row = section?.rows.find((item) => item.label === rowLabel);
+
+      if (!row) {
+        return false;
+      }
+
+      row.values[dateIndex] = value;
+      store[weekStart] = weekData;
+      saveOfficeSheetStore(store);
+      return true;
+    }
+
+    function updateOfficeSheetWeekColor(weekStart, sectionTitle, rowLabel, dateIndex, color) {
+      const store = getOfficeSheetStore();
+      const weekData = Array.isArray(store[weekStart]) ? store[weekStart] : buildOfficeSheetWeekData();
+      const section = weekData.find((item) => item.type === "section" && item.title === sectionTitle);
+      const row = section?.rows.find((item) => item.label === rowLabel);
+
+      if (!row) {
+        return false;
+      }
+
+      if (!Array.isArray(row.colors)) {
+        row.colors = Array.from({ length: 7 }, () => "");
+      }
+
+      row.colors[dateIndex] = color;
+      store[weekStart] = weekData;
+      saveOfficeSheetStore(store);
+      return true;
+    }
+
+    function getContrastColor(hexColor) {
+      const normalized = String(hexColor || "").replace("#", "");
+      if (normalized.length !== 6) {
+        return "";
+      }
+
+      const red = Number.parseInt(normalized.slice(0, 2), 16);
+      const green = Number.parseInt(normalized.slice(2, 4), 16);
+      const blue = Number.parseInt(normalized.slice(4, 6), 16);
+      const luminance = (0.299 * red) + (0.587 * green) + (0.114 * blue);
+      return luminance > 186 ? "#0f172a" : "#ffffff";
+    }
+
+    function getOfficeInputInlineStyle(value, color) {
+      if (!color) {
+        return "";
+      }
+
+      return `background:${color};border-color:${color};color:${getContrastColor(color)};`;
+    }
+
+    function findOfficeCellControls(sectionTitle, rowLabel, dateIndex) {
+      const textInput = timetableBoard.querySelector(
+        `.office-sheet-input[data-office-section="${CSS.escape(sectionTitle)}"][data-office-row="${CSS.escape(rowLabel)}"][data-office-index="${String(dateIndex)}"]`
+      );
+      const colorInput = timetableBoard.querySelector(
+        `.office-sheet-color[data-office-section="${CSS.escape(sectionTitle)}"][data-office-row="${CSS.escape(rowLabel)}"][data-office-index="${String(dateIndex)}"]`
+      );
+      const trigger = timetableBoard.querySelector(
+        `.office-sheet-color-trigger[data-office-section="${CSS.escape(sectionTitle)}"][data-office-row="${CSS.escape(rowLabel)}"][data-office-index="${String(dateIndex)}"]`
+      );
+
+      return { textInput, colorInput, trigger };
+    }
+
+    function updateOfficeColorTriggerState(sectionTitle, rowLabel, dateIndex) {
+      const { textInput, trigger } = findOfficeCellControls(sectionTitle, rowLabel, dateIndex);
+      if (!(trigger instanceof HTMLButtonElement)) {
+        return;
+      }
+
+      const hasValue = textInput instanceof HTMLInputElement && !!textInput.value.trim();
+      trigger.disabled = !hasValue;
+
+      if (!hasValue && activeOfficeColorContext
+        && activeOfficeColorContext.sectionTitle === sectionTitle
+        && activeOfficeColorContext.rowLabel === rowLabel
+        && activeOfficeColorContext.dateIndex === dateIndex) {
+        closeOfficeColorPickers();
+      }
+    }
+
+    function getOfficeFavoriteColorSlots() {
+      const favorites = getOfficeFavoriteColors();
+      return Array.from({ length: 8 }, (_, index) => favorites[index] || "");
+    }
+
+    function renderOfficeColorPopover() {
+      if (!officeColorPopover) {
+        return;
+      }
+
+      if (!activeOfficeColorContext) {
+        officeColorPopover.hidden = true;
+        officeColorPopover.innerHTML = "";
+        return;
+      }
+
+      const favoriteColors = getOfficeFavoriteColorSlots();
+      const { sectionTitle, rowLabel, dateIndex, color, left, top } = activeOfficeColorContext;
+
+      officeColorPopover.style.left = `${left}px`;
+      officeColorPopover.style.top = `${top}px`;
+      officeColorPopover.hidden = false;
+      officeColorPopover.innerHTML = `
+        <div class="office-sheet-favorites">
+          <div class="office-sheet-favorites-header">
+            <button
+              type="button"
+              class="office-sheet-clear"
+              data-office-section="${escapeHtml(sectionTitle)}"
+              data-office-row="${escapeHtml(rowLabel)}"
+              data-office-index="${dateIndex}"
+              data-office-favorite-color=""
+            >Không</button>
+            <span class="office-sheet-favorites-label">Yêu thích</span>
+          </div>
+          <div class="office-sheet-favorites-grid">
+            ${favoriteColors.map((favoriteColor) => `
+              <button
+                type="button"
+                class="office-sheet-favorite${favoriteColor ? "" : " empty"}"
+                style="${favoriteColor ? `background:${escapeHtml(favoriteColor)}` : ""}"
+                data-office-section="${escapeHtml(sectionTitle)}"
+                data-office-row="${escapeHtml(rowLabel)}"
+                data-office-index="${dateIndex}"
+                data-office-favorite-color="${escapeHtml(favoriteColor)}"
+              ></button>
+            `).join("")}
+          </div>
+          <div class="office-sheet-preset-grid">
+            ${OFFICE_PRESET_COLORS.map((presetColor) => `
+              <button
+                type="button"
+                class="office-sheet-favorite"
+                style="background:${escapeHtml(presetColor)}"
+                data-office-section="${escapeHtml(sectionTitle)}"
+                data-office-row="${escapeHtml(rowLabel)}"
+                data-office-index="${dateIndex}"
+                data-office-favorite-color="${escapeHtml(presetColor)}"
+              ></button>
+            `).join("")}
+          </div>
+          <div class="office-sheet-custom-row">
+            <button type="button" class="office-sheet-custom-button" data-office-custom-trigger>+</button>
+          </div>
+          <input
+            type="color"
+            class="office-sheet-color"
+            value="${escapeHtml(color || "#f3f4f6")}"
+            data-office-section="${escapeHtml(sectionTitle)}"
+            data-office-row="${escapeHtml(rowLabel)}"
+            data-office-index="${dateIndex}"
+          />
+        </div>
+      `;
+    }
+
+    function syncActiveOfficeColorPopoverPosition() {
+      if (!activeOfficeColorContext) {
+        return;
+      }
+
+      const { trigger } = findOfficeCellControls(
+        activeOfficeColorContext.sectionTitle,
+        activeOfficeColorContext.rowLabel,
+        activeOfficeColorContext.dateIndex
+      );
+
+      if (!(trigger instanceof HTMLButtonElement)) {
+        closeOfficeColorPickers();
+        return;
+      }
+
+      const rect = trigger.getBoundingClientRect();
+      activeOfficeColorContext.left = Math.max(12, rect.right - 220);
+      activeOfficeColorContext.top = rect.bottom + 8;
+      renderOfficeColorPopover();
+    }
+
+    function closeOfficeColorPickers() {
+      activeOfficeColorContext = null;
+      renderOfficeColorPopover();
+    }
+
+    function renderOfficeSheetBoard(activeDates) {
+      const weekData = getOfficeSheetWeekData(timetableWeekStart);
+      const isEditableWeek = isWeekInEditableRange();
+      const favoriteColors = getOfficeFavoriteColorSlots();
+      timetableBoard.innerHTML = `
+        <div class="office-sheet">
+          ${weekData.map((item) => {
+            if (item.type === "note") {
+              return `<div class="office-sheet-note">${item.text}</div>`;
+            }
+
+            const dateHeaders = activeDates.map((date) => {
+              const label = formatDateLabel(date);
+              return `
+                <th>
+                  <div>${label.day}</div>
+                  <div class="office-sheet-date-label">${label.weekday}</div>
+                </th>
+              `;
+            }).join("");
+
+            const rows = item.rows.map((row) => `
+              <tr>
+                <td class="office-sheet-row-label">${row.label}</td>
+                ${activeDates.map((_, index) => {
+                  const value = row.values[index] || "";
+                  const color = row.colors?.[index] || "";
+                  const entryClass = getOfficeEntryClass(value);
+                  const inlineStyle = getOfficeInputInlineStyle(value, color);
+                  return `
+                    <td>
+                      <div class="office-sheet-cell">
+                        <input
+                          type="text"
+                          class="office-sheet-input ${entryClass}"
+                          value="${escapeHtml(value)}"
+                          style="${inlineStyle}"
+                          data-office-section="${escapeHtml(item.title)}"
+                          data-office-row="${escapeHtml(row.label)}"
+                          data-office-index="${index}"
+                          placeholder="Nhập ca"
+                          ${isEditableWeek ? "" : "disabled"}
+                        />
+                        <div class="office-sheet-color-tools">
+                          <button
+                            type="button"
+                            class="office-sheet-color-trigger"
+                            style="background:${escapeHtml(color || "#f3f4f6")}"
+                            data-office-color-trigger
+                            data-office-section="${escapeHtml(item.title)}"
+                            data-office-row="${escapeHtml(row.label)}"
+                            data-office-index="${index}"
+                            ${value ? "" : "disabled"}
+                            ${isEditableWeek ? "" : "disabled"}
+                          ></button>
+                          <input
+                            type="color"
+                            class="office-sheet-color"
+                            value="${escapeHtml(color || "#f3f4f6")}"
+                            data-office-section="${escapeHtml(item.title)}"
+                            data-office-row="${escapeHtml(row.label)}"
+                            data-office-index="${index}"
+                            ${isEditableWeek ? "" : "disabled"}
+                          />
+                        </div>
+                      </div>
+                    </td>
+                  `;
+                }).join("")}
+              </tr>
+            `).join("");
+
+            return `
+              <section class="office-sheet-group">
+                <div class="office-sheet-group-title">${item.title}</div>
+                <div class="office-sheet-table-wrap">
+                  <table class="office-sheet-table">
+                    <thead>
+                      <tr>
+                        <th class="office-sheet-row-label">Nội dung</th>
+                        ${dateHeaders}
+                      </tr>
+                    </thead>
+                    <tbody>${rows}</tbody>
+                  </table>
+                </div>
+              </section>
+            `;
+          }).join("")}
+        </div>
+      `;
+    }
+
+    function parseDate(dateString) {
+      return new Date(`${dateString}T00:00:00`);
+    }
+
+    function formatISODate(date) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
+      return `${year}-${month}-${day}`;
+    }
+
+    function addDays(dateString, days) {
+      const date = parseDate(dateString);
+      date.setDate(date.getDate() + days);
+      return formatISODate(date);
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function getStartOfWeekISO(dateInput) {
+      const date = new Date(dateInput);
+      date.setHours(0, 0, 0, 0);
+      const day = date.getDay();
+      const diffToMonday = day === 0 ? -6 : 1 - day;
+      date.setDate(date.getDate() + diffToMonday);
+      return formatISODate(date);
+    }
+
+    function getShiftCode(shiftValue) {
+      const normalizedValue = String(shiftValue || "").trim();
+      return SHIFT_OPTIONS.find((code) => normalizedValue === code || normalizedValue.startsWith(`${code} (`)) || "OFF TUẦN";
+    }
+
+    function getShiftTime(shiftValue) {
+      const normalizedValue = String(shiftValue || "").trim();
+      const shiftCode = getShiftCode(normalizedValue);
+      const prefix = `${shiftCode} (`;
+
+      if (!normalizedValue.startsWith(prefix) || !normalizedValue.endsWith(")")) {
+        return "";
+      }
+
+      return normalizedValue.slice(prefix.length, -1).trim();
+    }
+
+    function getShiftWorkTime(shiftValue) {
+      // shiftValue is already the extracted time (e.g., "12:30" or "12:30 / 14:30")
+      const parts = String(shiftValue || "").split("/");
+      return parts[0]?.trim() || "";
+    }
+
+    function getShiftBreakTime(shiftValue) {
+      // shiftValue is already the extracted time (e.g., "12:30" or "12:30 / 14:30")
+      const parts = String(shiftValue || "").split("/");
+      return parts[1]?.trim() || "";
+    }
+
+    function formatTimeInputValue(value) {
+      const raw = String(value || "");
+
+      // Preserve partial HH:MM format if it matches
+      if (/^\d{1,2}(:\d{0,2})?$/.test(raw)) {
+        return raw;
+      }
+
+      // Otherwise, format from digits
+      const digits = raw.replace(/\D/g, "").slice(0, 4);
+
+      if (digits.length === 0) {
+        return "";
+      }
+
+      if (digits.length === 1) {
+        return digits;
+      }
+
+      if (digits.length === 2) {
+        return `${digits}:`;
+      }
+
+      const hours = digits.slice(0, 2);
+      const minutes = digits.slice(2, 4);
+      return `${hours}:${minutes}`;
+    }
+
+    function isValid24HourTime(value) {
+      return /^([01]\d|2[0-3]):([0-5]\d)$/.test(String(value || "").trim());
+    }
+
+    function isAllowedShiftTimeKey(event) {
+      const target = event.target;
+      if (!(target instanceof HTMLInputElement) || !(target.classList.contains("shift-time-input") || target.classList.contains("shift-break-input"))) {
+        return true;
+      }
+
+      if (event.ctrlKey || event.metaKey) {
+        return true;
+      }
+
+      const key = event.key;
+      if (["Backspace", "Delete", "ArrowLeft", "ArrowRight", "Home", "End", "Tab", "Escape", "Enter"].includes(key)) {
+        return true;
+      }
+
+      const currentValue = target.value;
+      const selectionStart = target.selectionStart ?? currentValue.length;
+      const selectionEnd = target.selectionEnd ?? selectionStart;
+
+      if (key === ":") {
+        return currentValue.indexOf(":") === -1 && selectionStart === 2 && currentValue.length < 5;
+      }
+
+      if (!/^\d$/.test(key)) {
+        return false;
+      }
+
+      const beforeDigits = currentValue.slice(0, selectionStart).replace(/\D/g, "");
+      const afterDigits = currentValue.slice(selectionEnd).replace(/\D/g, "");
+      const newDigits = (beforeDigits + key + afterDigits).slice(0, 4);
+
+      if (newDigits.length === 1) {
+        return /^[0-2]$/.test(newDigits);
+      }
+
+      if (newDigits.length === 2) {
+        return /^([01]\d|2[0-3])$/.test(newDigits);
+      }
+
+      if (newDigits.length === 3) {
+        const hour = newDigits.slice(0, 2);
+        const minuteTens = newDigits[2];
+        return /^([01]\d|2[0-3])$/.test(hour) && /^[0-5]$/.test(minuteTens);
+      }
+
+      if (newDigits.length === 4) {
+        const hour = newDigits.slice(0, 2);
+        const minute = newDigits.slice(2);
+        return /^([01]\d|2[0-3])$/.test(hour) && /^[0-5]\d$/.test(minute);
+      }
+
+      return true;
+    }
+
+    function handleShiftTimeKeyDown(event) {
+      if (!isAllowedShiftTimeKey(event)) {
+        event.preventDefault();
+      }
+    }
+
+    function handleShiftTimeKeyUp(event) {
+      if (event.key !== "Enter") return;
+
+      const target = event.target;
+      if (!(target instanceof HTMLInputElement) || !(target.classList.contains("shift-time-input") || target.classList.contains("shift-break-input"))) {
+        return;
+      }
+
+      const cellEditor = target.closest('.shift-cell-editor');
+      if (target.classList.contains("shift-time-input")) {
+        // Move to break input
+        const breakInput = cellEditor?.querySelector('.shift-break-input');
+        if (breakInput) {
+          breakInput.focus();
+          breakInput.select();
+        }
+      } else if (target.classList.contains("shift-break-input")) {
+        // Save
+        target.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    }
+
+    function formatShiftValue(shiftCode, workTime = "", breakTime = "") {
+      const definition = SHIFT_DEFINITIONS[shiftCode] || SHIFT_DEFINITIONS["OFF TUẦN"];
+      const sanitizedWorkTime = String(workTime || "").trim();
+      const sanitizedBreakTime = String(breakTime || "").trim();
+      if (!definition.requiresTime || !sanitizedWorkTime) {
+        return shiftCode;
+      }
+
+      const combinedTime = sanitizedBreakTime ? `${sanitizedWorkTime} / ${sanitizedBreakTime}` : sanitizedWorkTime;
+      return `${shiftCode} (${combinedTime})`;
+    }
+
+    function getShiftStyleClass(shiftValue) {
+      return (SHIFT_DEFINITIONS[getShiftCode(shiftValue)] || {}).className || "shift-off";
+    }
+
+    function getShiftExportColors(shiftValue) {
+      const shiftCode = getShiftCode(shiftValue);
+      const definition = SHIFT_DEFINITIONS[shiftCode] || SHIFT_DEFINITIONS["OFF TUẦN"];
+      return {
+        fgColor: definition.fgColor,
+        textColor: definition.textColor
+      };
+    }
+
+    function normalizeLegacyShiftValue(shiftValue) {
+      const normalizedValue = String(shiftValue || "").trim();
+
+      if (!normalizedValue) {
+        return "OFF TUẦN";
+      }
+
+      if (SHIFT_OPTIONS.includes(normalizedValue) || SHIFT_OPTIONS.some((code) => normalizedValue.startsWith(`${code} (`))) {
+        return normalizedValue;
+      }
+
+      if (normalizedValue === "CA QL" || normalizedValue.startsWith("CA QL (")) {
+        return normalizedValue.replace("CA QL", "CA QLS");
+      }
+
+      return LEGACY_SHIFT_MAP[normalizedValue] || normalizedValue;
+    }
+
+    function normalizeScheduleData(data) {
+      let hasChanges = false;
+
+      Object.entries(data).forEach(([region, stores]) => {
+        stores.forEach((store) => {
+          store.employees.forEach((employee) => {
+            Object.keys(employee.schedule).forEach((date) => {
+              let normalizedShift = normalizeLegacyShiftValue(employee.schedule[date]);
+              const shiftCode = getShiftCode(normalizedShift);
+              const allowedShiftOptions = getShiftOptionsForRole(employee.role);
+
+              if (!allowedShiftOptions.includes(shiftCode)) {
+                if (employee.role === "Quản lý") {
+                  normalizedShift = "CA QLS";
+                } else if (employee.role === "Bảo vệ") {
+                  normalizedShift = "CA CG";
+                } else if (employee.role === "Hỗ trợ") {
+                  normalizedShift = "HỖ TRỢ";
+                } else {
+                  normalizedShift = "CA F1";
+                }
+              }
+              if (employee.schedule[date] !== normalizedShift) {
+                employee.schedule[date] = normalizedShift;
+                hasChanges = true;
+              }
+            });
+          });
+        });
+      });
+
+      return hasChanges;
+    }
+
+    function getActiveScheduleDates() {
+      return Array.from({ length: 7 }, (_, index) => addDays(timetableWeekStart, index));
+    }
+
+    function getWeekOffsetFromDefault() {
+      return Math.round((parseDate(timetableWeekStart) - parseDate(DEFAULT_WEEK_START)) / (7 * 86400000));
+    }
+
+    function isWeekInEditableRange() {
+      const weekOffset = getWeekOffsetFromDefault();
+      return isLoggedIn() &&
+        weekOffset >= MIN_VIEWABLE_WEEK_OFFSET &&
+        weekOffset <= MAX_VIEWABLE_WEEK_OFFSET;
+    }
+
+    function isLockedFutureWeek() {
+      return getWeekOffsetFromDefault() > MAX_VIEWABLE_WEEK_OFFSET;
+    }
+
+    function getRotatedShift(index) {
+      return ["CA F1", "CA F2", "OFF TUẦN"][index % 3];
+    }
+
+    function buildEmployeeSchedule(baseShift, offset) {
+      const schedule = {};
+      getActiveScheduleDates().forEach((date, index) => {
+        if (baseShift === "BV") {
+          schedule[date] = "CA CG";
+          return;
+        }
+        if (baseShift === "QLS") {
+          schedule[date] = "CA QLS";
+          return;
+        }
+        schedule[date] = getRotatedShift(index + offset + (baseShift === "F2" ? 1 : 0));
+      });
+      return schedule;
+    }
+
+    function createEmployeesForStore(store, storeIndex) {
+      const employees = [];
+      let nameIndex = storeIndex * 5;
+
+      if (store.shifts.QLS > 0) {
+        employees.push({
+          name: employeeSeedNames[nameIndex % employeeSeedNames.length],
+          role: "Quản lý",
+          schedule: buildEmployeeSchedule("QLS", 0)
+        });
+        nameIndex += 1;
+      }
+
+      for (let index = 0; index < store.shifts.F1; index += 1) {
+        employees.push({
+          name: employeeSeedNames[(nameIndex + index) % employeeSeedNames.length] + ` ${index + 1}`,
+          role: "Nhân viên",
+          schedule: buildEmployeeSchedule("F1", index)
+        });
+      }
+      nameIndex += store.shifts.F1;
+
+      for (let index = 0; index < store.shifts.F2; index += 1) {
+        employees.push({
+          name: employeeSeedNames[(nameIndex + index) % employeeSeedNames.length] + ` ${index + 1}`,
+          role: "Nhân viên",
+          schedule: buildEmployeeSchedule("F2", index)
+        });
+      }
+      nameIndex += store.shifts.F2;
+
+      for (let index = 0; index < store.shifts.BV; index += 1) {
+        employees.push({
+          name: employeeSeedNames[(nameIndex + index) % employeeSeedNames.length] + ` ${index + 1}`,
+          role: "Bảo vệ",
+          schedule: buildEmployeeSchedule("BV", index)
+        });
+      }
+
+      return employees;
+    }
+
+    function buildScheduleDataFromDb(indexData) {
+      const regions = Array.isArray(indexData?.regions) ? indexData.regions : [];
+      const units = Array.isArray(indexData?.units) ? indexData.units : [];
+      const employees = Array.isArray(indexData?.employees) ? indexData.employees : [];
+      const shifts = Array.isArray(indexData?.shifts) ? indexData.shifts : [];
+      const workSchedules = Array.isArray(indexData?.workSchedules) ? indexData.workSchedules : [];
+      const shiftsById = new Map(shifts.map((shift) => [String(shift.id), shift]));
+      const employeesByStoreCode = new Map();
+
+      employees.forEach((employee) => {
+        const storeCode = String(employee.storeCode || "").trim();
+        if (!storeCode) {
+          return;
+        }
+
+        if (!employeesByStoreCode.has(storeCode)) {
+          employeesByStoreCode.set(storeCode, []);
+        }
+
+        employeesByStoreCode.get(storeCode).push({
+          id: String(employee.id),
+          name: employee.name || "",
+          role: employee.role || "Nhân viên",
+          schedule: {}
+        });
+      });
+
+      const employeesById = new Map();
+      employeesByStoreCode.forEach((storeEmployees) => {
+        storeEmployees.forEach((employee) => {
+          employeesById.set(String(employee.id), employee);
+        });
+      });
+
+      workSchedules.forEach((entry) => {
+        const employee = employeesById.get(String(entry.employeeId));
+        if (!employee || !entry.date) {
+          return;
+        }
+
+        const shift = shiftsById.get(String(entry.shiftId));
+        const shiftCode = normalizeLegacyShiftValue(shift?.code || "OFF TUẦN");
+        const workTime = entry.startTime ? String(entry.startTime).slice(0, 5) : "";
+        const breakTime = entry.endTime ? String(entry.endTime).slice(0, 5) : "";
+        employee.schedule[String(entry.date).slice(0, 10)] = formatShiftValue(getShiftCode(shiftCode), workTime, breakTime);
+      });
+
+      const result = {};
+
+      regions.forEach((region) => {
+        result[region.name] = units
+          .filter((unit) => unit.region === region.name)
+          .map((unit) => ({
+            code: unit.code,
+            employees: (employeesByStoreCode.get(unit.code) || []).map((employee) => ({
+              name: employee.name,
+              role: employee.role,
+              schedule: { ...employee.schedule }
+            }))
+          }));
+      });
+
+      return result;
+    }
+
+    function getHistory() {
+      try {
+        return JSON.parse(localStorage.getItem(historyStorageKey) || "[]");
+      } catch {
+        return [];
+      }
+    }
+
+    function setHistory(history) {
+      localStorage.setItem(historyStorageKey, JSON.stringify(history));
+    }
+
+    function saveScheduleData() {}
+
+    function ensureScheduleDates(region, dates) {
+      const storesInRegion = scheduleData[region] || [];
+      let hasChanges = false;
+
+      storesInRegion.forEach((store) => {
+        store.employees.forEach((employee) => {
+          dates.forEach((date) => {
+            if (!(date in employee.schedule)) {
+              employee.schedule[date] = "";
+              hasChanges = true;
+            }
+          });
+        });
+      });
+
+      if (hasChanges) {
+        saveScheduleData();
+      }
+    }
+
+    function formatDateLabel(dateString) {
+      const date = parseDate(dateString);
+      return {
+        day: date.toLocaleDateString("vi-VN"),
+        weekday: date.toLocaleDateString("vi-VN", { weekday: "long" })
+      };
+    }
+
+    function formatShortDateLabel(dateString) {
+      return parseDate(dateString).toLocaleDateString("vi-VN", {
+        day: "2-digit",
+        month: "2-digit"
+      });
+    }
+
+    function getSafeSheetName(name, fallbackIndex) {
+      const sanitized = name.replace(/[\\/?*\[\]:]/g, " ").trim();
+      return (sanitized || `Khu vuc ${fallbackIndex + 1}`).slice(0, 31);
+    }
+
+    function createCellStyle({
+      bold = false,
+      align = "center",
+      verticalAlign = "center",
+      bgColor = "FFFFFF",
+      textColor = "0F172A",
+      fontSize = 11,
+      borderColor = "E5EDF6"
+    } = {}) {
+      return {
+        font: {
+          name: "Arial",
+          sz: fontSize,
+          bold,
+          color: { rgb: textColor }
+        },
+        alignment: {
+          horizontal: align,
+          vertical: verticalAlign,
+          wrapText: true
+        },
+        fill: {
+          patternType: "solid",
+          fgColor: { rgb: bgColor }
+        },
+        border: {
+          top: { style: "thin", color: { rgb: borderColor } },
+          right: { style: "thin", color: { rgb: borderColor } },
+          bottom: { style: "thin", color: { rgb: borderColor } },
+          left: { style: "thin", color: { rgb: borderColor } }
+        }
+      };
+    }
+
+    function applyCellStyle(worksheet, address, style) {
+      if (!worksheet[address]) {
+        return;
+      }
+      worksheet[address].s = style;
+    }
+
+    function renderWeekLabel() {
+      const dates = getActiveScheduleDates();
+      const startLabel = formatDateLabel(dates[0]).day;
+      const endLabel = formatDateLabel(dates[dates.length - 1]).day;
+      weekLabel.textContent = `${startLabel} - ${endLabel}`;
+    }
+
+    function updateWeekControls() {
+      prevWeekButton.disabled = getWeekOffsetFromDefault() <= MIN_VIEWABLE_WEEK_OFFSET;
+      currentWeekButton.disabled = timetableWeekStart === DEFAULT_WEEK_START;
+      nextWeekButton.disabled = getWeekOffsetFromDefault() >= MAX_VIEWABLE_WEEK_OFFSET;
+    }
+
+    function getCountsForDate(store, date) {
+      return store.employees.reduce((counts, employee) => {
+        const shift = getShiftCode(normalizeLegacyShiftValue(employee.schedule[date] || ""));
+        counts[shift] = (counts[shift] || 0) + 1;
+        return counts;
+      }, {});
+    }
+
+    function getAccessibleStores() {
+      return storeData;
+    }
+
+    function getShiftOptionsForRole(role) {
+      if (role === "Quản lý") {
+        return MANAGER_SHIFT_OPTIONS;
+      }
+
+      if (role === "Bảo vệ") {
+        return SECURITY_SHIFT_OPTIONS;
+      }
+
+      if (role === "Hỗ trợ") {
+        return SUPPORT_SHIFT_OPTIONS;
+      }
+
+      return STAFF_SHIFT_OPTIONS;
+    }
+
+    function isShiftAllowedForRole(role, shift) {
+      return getShiftOptionsForRole(role).includes(shift);
+    }
+
+    function canManageEmployeeRow(role) {
+      return role === "Nhân viên" || role === "Bảo vệ" || role === "Hỗ trợ" || role === "NV tăng ca";
+    }
+
+    function hasEmployeeScheduleData(employee) {
+      return Object.values(employee?.schedule || {}).some((value) => String(value || "").trim() !== "");
+    }
+
+    function getTimetableStores(stores) {
+      return stores.map((store) => ({
+        ...store,
+        employees: store.employees || [],
+        employeesWithSchedule: (store.employees || []).filter((employee) => hasEmployeeScheduleData(employee))
+      }));
+    }
+
+    function buildDefaultScheduleForRole(role) {
+      const schedule = {};
+      getActiveScheduleDates().forEach((date) => {
+        schedule[date] = "";
+      });
+      return schedule;
+    }
+
+    function getNextEmployeeName(role, store) {
+      const roleLabel = role === "Bảo vệ" ? "Bảo vệ" : role === "Hỗ trợ" ? "Hỗ trợ" : role === "NV tăng ca" ? "NV tăng ca" : "Nhân viên";
+      const sameRoleCount = store.employees.filter((employee) => employee.role === role).length;
+      return `${roleLabel} mới ${sameRoleCount + 1}`;
+    }
+
+    function renderHistory() {
+      const history = getHistory();
+
+      if (!history.length) {
+        historyList.innerHTML = '<div class="empty-history">Chưa có lịch sử chỉnh sửa.</div>';
+        return;
+      }
+
+      historyList.innerHTML = `
+        <table class="history-table">
+          <thead>
+            <tr>
+              <th>Người sửa</th>
+              <th>Nhân sự</th>
+              <th>Khu vực</th>
+              <th>Cửa hàng</th>
+              <th>Ngày</th>
+              <th>Từ ca</th>
+              <th>Sang ca</th>
+              <th>Thời gian sửa</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${history
+              .slice()
+              .reverse()
+              .map((item) => `
+                <tr>
+                  <td><span class="history-cell-strong">${item.editor}</span></td>
+                  <td><span class="history-cell-strong">${item.employee}</span></td>
+                  <td>${item.region}</td>
+                  <td>${item.store}</td>
+                  <td>${item.dateLabel}</td>
+                  <td>${item.fromShift}</td>
+                  <td>${item.toShift}</td>
+                  <td>${item.time}</td>
+                </tr>
+              `)
+              .join("")}
+          </tbody>
+        </table>
+      `;
+    }
+
+
+
+    function renderTimetableBoard() {
+      const selectedRegion = regionFilter.value;
+      if (!selectedRegion) {
+        timetableBoard.innerHTML = `<div class="empty-history">Không có dữ liệu khu vực để hiển thị.</div>`;
+        return;
+      }
+      const accessibleStores = getTimetableStores(getAccessibleStores());
+      const activeDates = getActiveScheduleDates();
+
+      timetableTitle.textContent = "Bảng Thời Gian Biểu";
+      timetableDescription.textContent = currentUser
+        ? "Bạn có thể đổi trực tiếp ca làm của từng nhân sự trong bảng bên dưới."
+        : "Xem lịch làm việc. Đăng nhập để chỉnh sửa.";
+
+      if (!accessibleStores.length) {
+        const regionMeta = getRegionMeta(selectedRegion);
+        timetableBoard.innerHTML = `<div class="empty-history">Tài khoản này chưa có ${regionMeta.pluralLabel} nào trong khu vực đang chọn.</div>`;
+        return;
+      }
+
+      const isEditableWeek = isWeekInEditableRange();
+      const dateHeaders = activeDates.map((date) => {
+        const label = formatDateLabel(date);
+        return `<th><div>${label.day}</div><div>${label.weekday}</div></th>`;
+      }).join("");
+
+      timetableBoard.innerHTML = `<div class="timetable-board-scroll">${accessibleStores.map((store) => `
+        <section class="store-timetable">
+          <div class="store-timetable-header">
+            <div>
+              <h3>${store.code}</h3>
+              <div class="store-timetable-meta">${selectedRegion} • ${store.employees.length} nhân sự</div>
+            </div>
+            <div class="store-timetable-actions">
+              <button type="button" class="store-add-button" data-region="${selectedRegion}" data-store-action="add-employee" data-store="${store.code}" ${isEditableWeek ? "" : "disabled"}>Thêm nhân viên</button>
+              <button type="button" class="store-add-button" data-region="${selectedRegion}" data-store-action="add-security" data-store="${store.code}" ${isEditableWeek ? "" : "disabled"}>Thêm bảo vệ</button>
+              <button type="button" class="store-add-button" data-region="${selectedRegion}" data-store-action="add-support" data-store="${store.code}" ${isEditableWeek ? "" : "disabled"}>Thêm hỗ trợ</button>
+              <button type="button" class="store-add-button" data-region="${selectedRegion}" data-store-action="add-overtime" data-store="${store.code}" ${isEditableWeek ? "" : "disabled"}>Thêm NV tăng ca</button>
+            </div>
+          </div>
+          <div class="timetable-wrap">
+            <table class="timetable">
+              <thead>
+                <tr>
+                  <th>Chức vụ</th>
+                  <th>Nhân sự</th>
+                  ${dateHeaders}
+                </tr>
+              </thead>
+              <tbody>
+                ${store.employeesWithSchedule.length ? store.employeesWithSchedule.map((employee, employeeIndex) => `
+                  <tr>
+                    <td class="timetable-role">
+                      <div class="role-cell">
+                        <span class="role-cell-label">${employee.role}</span>
+                        ${canManageEmployeeRow(employee.role) ? `
+                          <button
+                            type="button"
+                            class="role-action-toggle"
+                            data-region="${selectedRegion}"
+                            data-store="${store.code}"
+                            data-employee-index="${employeeIndex}"
+                            aria-label="Tác vụ nhân sự"
+                            ${isEditableWeek ? "" : "disabled"}
+                          >⋮</button>
+                          <div class="role-action-menu" data-region="${selectedRegion}" data-store="${store.code}" data-employee-index="${employeeIndex}">
+                            <button type="button" class="role-action-button" data-region="${selectedRegion}" data-role-action="add-employee" data-store="${store.code}" data-employee-index="${employeeIndex}">
+                              Thêm nhân viên
+                            </button>
+                            <button type="button" class="role-action-button" data-region="${selectedRegion}" data-role-action="add-security" data-store="${store.code}" data-employee-index="${employeeIndex}">
+                              Thêm bảo vệ
+                            </button>
+                            <button type="button" class="role-action-button" data-region="${selectedRegion}" data-role-action="add-support" data-store="${store.code}" data-employee-index="${employeeIndex}">
+                              Thêm hỗ trợ
+                            </button>
+                            <button type="button" class="role-action-button" data-region="${selectedRegion}" data-role-action="add-overtime" data-store="${store.code}" data-employee-index="${employeeIndex}">
+                              Thêm NV tăng ca
+                            </button>
+                            <button type="button" class="role-action-button role-action-delete" data-region="${selectedRegion}" data-role-action="delete" data-store="${store.code}" data-employee-index="${employeeIndex}">
+                              Xoá dòng hiện tại
+                            </button>
+                          </div>
+                        ` : ""}
+                      </div>
+                    </td>
+                    <td class="timetable-name">
+                      <input
+                        type="text"
+                        class="employee-name-input"
+                        value="${employee.name}"
+                        data-region="${selectedRegion}"
+                        data-store="${store.code}"
+                        data-employee-index="${employeeIndex}"
+                        ${isEditableWeek ? "" : "disabled"}
+                      />
+                    </td>
+                    ${activeDates.map((date) => {
+                      const availableShifts = getShiftOptionsForRole(employee.role);
+                      const rawShift = normalizeLegacyShiftValue(employee.schedule[date] || "OFF TUẦN");
+                      const shiftCode = getShiftCode(rawShift);
+                      const shiftTime = getShiftTime(rawShift);
+                      const shiftDefinition = SHIFT_DEFINITIONS[shiftCode] || SHIFT_DEFINITIONS["OFF TUẦN"];
+                      return `
+                        <td>
+                          <div class="shift-cell-editor${shiftDefinition.requiresTime ? "" : " no-time"}">
+                            <select class="shift-cell-select ${getShiftStyleClass(shiftCode)}${shiftDefinition.requiresTime ? "" : " no-time"}" data-region="${selectedRegion}" data-store="${store.code}" data-employee-index="${employeeIndex}" data-date="${date}" ${isEditableWeek ? "" : "disabled"}>
+                              ${availableShifts.map((option) => `<option value="${escapeHtml(option)}"${option === shiftCode ? " selected" : ""}>${escapeHtml(option)}</option>`).join("")}
+                            </select>
+                            ${shiftDefinition.requiresTime ? `
+                              <input
+                                type="text"
+                                class="shift-time-input"
+                                inputmode="numeric"
+                                maxlength="5"
+                                pattern="([01][0-9]|2[0-3]):[0-5][0-9]"
+                                placeholder="HH:MM"
+                                value="${escapeHtml(getShiftWorkTime(shiftTime))}"
+                                data-region="${selectedRegion}"
+                                data-store="${store.code}"
+                                data-employee-index="${employeeIndex}"
+                                data-date="${date}"
+                                data-shift-code="${escapeHtml(shiftCode)}"
+                                autocomplete="off"
+                                autocapitalize="off"
+                                spellcheck="false"
+                                ${isEditableWeek ? "" : "disabled"}
+                              />
+                              <input
+                                type="text"
+                                class="shift-break-input"
+                                inputmode="numeric"
+                                maxlength="5"
+                                pattern="([01][0-9]|2[0-3]):[0-5][0-9]"
+                                placeholder="HH:MM"
+                                value="${escapeHtml(getShiftBreakTime(shiftTime))}"
+                                data-region="${selectedRegion}"
+                                data-store="${store.code}"
+                                data-employee-index="${employeeIndex}"
+                                data-date="${date}"
+                                data-shift-code="${escapeHtml(shiftCode)}"
+                                autocomplete="off"
+                                autocapitalize="off"
+                                spellcheck="false"
+                                ${isEditableWeek ? "" : "disabled"}
+                              />
+                            ` : ""}
+                          </div>
+                        </td>
+                      `;
+                    }).join("")}
+                  </tr>
+                `).join("") : `
+                  <tr>
+                    <td colspan="${activeDates.length + 2}" class="empty-history">Store này đã có trong DB nhưng chưa có nhân viên hoặc lịch làm việc.</td>
+                  </tr>
+                `}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      `).join("")}</div>`;
+    }
+
+    function renderRegionOptions() {
+      regionFilter.innerHTML = REGION_SHEETS.length
+        ? REGION_SHEETS.map((sheetName) => `<option value="${sheetName}">${sheetName}</option>`).join("")
+        : `<option value="">Không có khu vực</option>`;
+    }
+
+    function loadSheetData() {
+      if (!REGION_SHEETS.length) {
+        storeData = [];
+        renderWeekLabel();
+        updateWeekControls();
+        renderTimetableBoard();
+        renderHistory();
+        return;
+      }
+
+      const weekOffset = getWeekOffsetFromDefault();
+      if (weekOffset < MIN_VIEWABLE_WEEK_OFFSET) {
+        timetableWeekStart = addDays(DEFAULT_WEEK_START, MIN_VIEWABLE_WEEK_OFFSET * 7);
+      }
+      if (weekOffset > MAX_VIEWABLE_WEEK_OFFSET) {
+        timetableWeekStart = addDays(DEFAULT_WEEK_START, MAX_VIEWABLE_WEEK_OFFSET * 7);
+      }
+
+      const selectedRegion = regionFilter.value;
+      const activeDates = getActiveScheduleDates();
+      const editableWeek = isWeekInEditableRange();
+      syncTimetableExportWeekInput(timetableWeekStart);
+      ensureScheduleDates(selectedRegion, activeDates);
+      storeData = cloneData(scheduleData[selectedRegion] || []);
+      renderWeekLabel();
+      updateWeekControls();
+      renderTimetableBoard();
+      renderHistory();
+
+      if (editableWeek) {
+        scheduleStatus.textContent = "";
+        scheduleStatus.classList.remove("error");
+        return;
+      }
+
+      if (isLockedFutureWeek()) {
+        scheduleStatus.textContent = "Chỉ được xem tối đa 2 tuần kế tiếp.";
+        scheduleStatus.classList.add("error");
+        return;
+      }
+
+      scheduleStatus.textContent = "Không thể lùi quá 2 tuần cũ liền kề.";
+      scheduleStatus.classList.add("error");
+    }
+
+    function getRegionExportTitle(region) {
+      return `LỊCH LÀM VIỆC • ${region}`;
+    }
+
+    function buildExportWorksheetForRegion(region, dates) {
+      ensureScheduleDates(region, dates);
+      const storesInRegion = scheduleData[region] || [];
+      const totalColumns = dates.length + 2;
+      const rows = [];
+      const merges = [];
+
+      rows.push([getRegionExportTitle(region), "", ...new Array(dates.length).fill("")]);
+      merges.push({
+        s: { r: 0, c: 0 },
+        e: { r: 0, c: totalColumns - 1 }
+      });
+      rows.push([`Tuần ${formatDateLabel(dates[0]).day} - ${formatDateLabel(dates[dates.length - 1]).day}`, "", ...new Array(dates.length).fill("")]);
+      merges.push({
+        s: { r: 1, c: 0 },
+        e: { r: 1, c: totalColumns - 1 }
+      });
+      rows.push(new Array(totalColumns).fill(""));
+
+      storesInRegion.forEach((store, storeIndex) => {
+        const storeHeaderRowIndex = rows.length;
+        rows.push([store.code, `${region} • ${store.employees.length} nhân sự`, ...new Array(dates.length).fill("")]);
+        merges.push({
+          s: { r: storeHeaderRowIndex, c: 1 },
+          e: { r: storeHeaderRowIndex, c: totalColumns - 1 }
+        });
+
+        rows.push(["Chức vụ", "Nhân sự", ...dates.map((date) => formatDateLabel(date).day)]);
+        rows.push(["", "", ...dates.map((date) => formatDateLabel(date).weekday)]);
+
+        store.employees.forEach((employee) => {
+          const weekShifts = dates.map((date) => {
+            const rawShift = normalizeLegacyShiftValue(employee.schedule[date] || "");
+            return formatShiftValue(getShiftCode(rawShift), getShiftTime(rawShift));
+          });
+          rows.push([
+            employee.role,
+            employee.name,
+            ...weekShifts
+          ]);
+        });
+
+        if (storeIndex < storesInRegion.length - 1) {
+          rows.push(new Array(totalColumns).fill(""));
+        }
+      });
+
+      const worksheet = XLSX.utils.aoa_to_sheet(rows);
+      worksheet["!merges"] = merges;
+      worksheet["!cols"] = [
+        { wch: 16 },
+        { wch: 24 },
+        ...dates.map(() => ({ wch: 18 }))
+      ];
+      worksheet["!rows"] = rows.map((row, rowIndex) => {
+        if (rowIndex === 0) return { hpt: 28 };
+        if (rowIndex === 1) return { hpt: 22 };
+        if (row.every((cell) => !cell)) return { hpt: 10 };
+        return { hpt: 24 };
+      });
+      worksheet["!freeze"] = { xSplit: 2, ySplit: 5 };
+
+      const titleStyle = createCellStyle({
+        bold: true,
+        align: "left",
+        bgColor: "DBEAFE",
+        textColor: "1D4ED8",
+        fontSize: 14,
+        borderColor: "BFDBFE"
+      });
+      const subtitleStyle = createCellStyle({
+        bold: true,
+        align: "left",
+        bgColor: "EFF6FF",
+        textColor: "334155",
+        borderColor: "DBEAFE"
+      });
+      const storeCodeStyle = createCellStyle({
+        bold: true,
+        align: "center",
+        bgColor: "2563EB",
+        textColor: "FFFFFF",
+        borderColor: "2563EB"
+      });
+      const storeMetaStyle = createCellStyle({
+        bold: true,
+        align: "left",
+        bgColor: "F8FBFF",
+        textColor: "334155",
+        borderColor: "DBEAFE"
+      });
+      const dateHeaderStyle = createCellStyle({
+        bold: true,
+        bgColor: "F8FBFF",
+        textColor: "0F172A",
+        borderColor: "CBD5E1"
+      });
+      const weekdayHeaderStyle = createCellStyle({
+        bold: true,
+        bgColor: "EEF4FF",
+        textColor: "475569",
+        borderColor: "CBD5E1"
+      });
+      const roleStyle = createCellStyle({
+        bold: true,
+        align: "left",
+        bgColor: "FFFFFF",
+        textColor: "334155"
+      });
+      const nameStyle = createCellStyle({
+        align: "left",
+        bgColor: "FFFFFF",
+        textColor: "0F172A"
+      });
+      const blankRowStyle = createCellStyle({
+        bgColor: "FFFFFF",
+        borderColor: "FFFFFF"
+      });
+
+      for (let colIndex = 0; colIndex < totalColumns; colIndex += 1) {
+        applyCellStyle(worksheet, XLSX.utils.encode_cell({ r: 0, c: colIndex }), titleStyle);
+        applyCellStyle(worksheet, XLSX.utils.encode_cell({ r: 1, c: colIndex }), subtitleStyle);
+      }
+
+      rows.slice(2).forEach((row, rowOffset) => {
+        const rowIndex = rowOffset + 2;
+        const isBlankRow = row.every((cell) => !cell);
+
+        if (isBlankRow) {
+          for (let colIndex = 0; colIndex < totalColumns; colIndex += 1) {
+            applyCellStyle(worksheet, XLSX.utils.encode_cell({ r: rowIndex, c: colIndex }), blankRowStyle);
+          }
+          return;
+        }
+
+        const secondCellText = String(row[1] || "");
+        const isStoreHeader = row[0] && secondCellText.includes("nhân sự");
+        const isDateHeader = row[0] === "Chức vụ";
+        const isWeekdayHeader = !row[0] && !row[1] && row.slice(2).some(Boolean);
+
+        if (isStoreHeader) {
+          applyCellStyle(worksheet, XLSX.utils.encode_cell({ r: rowIndex, c: 0 }), storeCodeStyle);
+          for (let colIndex = 1; colIndex < totalColumns; colIndex += 1) {
+            applyCellStyle(worksheet, XLSX.utils.encode_cell({ r: rowIndex, c: colIndex }), storeMetaStyle);
+          }
+          return;
+        }
+
+        if (isDateHeader) {
+          for (let colIndex = 0; colIndex < totalColumns; colIndex += 1) {
+            applyCellStyle(worksheet, XLSX.utils.encode_cell({ r: rowIndex, c: colIndex }), dateHeaderStyle);
+          }
+          return;
+        }
+
+        if (isWeekdayHeader) {
+          for (let colIndex = 0; colIndex < totalColumns; colIndex += 1) {
+            applyCellStyle(worksheet, XLSX.utils.encode_cell({ r: rowIndex, c: colIndex }), weekdayHeaderStyle);
+          }
+          return;
+        }
+
+        applyCellStyle(worksheet, XLSX.utils.encode_cell({ r: rowIndex, c: 0 }), roleStyle);
+        applyCellStyle(worksheet, XLSX.utils.encode_cell({ r: rowIndex, c: 1 }), nameStyle);
+
+        dates.forEach((_, dateIndex) => {
+          const shift = row[dateIndex + 2];
+          const shiftColors = getShiftExportColors(shift);
+          applyCellStyle(
+            worksheet,
+            XLSX.utils.encode_cell({ r: rowIndex, c: dateIndex + 2 }),
+            createCellStyle({
+              bold: true,
+              bgColor: shiftColors.fgColor,
+              textColor: shiftColors.textColor,
+              borderColor: "CBD5E1"
+            })
+          );
+        });
+      });
+
+      return worksheet;
+    }
+
+    function getHistoryItemsForMonth(region, yearMonth) {
+      return getHistory()
+        .filter((item) => item.region === region && String(item.date || "").startsWith(`${yearMonth}-`))
+        .slice()
+        .reverse();
+    }
+
+    function buildHistoryWorksheet(region, yearMonth) {
+      const historyItems = getHistoryItemsForMonth(region, yearMonth);
+      const [year, month] = yearMonth.split("-").map(Number);
+      const monthLabel = new Date(year, month - 1, 1).toLocaleDateString("vi-VN", {
+        month: "2-digit",
+        year: "numeric"
+      });
+      const rows = [
+        [`LỊCH SỬ CHỈNH SỬ • ${region}`, "", "", "", "", "", ""],
+        [`Tháng ${monthLabel}`, "", "", "", "", "", ""],
+        ["Người sửa", "Nhân sự", "Cửa hàng", "Ngày", "Từ ca", "Sang ca", "Thời gian sửa"]
+      ];
+      const merges = [
+        { s: { r: 0, c: 0 }, e: { r: 0, c: 6 } },
+        { s: { r: 1, c: 0 }, e: { r: 1, c: 6 } }
+      ];
+
+      if (historyItems.length) {
+        historyItems.forEach((item) => {
+          rows.push([
+            item.editor || "",
+            item.employee || "",
+            item.store || "",
+            item.dateLabel || formatDateLabel(item.date).day,
+            item.fromShift || "",
+            item.toShift || "",
+            item.time || ""
+          ]);
+        });
+      } else {
+        rows.push(["", "", "", "", "", "", ""]);
+        rows.push([`Không có lịch sử chỉnh sửa trong tháng này.`, "", "", "", "", "", ""]);
+        merges.push({ s: { r: 4, c: 0 }, e: { r: 4, c: 6 } });
+      }
+
+      const worksheet = XLSX.utils.aoa_to_sheet(rows);
+      worksheet["!merges"] = merges;
+      worksheet["!cols"] = [
+        { wch: 18 },
+        { wch: 22 },
+        { wch: 18 },
+        { wch: 14 },
+        { wch: 18 },
+        { wch: 18 },
+        { wch: 24 }
+      ];
+      worksheet["!rows"] = rows.map((row, rowIndex) => {
+        if (rowIndex === 0) return { hpt: 28 };
+        if (rowIndex === 1) return { hpt: 22 };
+        return { hpt: 24 };
+      });
+      worksheet["!freeze"] = { xSplit: 0, ySplit: 3 };
+
+      const titleStyle = createCellStyle({
+        bold: true,
+        align: "left",
+        bgColor: "DBEAFE",
+        textColor: "1D4ED8",
+        fontSize: 14,
+        borderColor: "BFDBFE"
+      });
+      const subtitleStyle = createCellStyle({
+        bold: true,
+        align: "left",
+        bgColor: "EFF6FF",
+        textColor: "334155",
+        borderColor: "DBEAFE"
+      });
+      const headerStyle = createCellStyle({
+        bold: true,
+        bgColor: "F8FBFF",
+        textColor: "0F172A",
+        borderColor: "CBD5E1"
+      });
+      const bodyStyle = createCellStyle({
+        align: "left",
+        bgColor: "FFFFFF",
+        textColor: "334155",
+        borderColor: "E5EDF6"
+      });
+      const emphasisStyle = createCellStyle({
+        bold: true,
+        align: "left",
+        bgColor: "FFFFFF",
+        textColor: "0F172A",
+        borderColor: "E5EDF6"
+      });
+      const emptyStyle = createCellStyle({
+        align: "center",
+        bgColor: "F8FAFC",
+        textColor: "64748B",
+        borderColor: "E2E8F0"
+      });
+
+      for (let colIndex = 0; colIndex < 7; colIndex += 1) {
+        applyCellStyle(worksheet, XLSX.utils.encode_cell({ r: 0, c: colIndex }), titleStyle);
+        applyCellStyle(worksheet, XLSX.utils.encode_cell({ r: 1, c: colIndex }), subtitleStyle);
+        applyCellStyle(worksheet, XLSX.utils.encode_cell({ r: 2, c: colIndex }), headerStyle);
+      }
+
+      if (historyItems.length) {
+        historyItems.forEach((_, index) => {
+          const rowIndex = index + 3;
+          applyCellStyle(worksheet, XLSX.utils.encode_cell({ r: rowIndex, c: 0 }), emphasisStyle);
+          applyCellStyle(worksheet, XLSX.utils.encode_cell({ r: rowIndex, c: 1 }), emphasisStyle);
+          for (let colIndex = 2; colIndex < 7; colIndex += 1) {
+            applyCellStyle(worksheet, XLSX.utils.encode_cell({ r: rowIndex, c: colIndex }), bodyStyle);
+          }
+        });
+      } else {
+        for (let colIndex = 0; colIndex < 7; colIndex += 1) {
+          applyCellStyle(worksheet, XLSX.utils.encode_cell({ r: 3, c: colIndex }), emptyStyle);
+          applyCellStyle(worksheet, XLSX.utils.encode_cell({ r: 4, c: colIndex }), emptyStyle);
+        }
+      }
+
+      return worksheet;
+    }
+
+    function handleExportScheduleExcel() {
+      if (!window.XLSX) {
+        scheduleStatus.textContent = "Chưa tải được thư viện xuất Excel.";
+        scheduleStatus.classList.add("error");
+        return;
+      }
+
+      const selectedDate = timetableExportWeekInput?.value || DEFAULT_WEEK_START;
+      const exportWeekStart = getStartOfWeekISO(parseDate(selectedDate));
+      const exportDates = Array.from({ length: 7 }, (_, index) => addDays(exportWeekStart, index));
+      const workbook = XLSX.utils.book_new();
+
+      REGION_SHEETS.forEach((region, index) => {
+        const worksheet = buildExportWorksheetForRegion(region, exportDates);
+        XLSX.utils.book_append_sheet(workbook, worksheet, getSafeSheetName(region, index));
+      });
+
+      const fileName = `lich-lam-viec-${exportWeekStart}.xlsx`;
+      XLSX.writeFile(workbook, fileName);
+      scheduleStatus.textContent = `Đã xuất file Excel cho tuần bắt đầu ${formatDateLabel(exportWeekStart).day}.`;
+      scheduleStatus.classList.remove("error");
+    }
+
+    function getCurrentYearMonthValue() {
+      const today = parseDate(DEFAULT_WEEK_START);
+      return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}`;
+    }
+
+    function handleExportHistoryExcel() {
+      if (!window.XLSX) {
+        scheduleStatus.textContent = "Chưa tải được thư viện xuất Excel.";
+        scheduleStatus.classList.add("error");
+        return;
+      }
+
+      const selectedRegion = regionFilter.value;
+      const selectedMonth = historyExportMonthInput?.value || getCurrentYearMonthValue();
+      const workbook = XLSX.utils.book_new();
+      const worksheet = buildHistoryWorksheet(selectedRegion, selectedMonth);
+
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Lich su chinh sua");
+
+      const fileName = `lich-su-chinh-sua-${selectedRegion.replace(/[\\/?*\[\]:]/g, "-")}-${selectedMonth}.xlsx`;
+      XLSX.writeFile(workbook, fileName);
+      scheduleStatus.textContent = `Đã xuất file Excel lịch sử chỉnh sửa của ${selectedRegion} cho tháng ${selectedMonth}.`;
+      scheduleStatus.classList.remove("error");
+    }
+
+    function syncTimetableExportWeekInput(nextValue) {
+      if (timetableExportWeekInput) {
+        timetableExportWeekInput.value = nextValue;
+      }
+    }
+
+    function handleShiftChange(event) {
+      if (!currentUser) return; // Require login for editing
+
+      const target = event.target;
+      if (!(target instanceof HTMLSelectElement) || !target.classList.contains("shift-cell-select")) {
+        return;
+      }
+
+      const region = target.dataset.region;
+      const storeCode = target.dataset.store;
+      const employeeIndex = Number(target.dataset.employeeIndex);
+      const date = target.dataset.date;
+      const storesInRegion = scheduleData[region] || [];
+      const store = storesInRegion.find((item) => item.code === storeCode);
+
+      if (!isWeekInEditableRange()) {
+        scheduleStatus.textContent = "Tuần này không được phép chỉnh sửa lịch.";
+        scheduleStatus.classList.add("error");
+        loadSheetData();
+        return;
+      }
+
+      if (!store) {
+        scheduleStatus.textContent = "Không tìm thấy cửa hàng để cập nhật.";
+        scheduleStatus.classList.add("error");
+        loadSheetData();
+        return;
+      }
+
+      const employee = store.employees[employeeIndex];
+      const previousShift = normalizeLegacyShiftValue(employee.schedule[date] || "OFF TUẦN");
+      const nextShiftCode = target.value;
+      const previousTime = getShiftTime(previousShift);
+
+      if (!isShiftAllowedForRole(employee.role, nextShiftCode)) {
+        scheduleStatus.textContent = `${employee.role} không được phép chọn ca ${nextShiftCode}.`;
+        scheduleStatus.classList.add("error");
+        loadSheetData();
+        return;
+      }
+
+      const nextShift = formatShiftValue(nextShiftCode, previousTime);
+
+      if (previousShift === nextShift) {
+        target.className = `shift-cell-select ${getShiftStyleClass(nextShiftCode)}`;
+        return;
+      }
+
+      employee.schedule[date] = nextShift;
+      saveScheduleData();
+      scheduleStatus.textContent = `Đã cập nhật ${employee.name} tại ${storeCode} ngày ${formatDateLabel(date).day} từ ${previousShift} sang ${nextShift}.`;
+      scheduleStatus.classList.remove("error");
+
+      const history = getHistory();
+      history.push({
+        editor: "Quản lý",
+        employee: employee.name,
+        store: storeCode,
+        region,
+        fromShift: previousShift,
+        toShift: nextShift,
+        date,
+        dateLabel: formatDateLabel(date).day,
+        time: new Date().toLocaleString("vi-VN")
+      });
+      setHistory(history);
+      loadSheetData();
+    }
+
+    function handleShiftTimeInput(event) {
+      if (!currentUser) return; // Require login for editing
+
+      const target = event.target;
+      if (!(target instanceof HTMLInputElement) || !(target.classList.contains("shift-time-input") || target.classList.contains("shift-break-input"))) {
+        return;
+      }
+
+      const formatted = formatTimeInputValue(target.value);
+      if (formatted !== target.value) {
+        target.value = formatted;
+      }
+    }
+
+    function handleShiftTimeChange(event) {
+      if (!currentUser) return; // Require login for editing
+
+      const target = event.target;
+      if (!(target instanceof HTMLInputElement) || !(target.classList.contains("shift-time-input") || target.classList.contains("shift-break-input"))) {
+        return;
+      }
+
+      const region = target.dataset.region;
+      const storeCode = target.dataset.store;
+      const employeeIndex = Number(target.dataset.employeeIndex);
+      const date = target.dataset.date;
+      const shiftCode = target.dataset.shiftCode || "OFF TUẦN";
+      const storesInRegion = scheduleData[region] || [];
+      const store = storesInRegion.find((item) => item.code === storeCode);
+
+      if (!isWeekInEditableRange()) {
+        scheduleStatus.textContent = "Tuần này không được phép chỉnh sửa lịch.";
+        scheduleStatus.classList.add("error");
+        loadSheetData();
+        return;
+      }
+
+      if (!store) {
+        scheduleStatus.textContent = "Không tìm thấy cửa hàng để cập nhật.";
+        scheduleStatus.classList.add("error");
+        loadSheetData();
+        return;
+      }
+
+      const employee = store.employees[employeeIndex];
+      const previousShift = normalizeLegacyShiftValue(employee.schedule[date] || "OFF TUẦN");
+      const cellEditor = target.closest('.shift-cell-editor');
+      const workInput = cellEditor?.querySelector('.shift-time-input');
+      const breakInput = cellEditor?.querySelector('.shift-break-input');
+      const workTime = workInput?.value.trim() || "";
+      const breakTime = breakInput?.value.trim() || "";
+
+      if (!workTime && !breakTime) {
+        const nextShift = shiftCode;
+        if (previousShift !== nextShift) {
+          employee.schedule[date] = nextShift;
+          saveScheduleData();
+          scheduleStatus.textContent = `Đã cập nhật ca ${employee.name} tại ${storeCode} ngày ${formatDateLabel(date).day}.`;
+          scheduleStatus.classList.remove("error");
+          loadSheetData();
+        }
+        return;
+      }
+
+      if (!workTime || !breakTime) {
+        scheduleStatus.textContent = "Phải nhập đầy đủ giờ bắt đầu và giờ kết thúc để lưu.";
+        scheduleStatus.classList.add("error");
+        return;
+      }
+
+      if (!isValid24HourTime(workTime)) {
+        scheduleStatus.textContent = "Định dạng giờ làm phải là HH:MM (00-23:59).";
+        scheduleStatus.classList.add("error");
+        workInput?.focus();
+        return;
+      }
+      if (!isValid24HourTime(breakTime)) {
+        scheduleStatus.textContent = "Định dạng giờ nghỉ phải là HH:MM (00-23:59).";
+        scheduleStatus.classList.add("error");
+        breakInput?.focus();
+        return;
+      }
+
+      const nextShift = formatShiftValue(shiftCode, workTime, breakTime);
+
+      if (previousShift === nextShift) {
+        return;
+      }
+
+      employee.schedule[date] = nextShift;
+      saveScheduleData();
+      scheduleStatus.textContent = `Đã cập nhật thời gian ${employee.name} tại ${storeCode} ngày ${formatDateLabel(date).day}: ${nextShift}.`;
+      scheduleStatus.classList.remove("error");
+
+      const history = getHistory();
+      history.push({
+        editor: "Quản lý",
+        employee: employee.name,
+        store: storeCode,
+        region,
+        fromShift: previousShift,
+        toShift: nextShift,
+        date,
+        dateLabel: formatDateLabel(date).day,
+        time: new Date().toLocaleString("vi-VN")
+      });
+      setHistory(history);
+      loadSheetData();
+    }
+
+    function handleNameChange(event) {
+      if (!currentUser) return; // Require login for editing
+
+      const target = event.target;
+      if (!(target instanceof HTMLInputElement) || !target.classList.contains("employee-name-input")) {
+        return;
+      }
+
+      const region = target.dataset.region;
+      const storeCode = target.dataset.store;
+      const employeeIndex = Number(target.dataset.employeeIndex);
+      const storesInRegion = scheduleData[region] || [];
+      const store = storesInRegion.find((item) => item.code === storeCode);
+
+      if (!isWeekInEditableRange()) {
+        scheduleStatus.textContent = "Tuần này không được phép chỉnh sửa tên nhân sự.";
+        scheduleStatus.classList.add("error");
+        loadSheetData();
+        return;
+      }
+
+      if (!store) {
+        scheduleStatus.textContent = "Không tìm thấy cửa hàng để cập nhật tên nhân sự.";
+        scheduleStatus.classList.add("error");
+        loadSheetData();
+        return;
+      }
+
+      const employee = store.employees[employeeIndex];
+      const previousName = employee.name;
+      const nextName = target.value.trim();
+
+      if (!nextName) {
+        scheduleStatus.textContent = "Tên nhân sự không được để trống.";
+        scheduleStatus.classList.add("error");
+        loadSheetData();
+        return;
+      }
+
+      if (previousName === nextName) {
+        return;
+      }
+
+      employee.name = nextName;
+      saveScheduleData();
+      scheduleStatus.textContent = `Đã đổi tên nhân sự tại ${storeCode} từ ${previousName} sang ${nextName}.`;
+      scheduleStatus.classList.remove("error");
+      loadSheetData();
+    }
+
+    function handleOfficeSheetInput(event) {
+      if (!currentUser) return; // Require login for editing
+
+      const target = event.target;
+      if (!(target instanceof HTMLInputElement) || !target.classList.contains("office-sheet-input")) {
+        return;
+      }
+
+      const sectionTitle = target.dataset.officeSection || "";
+      const rowLabel = target.dataset.officeRow || "";
+      const dateIndex = Number(target.dataset.officeIndex);
+      target.className = `office-sheet-input ${getOfficeEntryClass(target.value.trim())}`.trim();
+      const colorPicker = target.parentElement?.querySelector(".office-sheet-color");
+      target.style.cssText = getOfficeInputInlineStyle(target.value.trim(), colorPicker instanceof HTMLInputElement ? colorPicker.value : "");
+      updateOfficeColorTriggerState(sectionTitle, rowLabel, dateIndex);
+    }
+
+    function handleOfficeSheetCommit(event) {
+      if (!currentUser) return; // Require login for editing
+
+      const target = event.target;
+      if (!(target instanceof HTMLInputElement) || !target.classList.contains("office-sheet-input")) {
+        return;
+      }
+
+      if (regionFilter.value !== "TPKD/QLV") {
+        return;
+      }
+
+      if (!isWeekInEditableRange()) {
+        scheduleStatus.textContent = "Tuần này không được phép chỉnh sửa lịch khối văn phòng.";
+        scheduleStatus.classList.add("error");
+        loadSheetData();
+        return;
+      }
+
+      const sectionTitle = target.dataset.officeSection || "";
+      const rowLabel = target.dataset.officeRow || "";
+      const dateIndex = Number(target.dataset.officeIndex);
+      const nextValue = target.value.trim();
+
+      if (!updateOfficeSheetWeekValue(timetableWeekStart, sectionTitle, rowLabel, dateIndex, nextValue)) {
+        scheduleStatus.textContent = "Không lưu được dữ liệu lịch khối văn phòng.";
+        scheduleStatus.classList.add("error");
+        loadSheetData();
+        return;
+      }
+
+      updateOfficeColorTriggerState(sectionTitle, rowLabel, dateIndex);
+      scheduleStatus.textContent = `Đã cập nhật ${rowLabel} trong ${sectionTitle}.`;
+      scheduleStatus.classList.remove("error");
+    }
+
+    function handleOfficeSheetColorChange(event) {
+      if (!currentUser) return; // Require login for editing
+
+      const target = event.target;
+      if (!(target instanceof HTMLInputElement) || !target.classList.contains("office-sheet-color")) {
+        return;
+      }
+
+      if (regionFilter.value !== "TPKD/QLV") {
+        return;
+      }
+
+      if (!isWeekInEditableRange()) {
+        scheduleStatus.textContent = "Tuần này không được phép chỉnh sửa màu lịch khối văn phòng.";
+        scheduleStatus.classList.add("error");
+        loadSheetData();
+        return;
+      }
+
+      const sectionTitle = target.dataset.officeSection || "";
+      const rowLabel = target.dataset.officeRow || "";
+      const dateIndex = Number(target.dataset.officeIndex);
+      const nextColor = target.value;
+
+      if (!updateOfficeSheetWeekColor(timetableWeekStart, sectionTitle, rowLabel, dateIndex, nextColor)) {
+        scheduleStatus.textContent = "Không lưu được màu ô lịch khối văn phòng.";
+        scheduleStatus.classList.add("error");
+        loadSheetData();
+        return;
+      }
+
+      addOfficeFavoriteColor(nextColor);
+
+      const { textInput, colorInput, trigger } = findOfficeCellControls(sectionTitle, rowLabel, dateIndex);
+      if (textInput instanceof HTMLInputElement) {
+        textInput.style.cssText = getOfficeInputInlineStyle(textInput.value.trim(), nextColor);
+      }
+      if (colorInput instanceof HTMLInputElement) {
+        colorInput.value = nextColor;
+      }
+      if (trigger instanceof HTMLButtonElement) {
+        trigger.style.background = nextColor;
+      }
+
+      if (activeOfficeColorContext) {
+        activeOfficeColorContext.color = nextColor;
+        syncActiveOfficeColorPopoverPosition();
+      }
+
+      scheduleStatus.textContent = `Đã cập nhật màu ô ${rowLabel} trong ${sectionTitle}.`;
+      scheduleStatus.classList.remove("error");
+    }
+
+    function handleOfficeFavoriteColorClick(event) {
+      const target = event.target;
+      if (!(target instanceof HTMLButtonElement) || !target.classList.contains("office-sheet-favorite")) {
+        return;
+      }
+
+      if (regionFilter.value !== "TPKD/QLV") {
+        return;
+      }
+
+      if (!isWeekInEditableRange()) {
+        scheduleStatus.textContent = "Tuần này không được phép chỉnh sửa màu lịch khối văn phòng.";
+        scheduleStatus.classList.add("error");
+        loadSheetData();
+        return;
+      }
+
+      const sectionTitle = target.dataset.officeSection || "";
+      const rowLabel = target.dataset.officeRow || "";
+      const dateIndex = Number(target.dataset.officeIndex);
+      const nextColor = target.dataset.officeFavoriteColor || "";
+
+      if (!updateOfficeSheetWeekColor(timetableWeekStart, sectionTitle, rowLabel, dateIndex, nextColor)) {
+        scheduleStatus.textContent = "Không lưu được màu yêu thích cho ô lịch khối văn phòng.";
+        scheduleStatus.classList.add("error");
+        loadSheetData();
+        return;
+      }
+
+      if (nextColor) {
+        addOfficeFavoriteColor(nextColor);
+      }
+
+      const { textInput, colorInput, trigger } = findOfficeCellControls(sectionTitle, rowLabel, dateIndex);
+
+      if (textInput instanceof HTMLInputElement) {
+        textInput.style.cssText = getOfficeInputInlineStyle(textInput.value.trim(), nextColor);
+      }
+
+      if (colorInput instanceof HTMLInputElement) {
+        colorInput.value = nextColor || "#f3f4f6";
+      }
+
+      if (trigger instanceof HTMLButtonElement) {
+        trigger.style.background = nextColor || "#f3f4f6";
+      }
+
+      if (activeOfficeColorContext) {
+        activeOfficeColorContext.color = nextColor || "#f3f4f6";
+      }
+
+      scheduleStatus.textContent = `Đã áp dụng màu yêu thích cho ${rowLabel} trong ${sectionTitle}.`;
+      scheduleStatus.classList.remove("error");
+      closeOfficeColorPickers();
+    }
+
+    function closeRoleActionMenus() {
+      timetableBoard.querySelectorAll(".role-action-menu.is-open").forEach((menu) => {
+        menu.classList.remove("is-open");
+      });
+      timetableBoard.querySelectorAll(".store-timetable.menu-open").forEach((section) => {
+        section.classList.remove("menu-open");
+      });
+      timetableBoard.querySelectorAll(".role-cell.menu-open").forEach((cell) => {
+        cell.classList.remove("menu-open");
+      });
+    }
+
+    function handleRoleActionClick(event) {
+      if (!currentUser) return; // Require login for editing
+
+      const target = event.target;
+
+      if (target instanceof HTMLButtonElement && target.hasAttribute("data-office-color-trigger")) {
+        if (target.disabled) {
+          scheduleStatus.textContent = "Cần nhập ca trước khi chọn màu.";
+          scheduleStatus.classList.add("error");
+          return;
+        }
+
+        const rect = target.getBoundingClientRect();
+        const nextContext = {
+          sectionTitle: target.dataset.officeSection || "",
+          rowLabel: target.dataset.officeRow || "",
+          dateIndex: Number(target.dataset.officeIndex),
+          color: (findOfficeCellControls(
+            target.dataset.officeSection || "",
+            target.dataset.officeRow || "",
+            Number(target.dataset.officeIndex)
+          ).colorInput instanceof HTMLInputElement)
+            ? findOfficeCellControls(
+              target.dataset.officeSection || "",
+              target.dataset.officeRow || "",
+              Number(target.dataset.officeIndex)
+            ).colorInput.value
+            : "#f3f4f6",
+          left: Math.max(12, rect.right - 220),
+          top: rect.bottom + 8
+        };
+        const isSameContext = activeOfficeColorContext
+          && activeOfficeColorContext.sectionTitle === nextContext.sectionTitle
+          && activeOfficeColorContext.rowLabel === nextContext.rowLabel
+          && activeOfficeColorContext.dateIndex === nextContext.dateIndex;
+
+        activeOfficeColorContext = isSameContext ? null : nextContext;
+        renderOfficeColorPopover();
+        return;
+      }
+
+      if (target instanceof HTMLButtonElement && target.dataset.storeAction) {
+        const region = target.dataset.region;
+        const storeCode = target.dataset.store;
+        const storesInRegion = scheduleData[region] || [];
+        const store = storesInRegion.find((item) => item.code === storeCode);
+        const action = target.dataset.storeAction;
+
+        if (!isWeekInEditableRange() || !store) {
+          loadSheetData();
+          return;
+        }
+
+        const role = action === "add-security" ? "Bảo vệ" : action === "add-support" ? "Hỗ trợ" : "Nhân viên";
+        store.employees.push({
+          name: getNextEmployeeName(role, store),
+          role,
+          schedule: buildDefaultScheduleForRole(role)
+        });
+        saveScheduleData();
+        loadSheetData();
+        return;
+      }
+
+      if (target instanceof HTMLButtonElement && target.classList.contains("role-action-toggle")) {
+        const menu = target.parentElement?.querySelector(".role-action-menu");
+        const roleCell = target.closest(".role-cell");
+        const storeTimetable = target.closest(".store-timetable");
+        if (!menu) {
+          return;
+        }
+
+        const willOpen = !menu.classList.contains("is-open");
+        closeRoleActionMenus();
+        if (willOpen) {
+          menu.classList.add("is-open");
+          roleCell?.classList.add("menu-open");
+          storeTimetable?.classList.add("menu-open");
+        }
+        return;
+      }
+
+      if (!(target instanceof HTMLButtonElement) || !target.dataset.roleAction) {
+        return;
+      }
+
+      const region = target.dataset.region;
+      const storeCode = target.dataset.store;
+      const employeeIndex = Number(target.dataset.employeeIndex);
+      const action = target.dataset.roleAction;
+      const storesInRegion = scheduleData[region] || [];
+      const store = storesInRegion.find((item) => item.code === storeCode);
+
+      closeRoleActionMenus();
+
+      if (!isWeekInEditableRange() || !store) {
+        loadSheetData();
+        return;
+      }
+
+      const employee = store.employees[employeeIndex];
+      if (!employee || !canManageEmployeeRow(employee.role)) {
+        return;
+      }
+
+      if (action === "add" || action === "add-employee" || action === "add-security" || action === "add-support" || action === "add-overtime") {
+        const role = action === "add-security" ? "Bảo vệ" : action === "add-support" ? "Hỗ trợ" : action === "add-overtime" ? "NV tăng ca" : "Nhân viên";
+        store.employees.splice(employeeIndex + 1, 0, {
+          name: getNextEmployeeName(role, store),
+          role,
+          schedule: buildDefaultScheduleForRole(role)
+        });
+        saveScheduleData();
+        loadSheetData();
+        return;
+      }
+
+      if (action === "delete") {
+        store.employees.splice(employeeIndex, 1);
+        saveScheduleData();
+        loadSheetData();
+      }
+    }
+
+    async function initializeFromDatabase() {
+      try {
+        const indexData = await fetchIndexData();
+        REGION_SHEETS = (Array.isArray(indexData?.regions) ? indexData.regions : [])
+          .map((region) => region.name)
+          .filter(Boolean);
+        scheduleData = buildScheduleDataFromDb(indexData);
+        if (normalizeScheduleData(scheduleData)) {
+          saveScheduleData();
+        }
+        renderRegionOptions();
+      } catch (error) {
+        REGION_SHEETS = [];
+        scheduleData = {};
+        renderRegionOptions();
+        regionSummary.textContent = `Không tải được dữ liệu DB: ${error.message}`;
+      }
+    }
+
+    regionFilter.addEventListener("change", loadSheetData);
+    timetableBoard.addEventListener("click", handleRoleActionClick);
+    timetableBoard.addEventListener("keydown", handleShiftTimeKeyDown);
+    timetableBoard.addEventListener("keyup", handleShiftTimeKeyUp);
+    timetableBoard.addEventListener("input", handleOfficeSheetInput);
+    timetableBoard.addEventListener("input", handleShiftTimeInput);
+    timetableBoard.addEventListener("change", handleShiftChange);
+    timetableBoard.addEventListener("change", handleShiftTimeChange);
+    timetableBoard.addEventListener("focusout", handleNameChange);
+    timetableBoard.addEventListener("focusout", handleOfficeSheetCommit);
+    timetableBoard.addEventListener("focusout", handleShiftTimeChange);
+    timetableBoard.addEventListener("click", (e) => {
+
+      if (!currentUser) {
+        e.stopImmediatePropagation();
+        e.preventDefault();
+        alert("Vui lòng đăng nhập");
+        return;
+      }
+
+    });
+    timetableBoard.addEventListener("input", (e) => {
+
+      if (!currentUser) {
+        e.stopImmediatePropagation();
+        e.preventDefault();
+        e.target.blur();
+        alert("Vui lòng đăng nhập");
+        return;
+      }
+
+    });
+    timetableBoard.addEventListener("focusout", (e) => {
+
+      if (!currentUser) {
+        e.stopImmediatePropagation();
+        e.preventDefault();
+        return;
+      }
+
+    });
+    officeColorPopover?.addEventListener("click", (event) => {
+      const target = event.target;
+      if (target instanceof HTMLButtonElement && target.hasAttribute("data-office-custom-trigger")) {
+        const colorInput = officeColorPopover.querySelector(".office-sheet-color");
+        if (colorInput instanceof HTMLInputElement) {
+          colorInput.click();
+        }
+        return;
+      }
+      handleOfficeFavoriteColorClick(event);
+    });
+    officeColorPopover?.addEventListener("change", handleOfficeSheetColorChange);
+    document.addEventListener("click", (event) => {
+      if (!(event.target instanceof HTMLElement) || !event.target.closest(".role-cell")) {
+        closeRoleActionMenus();
+      }
+      if (!(event.target instanceof HTMLElement) || (!event.target.closest(".office-sheet-color-tools") && !event.target.closest(".office-color-popover"))) {
+        closeOfficeColorPickers();
+      }
+    });
+    window.addEventListener("scroll", syncActiveOfficeColorPopoverPosition, true);
+    window.addEventListener("resize", syncActiveOfficeColorPopoverPosition);
+    prevWeekButton.addEventListener("click", () => {
+      timetableWeekStart = addDays(timetableWeekStart, -7);
+      loadSheetData();
+    });
+    currentWeekButton.addEventListener("click", () => {
+      timetableWeekStart = DEFAULT_WEEK_START;
+      loadSheetData();
+    });
+    nextWeekButton.addEventListener("click", () => {
+      if (getWeekOffsetFromDefault() >= MAX_VIEWABLE_WEEK_OFFSET) {
+        loadSheetData();
+        return;
+      }
+      timetableWeekStart = addDays(timetableWeekStart, 7);
+      loadSheetData();
+    });
+    syncTimetableExportWeekInput(DEFAULT_WEEK_START);
+    if (historyExportMonthInput) {
+      historyExportMonthInput.value = getCurrentYearMonthValue();
+    }
+    timetableExportWeekInput?.addEventListener("change", (event) => {
+      const nextValue = event.target.value || DEFAULT_WEEK_START;
+      timetableWeekStart = getStartOfWeekISO(parseDate(nextValue));
+      loadSheetData();
+    });
+    timetableExportButton?.addEventListener("click", handleExportScheduleExcel);
+    historyExportButton?.addEventListener("click", handleExportHistoryExcel);
+
+    // Show user info
+    if (currentUser && currentUser.name) {
+      document.getElementById("user-name").textContent = currentUser.name;
+      
+      // Hiển thị chức vụ hoặc đơn vị
+      const userRoleSpan = document.getElementById("user-role");
+      if (userRoleSpan) {
+        if (currentUser.role === 'admin') {
+          userRoleSpan.textContent = '(Admin)';
+        } else if (currentUser.role === 'user') {
+          userRoleSpan.textContent = currentUser.store_code ? `(${currentUser.store_code})` : '(Người dùng)';
+        } else {
+          userRoleSpan.textContent = `(${currentUser.role})`;
+        }
+      }
+      
+      document.getElementById("user-info").style.display = "flex";
+    }
+
+    // Logout handler
+    document.getElementById("logout-button").addEventListener("click", () => {
+      localStorage.removeItem("user");
+      localStorage.removeItem("token");
+      window.location.replace("/login.html");
+    });
+
+    initializeFromDatabase().finally(() => {
+      loadSheetData();
+    });
+  </script>
+  <script src="js/script.js"></script>
+</body>
+</html>

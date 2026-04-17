@@ -1,0 +1,627 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chấm công | Cấu hình</title>
+  <link rel="icon" href="public/logo-jm-den.png" type="image/x-icon">
+  <link rel="stylesheet" href="./css/app.css" />
+  <link rel="stylesheet" href="./css/nav.css" />
+  <link rel="stylesheet" href="./css/footer.css" />
+  <link rel="stylesheet" href="./css/cau-hinh.css" />
+</head>
+<body class="page-cau-hinh">
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="index.html" class="brand">
+        <img src="public/logo-jm.ico" alt="Logo Chấm công" style="height: 40px;">
+      </a>
+      <nav class="main-nav">
+        <a href="index.html">Lịch làm việc</a>
+        <a href="cau-hinh.html" class="active">Cấu hình</a>
+      </nav>
+      <div class="user-info" id="user-info" style="display: none; flex-direction: column; align-items: flex-end;">
+        <span id="user-name" style="font-weight: 500;"></span>
+        <span id="user-role" style="font-size: 0.85em;"></span>
+        <button id="logout-button" class="button button-secondary">Đăng xuất</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="config-layout">
+    <aside class="config-sidebar app-sidepanel">
+      <a href="cau-hinh.html" class="config-nav-item app-sidepanel-link active">Quản lý đơn vị</a>
+      <a href="nguoi-dung.html" class="config-nav-item app-sidepanel-link">Quản lý người dùng</a>
+    </aside>
+
+    <section class="config-main">
+      <div class="config-shell">
+
+        <article class="config-panel">
+          <h2>Quản lý khu vực</h2>
+
+          <form id="region-form">
+            <div class="store-form-grid">
+              <label class="store-field">
+                Mã khu vực
+                <input type="text" id="region-code" class="store-input" placeholder="VD: HCM" />
+              </label>
+
+              <label class="store-field">
+                Tên khu vực
+                <input type="text" id="region-name" class="store-input" placeholder="VD: Hồ Chí Minh" />
+              </label>
+
+              <label class="store-field">
+                Người quản lý
+                <input type="text" id="region-manager" class="store-input" placeholder="Ví dụ: Nguyễn Văn A" />
+              </label>
+            </div>
+
+            <div class="config-actions">
+              <button type="submit" class="config-button primary">Thêm khu vực</button>
+            </div>
+          </form>
+
+          <div id="region-status" class="config-status"></div>
+
+          <table class="store-table">
+            <thead>
+              <tr>
+                <th>Mã</th>
+                <th>Tên</th>
+                <th>Người quản lý</th>
+                <th>Thao tác</th>
+              </tr>
+            </thead>
+            <tbody id="region-table-body"></tbody>
+          </table>
+        </article>
+
+        <article class="config-panel">
+          <h2>Quản lý đơn vị</h2>
+          <p>Cập nhật thông tin cửa hàng, bộ phận văn phòng hoặc nhóm phụ trách lịch làm việc theo từng khu vực.</p>
+          <div class="store-admin">
+            <div class="store-toolbar">
+              <label class="store-field store-filter">
+                Lọc khu vực
+                <select id="store-region-filter" class="store-input"></select>
+              </label>
+              <div class="store-filter-summary" id="store-filter-summary"></div>
+            </div>
+
+            <form id="store-form">
+              <div class="store-form-grid">
+                <label class="store-field">
+                  <span>Mã đơn vị</span>
+                  <input type="text" id="store-code" class="store-input" placeholder="Ví dụ: JMHCM01 hoặc TPKD" />
+                </label>
+                <label class="store-field">
+                  <span>Tên đơn vị</span>
+                  <input type="text" id="store-name" class="store-input" placeholder="Ví dụ: JDD Nguyễn Trãi hoặc Văn phòng QLV" />
+                </label>
+                <label class="store-field">
+                  <span>Khu vực</span>
+                  <select id="store-region" class="store-input"></select>
+                </label>
+                <label class="store-field">
+                  <span id="store-manager-label">Quản lý store</span>
+                  <input type="text" id="store-manager" class="store-input" placeholder="Ví dụ: Nguyễn Văn A" />
+                </label>
+              </div>
+              <div class="config-actions store-form-actions">
+                <button type="submit" class="config-button primary" id="store-submit-button">Thêm đơn vị</button>
+              </div>
+            </form>
+
+            <div class="config-status" id="store-status"></div>
+
+            <div class="store-table-wrap">
+              <table class="store-table">
+                <thead>
+                  <tr>
+                    <th>Mã đơn vị</th>
+                    <th>Tên đơn vị</th>
+                    <th>Khu vực</th>
+                    <th>Quản lý store</th>
+                    <th>Thao tác</th>
+                  </tr>
+                </thead>
+                <tbody id="store-table-body"></tbody>
+              </table>
+            </div>
+          </div>
+        </article>
+
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <p>© 2026 chấm công. Thiết kế bởi Phạm Mạnh Quân 0862528119.</p>
+      <div class="footer-links">
+        <a href="index.html">Trang chủ</a>
+        <a href="#">Chính sách</a>
+      </div>
+    </div>
+  </footer>
+  <script type="module">
+    import { 
+      createStore, deleteStore, getRegions, getStores, updateStore,
+      createRegion, updateRegion, deleteRegion
+    } from "./js/api.js";
+
+    const REGION_METADATA = {
+      "TPKD/QLV": {
+        unitLabel: "bộ phận",
+        summaryLabel: "bộ phận văn phòng",
+        managerLabel: "Địa điểm",
+        hideManagerField: true
+      }
+    };
+    const storeForm = document.getElementById("store-form");
+    const storeCodeInput = document.getElementById("store-code");
+    const storeNameInput = document.getElementById("store-name");
+    const storeRegionInput = document.getElementById("store-region");
+    const storeManagerInput = document.getElementById("store-manager");
+    const storeManagerLabel = document.getElementById("store-manager-label");
+    const storeManagerField = storeManagerLabel ? storeManagerLabel.closest('.store-field') : null;
+    const storeRegionFilter = document.getElementById("store-region-filter");
+    const storeFilterSummary = document.getElementById("store-filter-summary");
+    const storeSubmitButton = document.getElementById("store-submit-button");
+    const storeStatus = document.getElementById("store-status");
+    const storeTableBody = document.getElementById("store-table-body");
+
+    let regionsData = [];
+    let editingRegionCode = null;
+    let editingRegionRow = null;
+    let regions = [];
+    const regionForm = document.getElementById("region-form");
+    const regionCodeInput = document.getElementById("region-code");
+    const regionNameInput = document.getElementById("region-name");
+    const regionTableBody = document.getElementById("region-table-body");
+    const regionStatus = document.getElementById("region-status");
+
+    function getRegionMeta(region) {
+      return REGION_METADATA[region] || {
+        unitLabel: "đơn vị",
+        summaryLabel: "đơn vị",
+        managerLabel: "Quản lý store",
+        hideManagerField: false
+      };
+    }
+
+    const storeTableHeaderRow = document.querySelector(".store-table-wrap table thead tr");
+
+    function updateStoreManagerLabel() {
+      const region = storeRegionInput.value;
+      const regionMeta = getRegionMeta(region);
+      if (storeManagerField) {
+        if (regionMeta.hideManagerField) {
+          storeManagerField.style.display = "none";
+          storeManagerInput.value = "";
+        } else {
+          storeManagerField.style.display = "block";
+          storeManagerLabel.textContent = regionMeta.managerLabel || "Quản lý store";
+        }
+      }
+    }
+
+    function updateStoreTableHeader(selectedRegion = storeRegionFilter.value) {
+      const regionMeta = getRegionMeta(selectedRegion);
+      const isTPKD = selectedRegion === "TPKD/QLV";
+      if (!storeTableHeaderRow) return;
+
+      storeTableHeaderRow.innerHTML = `
+        <th>Mã đơn vị</th>
+        <th>Tên đơn vị</th>
+        <th>Khu vực</th>
+        ${isTPKD ? "" : `<th>${regionMeta.managerLabel || "Quản lý store"}</th>`}
+        <th>Thao tác</th>
+      `;
+    }
+
+    function normalizeStores(data) {
+      if (!Array.isArray(data)) {
+        return [];
+      }
+
+      return data.map((store) => {
+        if (store.region !== "TPKD/QLV") {
+          return store;
+        }
+
+        if (store.code === "JMTPKD01" || store.code === "TPKD") {
+          return { ...store, code: "TPKD", name: "Phòng TPKD" };
+        }
+
+        if (store.code === "JMTPKD02" || store.code === "QLV") {
+          return { ...store, code: "QLV", name: "Bộ phận QLV" };
+        }
+
+        return store;
+      });
+    }
+
+    let stores = [];
+    let editingRowCode = null;
+
+    function getRegionOptions() {
+      return regions.map((region) => region.name).filter(Boolean);
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+    }
+
+    function setStoreStatus(message, isError = false) {
+      storeStatus.textContent = message;
+      storeStatus.classList.toggle("error", isError);
+    }
+
+    function resetStoreForm() {
+      storeForm.reset();
+      storeSubmitButton.textContent = "Thêm đơn vị";
+      setStoreStatus("");
+      updateStoreManagerLabel();
+    }
+
+    function renderRegionControls() {
+      const regions = getRegionOptions();
+      const currentFilter = storeRegionFilter.value;
+      const currentRegion = storeRegionInput.value;
+
+      storeRegionFilter.innerHTML = regions.map((region) => `<option value="${escapeHtml(region)}">${escapeHtml(region)}</option>`).join("");
+
+      storeRegionInput.innerHTML = [
+        '<option value="">Chọn khu vực</option>',
+        ...regions.map((region) => `<option value="${escapeHtml(region)}">${escapeHtml(region)}</option>`)
+      ].join("");
+
+      if (regions.includes(currentFilter)) {
+        storeRegionFilter.value = currentFilter;
+      } else {
+        storeRegionFilter.value = regions[0] || "";
+      }
+
+      if (regions.includes(currentRegion)) {
+        storeRegionInput.value = currentRegion;
+      }
+
+      updateStoreManagerLabel();
+      updateStoreTableHeader();
+    }
+
+    function getFilteredStores() {
+      const selectedRegion = storeRegionFilter.value;
+      if (!selectedRegion || selectedRegion === "all") {
+        return stores.slice();
+      }
+      return stores.filter((store) => store.region === selectedRegion);
+    }
+
+function renderRegionTable() {
+  if (!regionsData.length) {
+    regionTableBody.innerHTML = "<tr><td colspan='4'>Không có khu vực</td></tr>";
+    return;
+  }
+
+  regionTableBody.innerHTML = regionsData.map((r) => {
+    const isEditing = editingRegionRow === r.code;
+
+    if (isEditing) {
+      return `
+        <tr>
+          <td><input value="${r.code}"></td>
+          <td><input value="${r.name}"></td>
+          <td><input value="${r.manager || ""}"></td>
+          <td>
+            <button data-action="update" data-code="${r.code}">Update</button>
+            <button data-action="cancel">Hủy</button>
+          </td>
+        </tr>
+      `;
+    }
+
+    return `
+      <tr>
+        <td>${r.code}</td>
+        <td>${r.name}</td>
+        <td>${r.manager || ""}</td>
+        <td>
+          <button data-action="edit" data-code="${r.code}">Sửa</button>
+          <button data-action="delete" data-code="${r.code}">Xóa</button>
+        </td>
+      </tr>
+    `;
+  }).join("");
+}
+
+    function renderStoreTable() {
+      const filteredStores = getFilteredStores();
+      const selectedRegion = storeRegionFilter.value;
+      const isTPKD = selectedRegion === "TPKD/QLV";
+
+      updateStoreTableHeader(selectedRegion);
+
+      if (!filteredStores.length) {
+        storeTableBody.innerHTML = `
+          <tr><td colspan="${isTPKD ? 4 : 5}">Không có dữ liệu</td></tr>
+        `;
+        return;
+      }
+
+      storeTableBody.innerHTML = filteredStores.map((store) => {
+        const isEditing = editingRowCode === store.code;
+
+        if (isEditing) {
+          return `
+            <tr>
+              <td><input value="${store.code}" data-field="code"></td>
+              <td><input value="${store.name}" data-field="name"></td>
+              <td>
+                <select data-field="region">
+                  ${regions.map(r => `
+                    <option value="${r.name}" ${r.name === store.region ? "selected" : ""}>
+                      ${r.name}
+                    </option>
+                  `).join("")}
+                </select>
+              </td>
+              ${isTPKD ? "" : `<td><input value="${store.manager}" data-field="manager"></td>`}
+              <td>
+                <button data-action="update" data-code="${store.code}">Update</button>
+                <button data-action="cancel">Hủy</button>
+              </td>
+            </tr>
+          `;
+        }
+
+        return `
+          <tr>
+            <td>${store.code}</td>
+            <td>${store.name}</td>
+            <td>${store.region}</td>
+            ${isTPKD ? "" : `<td>${store.manager}</td>`}
+            <td>
+              <button data-action="edit" data-code="${store.code}">Sửa</button>
+              <button data-action="delete" data-code="${store.code}">Xóa</button>
+            </td>
+          </tr>
+        `;
+      }).join("");
+    }
+        
+    function getStoreFormValue(input) {
+      return input.value.trim();
+    }
+
+    storeForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      const code = getStoreFormValue(storeCodeInput).toUpperCase();
+      const name = getStoreFormValue(storeNameInput);
+      const region = getStoreFormValue(storeRegionInput);
+      const manager = getStoreFormValue(storeManagerInput);
+      const regionMeta = getRegionMeta(region);
+
+      if (!code || !name || !region || (!manager && !regionMeta.hideManagerField)) {
+        setStoreStatus("Cần nhập đủ mã đơn vị, tên đơn vị, khu vực và người phụ trách.", true);
+        return;
+      }
+
+      const duplicatedStore = stores.find((store) => store.code === code);
+      if (duplicatedStore) {
+        setStoreStatus("Mã cửa hàng đã tồn tại.", true);
+        return;
+      }
+
+      try {
+        await createStore({
+          code,
+          name,
+          region,
+          manager: regionMeta.hideManagerField ? "" : manager
+        });
+        await loadStores();
+      } catch (error) {
+        setStoreStatus(`Không thể thêm đơn vị: ${error.message}`, true);
+        return;
+      }
+      renderRegionControls();
+      storeRegionFilter.value = region;
+      renderStoreTable();
+      resetStoreForm();
+      setStoreStatus(`Đã thêm ${regionMeta.unitLabel} ${code}.`);
+    });
+
+    regionForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const code = regionCodeInput.value.trim();
+      const name = regionNameInput.value.trim();
+      const manager = document.getElementById("region-manager").value.trim();
+
+      if (!code || !name) {
+        regionStatus.textContent = "Nhập đầy đủ";
+        return;
+      }
+
+      try {
+        if (editingRegionCode) {
+          console.log("DEBUG: Updating region with data:", { code, name, manager });
+          await updateRegion(editingRegionCode, { code, name, manager });
+        } else {
+          console.log("DEBUG: Creating region with data:", { code, name, manager });
+          await createRegion({ code, name, manager });
+        }
+
+        editingRegionCode = null;
+        regionForm.reset();
+
+        await loadRegionsUI();
+        await loadRegions(); // update dropdown store luôn
+
+      } catch (err) {
+        regionStatus.textContent = err.message;
+      }
+    });
+
+    storeRegionFilter.addEventListener("change", () => {
+      updateStoreTableHeader();
+      renderStoreTable();
+    });
+
+    storeRegionInput.addEventListener("change", updateStoreManagerLabel);
+
+    storeTableBody.addEventListener("click", async (event) => {
+      const btn = event.target;
+      const code = btn.dataset.code;
+      const action = btn.dataset.action;
+
+      const row = btn.closest("tr");
+
+      if (action === "cancel") {
+        editingRowCode = null;
+        renderStoreTable();
+        return;
+      }
+
+      if (action === "edit") {
+        editingRowCode = code;
+        renderStoreTable();
+        return;
+      }
+
+      if (action === "update") {
+        const codeInput = row.querySelector("input[data-field='code']");
+        const nameInput = row.querySelector("input[data-field='name']");
+        const regionSelect = row.querySelector("select[data-field='region']");
+        const managerInput = row.querySelector("input[data-field='manager']");
+
+        const data = {
+          code: codeInput.value.trim(),
+          name: nameInput.value.trim(),
+          region: regionSelect.value,
+          manager: managerInput ? managerInput.value.trim() : ""
+        };
+
+        try {
+          await updateStore(code, data);
+          editingRowCode = null;
+          await loadStores();
+          renderStoreTable();
+        } catch (err) {
+          setStoreStatus(err.message, true);
+        }
+      }
+
+      if (action === "delete") {
+        try {
+          await deleteStore(code);
+          await loadStores();
+          renderStoreTable();
+        } catch (err) {
+          setStoreStatus(err.message, true);
+        }
+      }
+    });
+
+    regionTableBody.addEventListener("click", async (e) => {
+      const btn = e.target;
+      const code = btn.dataset.code;
+      const action = btn.dataset.action;
+      const row = btn.closest("tr");
+
+      if (action === "edit") {
+        editingRegionRow = code;
+        renderRegionTable();
+        return;
+      }
+
+      if (action === "cancel") {
+        editingRegionRow = null;
+        renderRegionTable();
+        return;
+      }
+
+      if (action === "update") {
+        const inputs = row.querySelectorAll("input");
+
+        const data = {
+          code: inputs[0].value.trim(),
+          name: inputs[1].value.trim(),
+          manager: inputs[2] ? inputs[2].value.trim() : ""
+        };
+
+        try {
+          await updateRegion(code, data);
+          editingRegionRow = null;
+          await loadRegionsUI();
+        } catch (err) {
+          regionStatus.textContent = err.message;
+        }
+      }
+
+      if (action === "delete") {
+        try {
+          await deleteRegion(code);
+          await loadRegionsUI();
+        } catch (err) {
+          regionStatus.textContent = err.message;
+        }
+      }
+    });
+
+    async function loadRegionsUI() {
+      try {
+        const data = await getRegions();
+        regionsData = data;
+        regions = data;
+        renderRegionTable();
+        renderRegionControls();
+      } catch (e) {
+        regionStatus.textContent = "Lỗi load khu vực";
+      }
+    }
+
+    async function loadStores() {
+      try {
+        const storeData = await getStores();
+        stores = normalizeStores(Array.isArray(storeData) ? storeData.map((store) => ({
+          code: store.code,
+          name: store.name,
+          region: store.region || store.city || "",
+          manager: store.manager || ""
+        })) : []);
+        setStoreStatus("");
+      } catch (error) {
+        stores = [];
+        setStoreStatus(`Không kết nối được backend: ${error.message}`, true);
+      }
+    }
+
+    async function loadRegions() {
+      try {
+        const regionData = await getRegions();
+        regions = Array.isArray(regionData) ? regionData : [];
+      } catch (error) {
+        regions = [];
+        setStoreStatus(`Không tải được khu vực: ${error.message}`, true);
+      }
+    }
+
+    await loadStores();
+    await loadRegionsUI();
+    renderRegionControls();
+    renderStoreTable();
+  </script>
+  <script src="js/script.js"></script>
+</body>
+</html>

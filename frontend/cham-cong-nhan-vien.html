@@ -1,0 +1,388 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JDD | Chấm công nhân viên</title>
+  <link rel="icon" href="public/logo-jm-den.png" type="image/x-icon">
+  <link rel="stylesheet" href="css/app.css" />
+  <link rel="stylesheet" href="css/nav.css" />
+  <link rel="stylesheet" href="css/footer.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/style.css" />
+</head>
+<body class="page-cham-cong-nhan-vien">
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="index.html" class="brand">
+        <img src="public/logo-jm.ico" alt="Logo Chấm công" style="height: 40px;">
+      </a>
+      <nav class="main-nav">
+        <a href="index.html" class="active">Lịch làm việc</a>
+        <a href="cau-hinh.html">Cấu hình</a>
+      </nav>
+      <div class="user-info" id="user-info" style="display: none; flex-direction: column; align-items: flex-end;">
+        <span id="user-name" style="font-weight: 500;"></span>
+        <span id="user-role" style="font-size: 0.85em;"></span>
+        <button id="logout-button" class="button button-secondary">Đăng xuất</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="schedule-container">
+    <div class="sidebar app-sidepanel">
+      <a href="index.html" class="menu-item app-sidepanel-link">Lịch làm</a>
+      <a href="bang-cham-cong.html" class="menu-item app-sidepanel-link">Bảng chấm công</a>
+      <a href="cham-cong-nhan-vien.html" class="menu-item app-sidepanel-link active">Chấm công nhân viên</a>
+    </div>
+
+    <div class="schedule-main">
+      <div class="schedule-overview">
+        <div>
+          <h1>Chấm Công Nhân Viên</h1>
+          <p>Tìm kiếm theo tên, lọc theo tháng và theo dõi tổng công, nghỉ có phép, nghỉ không phép.</p>
+        </div>
+      </div>
+
+      <div class="employee-toolbar">
+        <div class="employee-toolbar-group">
+          <div class="employee-field">
+            <label for="employee-search">Tìm theo tên nhân viên</label>
+            <input type="search" id="employee-search" class="employee-input" placeholder="Nhập tên nhân viên" />
+          </div>
+          <div class="employee-field">
+            <label for="employee-select">Nhân viên</label>
+            <select id="employee-select" class="employee-input"></select>
+          </div>
+          <div class="employee-field">
+            <label for="store-select">Cửa hàng</label>
+            <select id="store-select" class="employee-input"></select>
+          </div>
+          <div class="employee-field">
+            <label for="employee-month">Lọc theo tháng</label>
+            <input type="text" id="employee-month" class="employee-month-input" placeholder="Chọn tháng" />
+          </div>
+          <div class="employee-field">
+            <label>&nbsp;</label>
+            <button type="button" id="attendance-submit" class="button button-primary">Chấm công hôm nay</button>
+          </div>
+        </div>
+        <div class="employee-summary" id="employee-summary"></div>
+      </div>
+
+      <div class="employee-stats">
+        <div class="employee-stat-card">
+          <h3>Số công / Tổng số</h3>
+          <p class="employee-stat-value" id="employee-work-summary">0 / 0</p>
+          <div class="employee-stat-note">Ngày đi làm thực tế</div>
+        </div>
+        <div class="employee-stat-card">
+          <h3>Nghỉ có phép</h3>
+          <p class="employee-stat-value" id="employee-leave-paid">0</p>
+          <div class="employee-stat-note">Ngày nghỉ được duyệt</div>
+        </div>
+        <div class="employee-stat-card">
+          <h3>Nghỉ không phép</h3>
+          <p class="employee-stat-value" id="employee-leave-unpaid">0</p>
+          <div class="employee-stat-note">Ngày nghỉ không phép</div>
+        </div>
+      </div>
+
+      <div class="employee-detail">
+        <h2>Chi tiết 1 tháng</h2>
+        <div class="employee-detail-wrap">
+          <table class="employee-detail-table">
+            <thead id="employee-detail-head"></thead>
+            <tbody id="employee-detail-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <p>© 2026 chấm công. Thiết kế bởi Phạm Mạnh Quân 0862528119.</p>
+      <div class="footer-links">
+        <a href="index.html">Trang chủ</a>
+        <a href="#">Chính sách</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/index.js"></script>
+  <script src="js/script.js"></script>
+  <script type="module">
+    import { chamCong, getChamCong, getEmployees, getStores } from "./js/api.js";
+
+    const employeeMonthInput = document.getElementById("employee-month");
+    const employeeSearchInput = document.getElementById("employee-search");
+    const employeeSelect = document.getElementById("employee-select");
+    const storeSelect = document.getElementById("store-select");
+    const attendanceSubmit = document.getElementById("attendance-submit");
+    const employeeSummary = document.getElementById("employee-summary");
+    const employeeWorkSummary = document.getElementById("employee-work-summary");
+    const employeeLeavePaid = document.getElementById("employee-leave-paid");
+    const employeeLeaveUnpaid = document.getElementById("employee-leave-unpaid");
+    const employeeDetailHead = document.getElementById("employee-detail-head");
+    const employeeDetailBody = document.getElementById("employee-detail-body");
+    const now = new Date();
+    const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+    const currentMonthLabel = `${String(now.getMonth() + 1).padStart(2, "0")}/${now.getFullYear()}`;
+
+    let employees = [];
+    let stores = [];
+    let attendanceRecords = [];
+    let activeMonth = currentMonth;
+
+    function toMonthValue(value) {
+      if (!value) {
+        return currentMonth;
+      }
+
+      if (value.includes("/")) {
+        const [month, year] = value.split("/");
+        return `${year}-${month}`;
+      }
+
+      return value.slice(0, 7);
+    }
+
+    function getDaysInMonth(monthValue) {
+      const [year, month] = monthValue.split("-").map(Number);
+      return new Date(year, month, 0).getDate();
+    }
+
+    function getFilteredEmployees() {
+      const keyword = employeeSearchInput.value.trim().toLowerCase();
+
+      if (!keyword) {
+        return employees;
+      }
+
+      return employees.filter((employee) =>
+        employee.name.toLowerCase().includes(keyword) || employee.code.toLowerCase().includes(keyword)
+      );
+    }
+
+    function syncEmployeeOptions() {
+      const filteredEmployees = getFilteredEmployees();
+      const previousValue = employeeSelect.value;
+
+      employeeSelect.innerHTML = filteredEmployees
+        .map((employee) => `<option value="${employee.id}">${employee.code} - ${employee.name}</option>`)
+        .join("");
+
+      if (!filteredEmployees.length) {
+        employeeSummary.textContent = "Không tìm thấy nhân viên phù hợp.";
+        employeeDetailHead.innerHTML = "";
+        employeeDetailBody.innerHTML = "";
+        employeeWorkSummary.textContent = "0 / 0";
+        employeeLeavePaid.textContent = "0";
+        employeeLeaveUnpaid.textContent = "0";
+        return null;
+      }
+
+      employeeSelect.value = filteredEmployees.some((employee) => employee.id === previousValue)
+        ? previousValue
+        : filteredEmployees[0].id;
+
+      return filteredEmployees.find((employee) => employee.id === employeeSelect.value) || filteredEmployees[0];
+    }
+
+    function syncStoreOptions(activeEmployee) {
+      const previousValue = storeSelect.value;
+
+      storeSelect.innerHTML = stores
+        .map((store) => `<option value="${store.code}">${store.code}</option>`)
+        .join("");
+
+      if (!stores.length) {
+        return;
+      }
+
+      const defaultStoreCode = activeEmployee?.storeCode || previousValue || stores[0].code;
+      storeSelect.value = stores.some((store) => store.code === defaultStoreCode)
+        ? defaultStoreCode
+        : stores[0].code;
+    }
+
+    function buildStatusMap(records) {
+      const map = new Map();
+
+      records.forEach((record) => {
+        const day = new Date(record.time).getDate();
+        const currentStatus = map.get(day);
+
+        if (record.status === "present" || !currentStatus) {
+          map.set(day, record.status);
+        }
+      });
+
+      return map;
+    }
+
+    function getStatusView(status) {
+      if (status === "present") return { label: "x", className: "status-work" };
+      if (status === "leave_paid") return { label: "P", className: "status-leave" };
+      if (status === "leave_unpaid") return { label: "KP", className: "status-absent" };
+      return { label: "✕", className: "status-absent" };
+    }
+
+    function renderEmployeeDetail() {
+      const activeEmployee = employees.find((employee) => employee.id === employeeSelect.value);
+      if (!activeEmployee) {
+        return;
+      }
+
+      const daysInMonth = getDaysInMonth(activeMonth);
+      const records = attendanceRecords.filter((record) => record.employeeId === activeEmployee.id);
+      const statusMap = buildStatusMap(records);
+      const row1 = [];
+      const row2 = [];
+      let workCount = 0;
+      let paidLeaveCount = 0;
+      let unpaidLeaveCount = 0;
+
+      for (let day = 1; day <= daysInMonth; day += 1) {
+        const status = statusMap.get(day) || "";
+        const statusView = getStatusView(status);
+
+        if (status === "present") workCount += 1;
+        if (status === "leave_paid") paidLeaveCount += 1;
+        if (status === "leave_unpaid") unpaidLeaveCount += 1;
+
+        const cell = `<td class="${statusView.className}">${statusView.label}</td>`;
+
+        if (day <= 16) {
+          row1.push(cell);
+        } else {
+          row2.push(cell);
+        }
+      }
+
+      employeeDetailHead.innerHTML = `
+        <tr>
+          <th class="employee-name-cell">Mã nhân viên tên nhân viên</th>
+          ${Array.from({ length: Math.min(16, daysInMonth) }, (_, index) => `<th>${index + 1}</th>`).join("")}
+        </tr>
+      `;
+
+      employeeDetailBody.innerHTML = `
+        <tr>
+          <td class="employee-name-cell" rowspan="3">${activeEmployee.code}<br>${activeEmployee.name}</td>
+          ${row1.join("")}
+        </tr>
+        <tr>
+          ${Array.from({ length: Math.max(daysInMonth - 16, 0) }, (_, index) => `<th>${index + 17}</th>`).join("")}
+        </tr>
+        <tr>
+          ${row2.join("")}
+        </tr>
+      `;
+
+      employeeWorkSummary.textContent = `${workCount} / ${daysInMonth}`;
+      employeeLeavePaid.textContent = String(paidLeaveCount);
+      employeeLeaveUnpaid.textContent = String(unpaidLeaveCount);
+      employeeSummary.textContent = `Đang xem ${activeEmployee.code} • ${activeEmployee.name} • ${storeSelect.value || activeEmployee.storeCode || "-"}`;
+    }
+
+    async function loadAttendance() {
+      attendanceRecords = await getChamCong({ month: activeMonth });
+      renderEmployeeDetail();
+    }
+
+    async function initializePage() {
+      const [employeeData, storeData] = await Promise.all([getEmployees(), getStores()]);
+      employees = employeeData;
+      stores = storeData;
+
+      const activeEmployee = syncEmployeeOptions();
+      syncStoreOptions(activeEmployee);
+      await loadAttendance();
+    }
+
+    if (window.flatpickr && window.monthSelectPlugin) {
+      flatpickr(employeeMonthInput, {
+        defaultDate: `${currentMonth}-01`,
+        dateFormat: "m/Y",
+        disableMobile: true,
+        plugins: [
+          monthSelectPlugin({ shorthand: false, dateFormat: "m/Y", altFormat: "m/Y" })
+        ],
+        onReady: () => {
+          employeeMonthInput.value = currentMonthLabel;
+        },
+        onChange: async (_, dateStr) => {
+          activeMonth = toMonthValue(dateStr);
+          await loadAttendance();
+        }
+      });
+    } else {
+      employeeMonthInput.value = currentMonthLabel;
+    }
+
+    employeeMonthInput.addEventListener("change", async () => {
+      activeMonth = toMonthValue(employeeMonthInput.value);
+      await loadAttendance();
+    });
+
+    employeeSearchInput.addEventListener("input", () => {
+      const activeEmployee = syncEmployeeOptions();
+      syncStoreOptions(activeEmployee);
+      renderEmployeeDetail();
+    });
+
+    employeeSelect.addEventListener("change", () => {
+      const activeEmployee = employees.find((employee) => employee.id === employeeSelect.value);
+      syncStoreOptions(activeEmployee);
+      renderEmployeeDetail();
+    });
+
+    storeSelect.addEventListener("change", () => {
+      renderEmployeeDetail();
+    });
+
+    attendanceSubmit.addEventListener("click", async () => {
+      const activeEmployee = employees.find((employee) => employee.id === employeeSelect.value);
+      const storeCode = storeSelect.value || activeEmployee?.storeCode;
+
+      if (!activeEmployee || !storeCode) {
+        employeeSummary.textContent = "Thiếu nhân viên hoặc cửa hàng để chấm công.";
+        return;
+      }
+
+      attendanceSubmit.disabled = true;
+
+      try {
+        await chamCong({
+          employeeId: activeEmployee.id,
+          employeeCode: activeEmployee.code,
+          employeeName: activeEmployee.name,
+          ten: storeCode,
+          status: "present",
+          time: new Date().toISOString()
+        });
+
+        employeeSummary.textContent = `Đã chấm công cho ${activeEmployee.code} • ${activeEmployee.name} tại ${storeCode}.`;
+        await loadAttendance();
+      } catch (error) {
+        employeeSummary.textContent = `Không thể chấm công: ${error.message}`;
+      } finally {
+        attendanceSubmit.disabled = false;
+      }
+    });
+
+    window.addEventListener("attendance:ws-message", async (event) => {
+      if (event.detail?.type === "attendance:created") {
+        await loadAttendance();
+      }
+    });
+
+    initializePage().catch((error) => {
+      employeeSummary.textContent = `Không tải được dữ liệu: ${error.message}`;
+    });
+  </script>
+</body>
+</html>
