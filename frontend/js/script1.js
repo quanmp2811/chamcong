@@ -1,7 +1,8 @@
 function handleCredentialResponse(response) {
-  console.log("Google response:", response);
-  console.log("TOKEN:", token);
+  console.log("FULL RESPONSE:", response);
+
   const token = response.credential;
+  console.log("TOKEN:", token);
 
   if (!token) {
     alert("Không nhận được token từ Google");
@@ -27,7 +28,6 @@ function handleCredentialResponse(response) {
   .then(data => {
     console.log("LOGIN OK:", data);
 
-    // lưu token + user
     sessionStorage.setItem("token", data.token);
     sessionStorage.setItem("user", JSON.stringify(data.user));
 
@@ -42,13 +42,3 @@ function handleCredentialResponse(response) {
     alert(err.message);
   });
 }
-function handleCredentialResponse(response) {
-  console.log("FULL RESPONSE:", response);
-
-  const token = response.credential;
-  console.log("TOKEN:", token);
-
-  if (!token) {
-    alert("Không nhận được token từ Google");
-    return;
-  }
