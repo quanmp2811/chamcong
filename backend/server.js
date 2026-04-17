@@ -7,8 +7,6 @@ const { OAuth2Client } = require("google-auth-library");
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 const { WebSocketServer } = require("ws");
 
-loadEnvFile(path.resolve(__dirname, ".env"));
-
 const app = express();
 const server = http.createServer(app);
 const wss = new WebSocketServer({ server, path: "/ws" });
