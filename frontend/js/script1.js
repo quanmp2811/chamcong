@@ -42,3 +42,13 @@ function handleCredentialResponse(response) {
     alert(err.message);
   });
 }
+function handleCredentialResponse(response) {
+  console.log("FULL RESPONSE:", response);
+
+  const token = response.credential;
+  console.log("TOKEN:", token);
+
+  if (!token) {
+    alert("Không nhận được token từ Google");
+    return;
+  }
