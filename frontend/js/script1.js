@@ -1,6 +1,6 @@
 function handleCredentialResponse(response) {
   console.log("Google response:", response);
-
+  console.log("TOKEN:", token);
   const token = response.credential;
 
   if (!token) {
