@@ -16,11 +16,11 @@ const wss = new WebSocketServer({ server, path: "/ws" });
 const PORT = Number(process.env.PORT || 3000);
 const FRONTEND_DIR = path.resolve(__dirname, "../frontend");
 const DB_CONFIG = {
-  host: process.env.DB_HOST || "127.0.0.1",
-  port: Number(process.env.DB_PORT || 3306),
+  host: process.env.DB_HOST || "nozomi.proxy.rlwy.net",
+  port: Number(process.env.DB_PORT || 42639),
   user: process.env.DB_USER || "root",
-  password: process.env.DB_PASSWORD || "",
-  database: process.env.DB_NAME || "cham_cong",
+  password: process.env.DB_PASSWORD || ":sWVLOJdiitcPIwZkIsVaAkRkVDuNFSbY",
+  database: process.env.DB_NAME || "railway",
   waitForConnections: true,
   connectionLimit: Number(process.env.DB_POOL_SIZE || 10),
   queueLimit: 0
