@@ -1,13 +1,13 @@
 function handleCredentialResponse(response) {
   console.log("FULL RESPONSE:", response);
 
-  const token = response.credential;
-  console.log("TOKEN:", token);
-
-  if (!token) {
-    alert("Không nhận được token từ Google");
+  if (!response || !response.credential) {
+    alert("Google login chưa hoàn tất hoặc bị huỷ");
     return;
   }
+
+  const token = response.credential;
+  console.log("TOKEN:", token);
 
   fetch("/api/auth/google", {
     method: "POST",
@@ -31,11 +31,7 @@ function handleCredentialResponse(response) {
     sessionStorage.setItem("token", data.token);
     sessionStorage.setItem("user", JSON.stringify(data.user));
 
-    document.getElementById("successMessage").style.display = "block";
-
-    setTimeout(() => {
-      window.location.href = "/";
-    }, 800);
+    window.location.href = "/";
   })
   .catch(err => {
     console.error("Login error:", err);
