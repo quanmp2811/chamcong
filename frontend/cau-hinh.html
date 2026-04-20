@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
   <meta charset="UTF-8" />
@@ -17,8 +17,14 @@
         <img src="public/logo-jm.ico" alt="Logo Chấm công" style="height: 40px;">
       </a>
       <nav class="main-nav">
-        <a href="index.html">Lịch làm việc</a>
-        <a href="cau-hinh.html" class="active">Cấu hình</a>
+        <a href="index.html">
+          <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          <span class="nav-label">Lịch làm việc</span>
+        </a>
+        <a href="cau-hinh.html" class="active">
+          <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          <span class="nav-label">Cấu hình</span>
+        </a>
       </nav>
       <div class="user-info" id="user-info" style="display: none; flex-direction: column; align-items: flex-end;">
         <span id="user-name" style="font-weight: 500;"></span>
@@ -133,6 +139,50 @@
           </div>
         </article>
 
+        <article class="config-panel">
+          <h2>Quản lý ca</h2>
+          <p>Thêm, sửa, xoá các loại ca làm việc cùng giờ bắt đầu và kết thúc.</p>
+
+          <form id="shift-form">
+            <div class="store-form-grid">
+              <label class="store-field">
+                Mã ca
+                <input type="text" id="shift-code" class="store-input" placeholder="VD: CA F1" />
+              </label>
+              <label class="store-field">
+                Tên ca
+                <input type="text" id="shift-name" class="store-input" placeholder="VD: Ca F1" />
+              </label>
+              <label class="store-field">
+                Giờ bắt đầu
+                <input type="time" id="shift-start" class="store-input" />
+              </label>
+              <label class="store-field">
+                Giờ kết thúc
+                <input type="time" id="shift-end" class="store-input" />
+              </label>
+            </div>
+            <div class="config-actions">
+              <button type="submit" class="config-button primary" id="shift-submit-btn">Thêm ca</button>
+            </div>
+          </form>
+
+          <div class="config-status" id="shift-status"></div>
+
+          <table class="store-table">
+            <thead>
+              <tr>
+                <th>Mã ca</th>
+                <th>Tên ca</th>
+                <th>Giờ bắt đầu</th>
+                <th>Giờ kết thúc</th>
+                <th>Thao tác</th>
+              </tr>
+            </thead>
+            <tbody id="shift-table-body"></tbody>
+          </table>
+        </article>
+
       </div>
     </section>
   </main>
@@ -147,9 +197,10 @@
     </div>
   </footer>
   <script type="module">
-    import { 
+    import {
       createStore, deleteStore, getRegions, getStores, updateStore,
-      createRegion, updateRegion, deleteRegion
+      createRegion, updateRegion, deleteRegion,
+      getShifts, createShift, updateShift, deleteShift
     } from "./js/api.js";
 
     const REGION_METADATA = {
@@ -621,6 +672,136 @@ function renderRegionTable() {
     await loadRegionsUI();
     renderRegionControls();
     renderStoreTable();
+
+    // ===== QUẢN LÝ CA =====
+    const shiftForm = document.getElementById("shift-form");
+    const shiftCodeInput = document.getElementById("shift-code");
+    const shiftNameInput = document.getElementById("shift-name");
+    const shiftStartInput = document.getElementById("shift-start");
+    const shiftEndInput = document.getElementById("shift-end");
+    const shiftSubmitBtn = document.getElementById("shift-submit-btn");
+    const shiftStatus = document.getElementById("shift-status");
+    const shiftTableBody = document.getElementById("shift-table-body");
+
+    let shifts = [];
+    let editingShiftCode = null;
+
+    function setShiftStatus(msg, isError = false) {
+      shiftStatus.textContent = msg;
+      shiftStatus.classList.toggle("error", isError);
+    }
+
+    function resetShiftForm() {
+      shiftForm.reset();
+      shiftSubmitBtn.textContent = "Thêm ca";
+      editingShiftCode = null;
+      setShiftStatus("");
+    }
+
+    function formatTime(t) {
+      if (!t) return "";
+      return String(t).slice(0, 5);
+    }
+
+    function renderShiftTable() {
+      if (!shifts.length) {
+        shiftTableBody.innerHTML = "<tr><td colspan='5'>Không có dữ liệu</td></tr>";
+        return;
+      }
+      shiftTableBody.innerHTML = shifts.map(s => {
+        if (editingShiftCode === s.code) {
+          return `
+            <tr>
+              <td><input value="${escapeHtml(s.code)}" data-field="code" class="store-input"></td>
+              <td><input value="${escapeHtml(s.name)}" data-field="name" class="store-input"></td>
+              <td><input type="time" value="${formatTime(s.startTime)}" data-field="startTime" class="store-input"></td>
+              <td><input type="time" value="${formatTime(s.endTime)}" data-field="endTime" class="store-input"></td>
+              <td>
+                <button data-action="update" data-code="${escapeHtml(s.code)}">Lưu</button>
+                <button data-action="cancel">Hủy</button>
+              </td>
+            </tr>
+          `;
+        }
+        return `
+          <tr>
+            <td>${escapeHtml(s.code)}</td>
+            <td>${escapeHtml(s.name)}</td>
+            <td>${formatTime(s.startTime)}</td>
+            <td>${formatTime(s.endTime)}</td>
+            <td>
+              <button data-action="edit" data-code="${escapeHtml(s.code)}">Sửa</button>
+              <button data-action="delete" data-code="${escapeHtml(s.code)}">Xóa</button>
+            </td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    async function loadShifts() {
+      try {
+        shifts = await getShifts();
+        renderShiftTable();
+      } catch (err) {
+        setShiftStatus("Không tải được danh sách ca: " + err.message, true);
+      }
+    }
+
+    shiftForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const code = shiftCodeInput.value.trim().toUpperCase();
+      const name = shiftNameInput.value.trim();
+      const startTime = shiftStartInput.value || null;
+      const endTime = shiftEndInput.value || null;
+      if (!code || !name) { setShiftStatus("Cần nhập mã ca và tên ca.", true); return; }
+      try {
+        await createShift({ code, name, startTime, endTime });
+        await loadShifts();
+        resetShiftForm();
+        setShiftStatus(`Đã thêm ca ${code}.`);
+      } catch (err) {
+        setShiftStatus(err.message || "Lỗi kết nối", true);
+      }
+    });
+
+    shiftTableBody.addEventListener("click", async (e) => {
+      const btn = e.target;
+      const code = btn.dataset.code;
+      const action = btn.dataset.action;
+      const row = btn.closest("tr");
+
+      if (action === "edit") { editingShiftCode = code; renderShiftTable(); return; }
+      if (action === "cancel") { editingShiftCode = null; renderShiftTable(); return; }
+
+      if (action === "update") {
+        const data = {
+          code: row.querySelector("[data-field='code']").value.trim().toUpperCase(),
+          name: row.querySelector("[data-field='name']").value.trim(),
+          startTime: row.querySelector("[data-field='startTime']").value || null,
+          endTime: row.querySelector("[data-field='endTime']").value || null
+        };
+        try {
+          await updateShift(code, data);
+          editingShiftCode = null;
+          await loadShifts();
+          setShiftStatus("Đã cập nhật ca.");
+        } catch (err) {
+          setShiftStatus(err.message || "Lỗi kết nối", true);
+        }
+      }
+
+      if (action === "delete") {
+        try {
+          await deleteShift(code);
+          await loadShifts();
+          setShiftStatus("Đã xóa ca.");
+        } catch (err) {
+          setShiftStatus(err.message || "Lỗi kết nối", true);
+        }
+      }
+    });
+
+    await loadShifts();
   </script>
   <script src="js/script.js"></script>
 </body>

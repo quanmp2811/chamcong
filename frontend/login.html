@@ -43,12 +43,11 @@
       </div>
     </div>
   </div>
-
   <script>
     // 🔥 nếu đã login thì không cho vào login nữa
     const existingToken = sessionStorage.getItem("token");
     let existingUser = null;
-
+  
     try {
       existingUser = JSON.parse(sessionStorage.getItem("user"));
     } catch (e) {
@@ -56,51 +55,68 @@
       sessionStorage.removeItem("user");
       sessionStorage.removeItem("token");
     }
-
-    if (existingToken && existingUser && typeof existingUser.email === "string" && existingUser.email.trim()) {
+  
+    if (
+      existingToken &&
+      existingUser &&
+      typeof existingUser.email === "string" &&
+      existingUser.email.trim()
+    ) {
       window.location.replace("/");
     }
-
-    function handleCredentialResponse(response) {
-      const token = response.credential;
-
-      fetch("/api/auth/google", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ token })
-      })
-      .then(async (res) => {
-        const data = await res.json();
-
-        // ❌ nếu không có quyền
-        if (!res.ok) {
-          throw new Error(data.message || "Không có quyền truy cập");
+  
+    // 🔥 xử lý login Google
+    async function handleCredentialResponse(response) {
+      try {
+        console.log("FULL RESPONSE:", response);
+        console.log("TOKEN:", response.credential);
+  
+        // ❌ nếu không có token
+        if (!response.credential) {
+          throw new Error("Không nhận được token từ Google");
         }
-
-        return data;
-      })
-      .then(data => {
-        console.log("LOGIN OK:", data);
-
+  
+        const res = await fetch("/api/auth/google", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            token: response.credential // ✅ QUAN TRỌNG
+          })
+        });
+  
+        const data = await res.json();
+  
+        console.log("SERVER RESPONSE:", data);
+  
+        // ❌ nếu backend trả lỗi
+        if (!res.ok) {
+          throw new Error(data.message || "Đăng nhập thất bại");
+        }
+  
+        // ❌ nếu thiếu token
+        if (!data.token) {
+          throw new Error("Server không trả về token");
+        }
+  
         // ✅ lưu token và user
         sessionStorage.setItem("token", data.token);
         sessionStorage.setItem("user", JSON.stringify(data.user));
-
+  
         // 👉 UI
         document.getElementById("loginPanel").style.display = "none";
         document.getElementById("successMessage").style.display = "block";
-
+  
         // 👉 chuyển trang
         setTimeout(() => {
           window.location.replace("/");
         }, 800);
-      })
-      .catch(err => {
-        console.error(err);
-        alert(err.message);
-      });
+  
+      } catch (err) {
+        console.error("LOGIN ERROR:", err);
+        alert(err.message || "Lỗi đăng nhập");
+      }
     }
   </script>
   <script src="js/script.js"></script>

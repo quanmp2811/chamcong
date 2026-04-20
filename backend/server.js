@@ -1,13 +1,13 @@
 const path = require("path");
 const http = require("http");
-require("dotenv").config();
 const express = require("express");
 const jwt = require("jsonwebtoken");
 const { OAuth2Client } = require("google-auth-library");
-const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 const { WebSocketServer } = require("ws");
-
 console.log("CLIENT_ID:", process.env.GOOGLE_CLIENT_ID);
+console.log("DB_HOST:", process.env.DB_HOST);
+console.log("DB_PORT:", process.env.DB_PORT);
+console.log("DB_USER:", process.env.DB_USER);
 
 const app = express();
 const server = http.createServer(app);
@@ -16,19 +16,15 @@ const wss = new WebSocketServer({ server, path: "/ws" });
 const PORT = Number(process.env.PORT || 3000);
 const FRONTEND_DIR = path.resolve(__dirname, "../frontend");
 const DB_CONFIG = {
-  host: process.env.DB_HOST || "127.0.0.1",
-  port: Number(process.env.DB_PORT || 3306),
+  host: process.env.DB_HOST || "nozomi.proxy.rlwy.net",
+  port: Number(process.env.DB_PORT || 42639),
   user: process.env.DB_USER || "root",
-  password: process.env.DB_PASSWORD || "",
-  database: process.env.DB_NAME || "cham_cong",
+  password: process.env.DB_PASSWORD || "sWVLOJdiitcPIwZkIsVaAkRkVDuNFSbY",
+  database: process.env.DB_NAME || "railway",
   waitForConnections: true,
   connectionLimit: Number(process.env.DB_POOL_SIZE || 10),
   queueLimit: 0
 };
-
-app.listen(PORT, () => {
-  console.log("Server running on port", PORT);
-});
 app.get("/login", (req, res) => {
   res.sendFile(path.join(__dirname, "../frontend/login.html"));
 });
@@ -245,11 +241,13 @@ app.get("/api/khu-vuc", async (_req, res) => {
 app.post("/api/auth/google", async (req, res) => {
   const { token } = req.body;
   console.log("TOKEN:", token);
+  console.log("CLIENT_ID:", process.env.GOOGLE_CLIENT_ID);
 
   try {
     ensureDatabaseConnected();
 
-    const ticket = await googleClient.verifyIdToken({
+    const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+    const ticket = await client.verifyIdToken({
       idToken: token,
       audience: process.env.GOOGLE_CLIENT_ID
     });
@@ -307,7 +305,7 @@ app.post("/api/auth/google", async (req, res) => {
 
   } catch (err) {
     console.error(err);
-    res.status(401).json({ ok: false, message: "Invalid token" });
+    res.status(500).json({ ok: false, message: err.message || "Internal server error" });
   }
 });
 
@@ -319,84 +317,121 @@ app.get("/api/index-data", async (_req, res) => {
     handleApiError(res, error, "Cannot load index data");
   }
 });
-
 app.post("/api/stores", authenticateToken, authorizeAdmin, async (req, res) => {
-  const payload = normalizeStorePayload(req.body || {});
-  const requiresManager = payload.region !== "TPKD/QLV";
-
-  if (!payload.code || !payload.name || !payload.region || (requiresManager && !payload.manager)) {
-    res.status(400).json({ ok: false, message: "Missing store code, name, region or manager" });
-    return;
-  }
-
   try {
+    console.log("STORE BODY:", req.body);
+
+    let { code, name, region, manager } = req.body;
+
+    // 🔥 chuẩn hóa dữ liệu
+    code = code?.trim();
+    name = name?.trim();
+    region = region?.trim();
+    manager = manager?.trim() || null;
+
+    // 🔥 validate
+    if (!code || !name || !region) {
+      return res.status(400).json({
+        ok: false,
+        message: "Thiếu mã, tên hoặc khu vực"
+      });
+    }
+
+    // 🔥 check khu vực
     ensureDatabaseConnected();
-    const region = await findRegionByName(payload.region);
-    if (!region) {
-      res.status(400).json({ ok: false, message: "Region not found" });
-      return;
+
+    const [regionRows] = await dbPool.query(
+      "SELECT id, ma_khu_vuc FROM khu_vuc WHERE ten_khu_vuc = ? LIMIT 1",
+      [region]
+    );
+
+    if (!regionRows.length) {
+      return res.status(400).json({
+        ok: false,
+        message: "Khu vực không tồn tại"
+      });
     }
 
-    const [existingRows] = await dbPool.query("SELECT 1 FROM don_vi WHERE ma_don_vi = ? LIMIT 1", [payload.code]);
-    if (existingRows.length) {
-      res.status(409).json({ ok: false, message: "Store code already exists" });
-      return;
+    const regionData = regionRows[0];
+
+    // 🔥 check trùng mã đơn vị
+    const [exist] = await dbPool.query(
+      "SELECT 1 FROM don_vi WHERE ma_don_vi = ? LIMIT 1",
+      [code]
+    );
+
+    if (exist.length) {
+      return res.status(409).json({
+        ok: false,
+        message: "Mã đơn vị đã tồn tại"
+      });
     }
 
-    const connection = await dbPool.getConnection();
+    // 🔥 tìm dòng NULL
+    const [empty] = await dbPool.query(`
+      SELECT id FROM don_vi
+      WHERE ma_don_vi IS NULL
+      LIMIT 1
+    `);
+    
+    let storeId;
+    
+    if (empty.length > 0) {
+      // ✅ update dòng rỗng
+      await dbPool.query(`
+        UPDATE don_vi
+        SET ma_don_vi=?, ten_don_vi=?, khu_vuc_id=?, nguoi_phu_trach=?
+        WHERE id=?
+      `, [code, name, regionData.id, manager, empty[0].id]);
+    
+      storeId = empty[0].id;
+    
+    } else {
+      // ✅ insert mới
+      const [result] = await dbPool.query(`
+        INSERT INTO don_vi (ma_don_vi, ten_don_vi, khu_vuc_id, nguoi_phu_trach)
+        VALUES (?, ?, ?, ?)
+      `, [code, name, regionData.id, manager]);
+    
+      storeId = result.insertId;
+    }
 
-    try {
-      await connection.beginTransaction();
+    // 🔥 check đã có quản lý chưa
+    const [existManager] = await dbPool.query(`
+      SELECT id FROM nhan_vien
+      WHERE store_code = ? AND role = 'Quản lý'
+      LIMIT 1
+    `, [code]);
+    
+    if (!existManager.length && manager) {
+      await createDefaultManagerForStore(dbPool, {
+        storeId,
+        storeCode: code,
+        managerName: manager
+      });
+    }
 
-      let storeId;
-
-      // tìm slot rỗng trước
-      const [emptyRows] = await connection.query(`
-        SELECT id FROM don_vi 
-        WHERE ma_don_vi IS NULL 
-        LIMIT 1
-      `);
-
-      if (emptyRows.length > 0) {
-        await connection.query(`
-          UPDATE don_vi 
-          SET ma_don_vi=?, ten_don_vi=?, khu_vuc_id=?, nguoi_phu_trach=?
-          WHERE id=?
-        `, [payload.code, payload.name, region.id, payload.manager, emptyRows[0].id]);
-
-        storeId = emptyRows[0].id;
-
-      } else {
-        const [insertResult] = await connection.query(`
-          INSERT INTO don_vi (ma_don_vi, ten_don_vi, khu_vuc_id, nguoi_phu_trach)
-          VALUES (?, ?, ?, ?)
-        `, [payload.code, payload.name, region.id, payload.manager]);
-
-        storeId = insertResult.insertId;
+    res.status(201).json({
+      ok: true,
+      message: "Tạo đơn vị thành công",
+      data: {
+        id: storeId,
+        code,
+        name,
+        region: region,
+        manager
       }
-
-      if (payload.manager) {
-        await createDefaultManagerForStore(connection, {
-          storeId,
-          storeCode: payload.code,
-          managerName: payload.manager
-        });
-      }
-
-      await connection.commit();
+    });
+    
     } catch (error) {
-      await connection.rollback();
-      throw error;
-    } finally {
-      connection.release();
+      console.error("🔥 CREATE STORE ERROR:", error);
+      res.status(500).json({
+        ok: false,
+        message: error.message,
+        stack: error.stack
+      });
     }
-
-    res.status(201).json({ ok: true, data: { ...payload, regionCode: region.code } });
-  } catch (error) {
-    handleApiError(res, error, "Cannot create store");
-  }
 });
-
 app.put("/api/stores/:code", authenticateToken, authorizeAdmin, async (req, res) => {
   const currentCode = String(req.params.code || "");
   const payload = normalizeStorePayload(req.body || {}, currentCode);
@@ -625,6 +660,68 @@ app.delete("/api/khu-vuc/:code", authenticateToken, authorizeAdmin, async (req, 
   }
 });
 
+app.get("/api/ca-lam", authenticateToken, async (_req, res) => {
+  try {
+    ensureDatabaseConnected();
+    const [rows] = await dbPool.query(`
+      SELECT id, ma_ca AS code, name,
+        start_time AS startTime, end_time AS endTime
+      FROM ca_lam ORDER BY id
+    `);
+    res.json(rows);
+  } catch (error) {
+    handleApiError(res, error, "Cannot get shifts");
+  }
+});
+
+app.post("/api/ca-lam", authenticateToken, authorizeAdmin, async (req, res) => {
+  const { code, name, startTime, endTime } = req.body;
+  if (!code || !name) return res.status(400).json({ ok: false, message: "Thiếu mã ca hoặc tên ca" });
+  try {
+    ensureDatabaseConnected();
+    const [exist] = await dbPool.query("SELECT 1 FROM ca_lam WHERE ma_ca = ? LIMIT 1", [code]);
+    if (exist.length) return res.status(409).json({ ok: false, message: "Mã ca đã tồn tại" });
+    await dbPool.query(
+      "INSERT INTO ca_lam (ma_ca, name, start_time, end_time) VALUES (?, ?, ?, ?)",
+      [code, name, startTime || null, endTime || null]
+    );
+    res.json({ ok: true });
+  } catch (error) {
+    handleApiError(res, error, "Cannot create shift");
+  }
+});
+
+app.put("/api/ca-lam/:code", authenticateToken, authorizeAdmin, async (req, res) => {
+  const oldCode = req.params.code;
+  const { code, name, startTime, endTime } = req.body;
+  if (!code || !name) return res.status(400).json({ ok: false, message: "Thiếu dữ liệu" });
+  try {
+    ensureDatabaseConnected();
+    const [dup] = await dbPool.query("SELECT 1 FROM ca_lam WHERE ma_ca=? AND ma_ca<>?", [code, oldCode]);
+    if (dup.length) return res.status(409).json({ ok: false, message: "Trùng mã ca" });
+    const [result] = await dbPool.query(
+      "UPDATE ca_lam SET ma_ca=?, name=?, start_time=?, end_time=? WHERE ma_ca=?",
+      [code, name, startTime || null, endTime || null, oldCode]
+    );
+    if (!result.affectedRows) return res.status(404).json({ ok: false, message: "Không tìm thấy ca" });
+    res.json({ ok: true });
+  } catch (error) {
+    handleApiError(res, error, "Cannot update shift");
+  }
+});
+
+app.delete("/api/ca-lam/:code", authenticateToken, authorizeAdmin, async (req, res) => {
+  const code = req.params.code;
+  try {
+    ensureDatabaseConnected();
+    const [result] = await dbPool.query("DELETE FROM ca_lam WHERE ma_ca=?", [code]);
+    if (!result.affectedRows) return res.status(404).json({ ok: false, message: "Không tìm thấy ca" });
+    res.json({ ok: true });
+  } catch (error) {
+    handleApiError(res, error, "Cannot delete shift");
+  }
+});
+
 app.get("/api/users", authenticateToken, authorizeAdmin, async (_req, res) => {
   try {
     ensureDatabaseConnected();
@@ -644,24 +741,40 @@ app.get("/api/users", authenticateToken, authorizeAdmin, async (_req, res) => {
 });
 
 app.post("/api/users", authenticateToken, authorizeAdmin, async (req, res) => {
-  const { email, name, role, storeCode } = req.body;
-
-  if (!email || !name || !role) {
-    return res.status(400).json({ ok: false, message: "Thiếu email, name hoặc role" });
-  }
-
-  if (role !== "admin" && role !== "user") {
-    return res.status(400).json({ ok: false, message: "Role phải là admin hoặc user" });
-  }
-
-  if (role === "user" && !storeCode) {
-    return res.status(400).json({ ok: false, message: "User cần storeCode" });
-  }
-
   try {
+    console.log("BODY:", req.body); // 🔥 debug
+
+    let { email, name, role, storeCode } = req.body;
+
+    // 🔥 trim dữ liệu (rất quan trọng)
+    email = email?.trim();
+    name = name?.trim();
+    role = role?.trim();
+
+    // 🔥 validate cơ bản
+    if (!email || !name || !role) {
+      return res.status(400).json({ ok: false, message: "Thiếu email, name hoặc role" });
+    }
+
+    // 🔥 validate role
+    if (!["admin", "user"].includes(role)) {
+      return res.status(400).json({ ok: false, message: "Role phải là admin hoặc user" });
+    }
+
+    // 🔥 chuẩn hóa storeCode
+    if (role === "admin") {
+      storeCode = null;
+    } else {
+      storeCode = storeCode?.trim() || null;
+
+      if (!storeCode) {
+        return res.status(400).json({ ok: false, message: "User cần storeCode" });
+      }
+    }
+
     ensureDatabaseConnected();
 
-    // check email tồn tại
+    // 🔥 check email tồn tại
     const [exist] = await dbPool.query(
       "SELECT 1 FROM users WHERE email = ? LIMIT 1",
       [email]
@@ -671,13 +784,33 @@ app.post("/api/users", authenticateToken, authorizeAdmin, async (req, res) => {
       return res.status(409).json({ ok: false, message: "Email đã tồn tại" });
     }
 
-    await dbPool.query(
-      "INSERT INTO users (email, name, role, store_code) VALUES (?, ?, ?, ?)",
-      [email, name, role, storeCode || null]
-    );
+    // 🔥 tìm dòng NULL
+    const [empty] = await dbPool.query(`
+      SELECT id FROM users
+      WHERE email IS NULL
+      LIMIT 1
+    `);
+    
+    if (empty.length > 0) {
+      // ✅ update dòng rỗng
+      await dbPool.query(`
+        UPDATE users
+        SET email=?, name=?, role=?, store_code=?
+        WHERE id=?
+      `, [email, name, role, storeCode || null, empty[0].id]);
+    
+    } else {
+      // ✅ insert mới
+      await dbPool.query(`
+        INSERT INTO users (email, name, role, store_code)
+        VALUES (?, ?, ?, ?)
+      `, [email, name, role, storeCode || null]);
+    }
 
     res.json({ ok: true, message: "Đã thêm user" });
+
   } catch (error) {
+    console.error("CREATE USER ERROR:", error);
     handleApiError(res, error, "Cannot create user");
   }
 });
@@ -829,6 +962,119 @@ wss.on("connection", (socket) => {
 });
 
 start();
+app.post("/api/schedules", authenticateToken, async (req, res) => {
+  try {
+    ensureDatabaseConnected();
+
+    const { nhan_vien_id, ngay, ca_id } = req.body;
+
+    if (!nhan_vien_id || !ngay || !ca_id) {
+      return res.status(400).json({
+        ok: false,
+        message: "Thiếu dữ liệu"
+      });
+    }
+
+    // 🔥 xử lý ca_id (số hoặc mã)
+    let shiftId = ca_id;
+
+    if (isNaN(ca_id)) {
+      const [rows] = await dbPool.query(
+        "SELECT id FROM ca_lam WHERE ma_ca = ? LIMIT 1",
+        [ca_id]
+      );
+      shiftId = rows[0]?.id;
+    }
+
+    if (!shiftId) {
+      return res.status(400).json({
+        ok: false,
+        message: "Ca không tồn tại"
+      });
+    }
+
+    // 🔥 CHECK có chưa
+    const [exist] = await dbPool.query(`
+      SELECT id FROM lich_lam_viec
+      WHERE nhan_vien_id = ? AND ngay = ?
+      LIMIT 1
+    `, [nhan_vien_id, ngay]);
+
+    if (exist.length > 0) {
+      // 🔥 UPDATE nếu đã có
+      await dbPool.query(`
+        UPDATE lich_lam_viec
+        SET ca_id = ?, start_time = '08:00:00', end_time = '17:30:00'
+        WHERE id = ?
+      `, [shiftId, exist[0].id]);
+
+    } else {
+      // 🔥 INSERT nếu chưa có
+      await dbPool.query(`
+        INSERT INTO lich_lam_viec (nhan_vien_id, ngay, ca_id, start_time, end_time)
+        VALUES (?, ?, ?, '08:00:00', '17:30:00')
+      `, [nhan_vien_id, ngay, shiftId]);
+    }
+
+    res.json({ ok: true });
+
+  } catch (err) {
+    console.error("SAVE SCHEDULE ERROR:", err);
+    res.status(500).json({ ok: false });
+  }
+});
+
+app.get("/api/history", authenticateToken, async (req, res) => {
+  try {
+    ensureDatabaseConnected();
+
+    const { month } = req.query; // format: YYYY-MM
+
+    let sql = `
+      SELECT
+        nhan_vien_id, ten_nhan_vien AS employee,
+        khu_vuc AS region, cua_hang AS store,
+        DATE_FORMAT(ngay, '%Y-%m-%d') AS dateLabel,
+        tu_ca AS fromShift, sang_ca AS toShift,
+        nguoi_sua AS editor,
+        DATE_FORMAT(thoi_gian, '%H:%i:%s %d/%m/%Y') AS time
+      FROM lich_su_chinh_sua
+    `;
+    const params = [];
+
+    if (month) {
+      sql += ` WHERE DATE_FORMAT(thoi_gian, '%Y-%m') = ?`;
+      params.push(month);
+    }
+
+    sql += ` ORDER BY thoi_gian DESC LIMIT 500`;
+
+    const [rows] = await dbPool.query(sql, params);
+    res.json({ ok: true, data: rows });
+  } catch (err) {
+    console.error("GET HISTORY ERROR:", err);
+    res.status(500).json({ ok: false, data: [] });
+  }
+});
+
+app.post("/api/history", authenticateToken, async (req, res) => {
+  try {
+    ensureDatabaseConnected();
+
+    const { nhan_vien_id, ten_nhan_vien, khu_vuc, cua_hang, ngay, tu_ca, sang_ca, nguoi_sua } = req.body;
+
+    await dbPool.query(`
+      INSERT INTO lich_su_chinh_sua
+        (nhan_vien_id, ten_nhan_vien, khu_vuc, cua_hang, ngay, tu_ca, sang_ca, nguoi_sua)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `, [nhan_vien_id, ten_nhan_vien, khu_vuc, cua_hang, ngay, tu_ca, sang_ca, nguoi_sua]);
+
+    res.json({ ok: true });
+  } catch (err) {
+    console.error("SAVE HISTORY ERROR:", err);
+    res.status(500).json({ ok: false });
+  }
+});
 
 async function start() {
   await initializeDatabase();
@@ -855,6 +1101,14 @@ async function initializeDatabase() {
     dbEnabled = true;
     dbError = null;
   } catch (error) {
+    console.error("DB CONNECTION FAILED:", error.message);
+    console.error("DB_CONFIG:", {
+      host: DB_CONFIG.host,
+      port: DB_CONFIG.port,
+      user: DB_CONFIG.user,
+      database: DB_CONFIG.database,
+      // password ẩn
+    });
     dbEnabled = false;
     dbError = error.message;
   }
@@ -952,7 +1206,44 @@ async function ensureSchema() {
       INDEX idx_cham_cong_store (ten),
       INDEX idx_cham_cong_employee (employee_id)
     )
+  `)
+    // 🔥 BẢNG LỊCH LÀM VIỆC
+    await dbPool.query(`
+      CREATE TABLE IF NOT EXISTS lich_lam_viec (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        nhan_vien_id VARCHAR(64),
+        ngay DATE,
+        ca_id INT,
+        start_time TIME DEFAULT '08:00:00',
+        end_time TIME DEFAULT '17:30:00'
+      )
+    `);
+    
+    // 🔥 BẢNG LỊCH SỬ CHỈNH SỬA
+    await dbPool.query(`
+      CREATE TABLE IF NOT EXISTS lich_su_chinh_sua (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        nhan_vien_id VARCHAR(64),
+        ten_nhan_vien VARCHAR(255),
+        khu_vuc VARCHAR(255),
+        cua_hang VARCHAR(255),
+        ngay DATE,
+        tu_ca VARCHAR(50),
+        sang_ca VARCHAR(50),
+        nguoi_sua VARCHAR(255),
+        thoi_gian TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+  await dbPool.query(`
+    CREATE TABLE IF NOT EXISTS ca_lam (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      ma_ca VARCHAR(50) UNIQUE,
+      name VARCHAR(255)
+    )
   `);
+  await ensureColumn("ca_lam", "start_time", "TIME NULL");
+  await ensureColumn("ca_lam", "end_time", "TIME NULL");
 }
 
 async function getStoresData() {
@@ -1028,39 +1319,52 @@ async function getEmployeesData() {
 }
 
 async function getShiftsData() {
-  const [rows] = await dbPool.query(
-    `
-      SELECT
-        id,
-        ma_ca AS code,
-        gio_vao AS startTime,
-        gio_ra AS endTime
-      FROM ca_lam
-      ORDER BY id
-    `
-  );
+  const [rows] = await dbPool.query(`
+    SELECT
+      id,
+      ma_ca AS code,
+      name,
+      start_time AS startTime,
+      end_time AS endTime
+    FROM ca_lam
+    ORDER BY id
+  `);
+
+  return rows;
+}
+
+async function getWorkSchedules() {
+  const [rows] = await dbPool.query(`
+    SELECT
+      llv.id,
+      llv.nhan_vien_id AS employeeId,
+      llv.ngay AS date,
+      llv.ca_id AS shiftId,
+      COALESCE(ca.start_time, llv.start_time) AS startTime,
+      COALESCE(ca.end_time, llv.end_time) AS endTime
+    FROM lich_lam_viec llv
+    LEFT JOIN ca_lam ca ON ca.id = llv.ca_id
+  `);
 
   return rows;
 }
 
 async function getWorkSchedulesData() {
-  const [rows] = await dbPool.query(
-    `
-      SELECT
-        id,
-        nhan_vien_id AS employeeId,
-        ngay AS date,
-        ca_id AS shiftId,
-        gio_vao AS startTime,
-        gio_ra AS endTime
-      FROM lich_lam_viec
-      ORDER BY ngay, id
-    `
-  );
+  const [rows] = await dbPool.query(`
+    SELECT
+      llv.id,
+      llv.nhan_vien_id AS employeeId,
+      llv.ngay AS date,
+      llv.ca_id AS shiftId,
+      COALESCE(ca.start_time, llv.start_time) AS startTime,
+      COALESCE(ca.end_time, llv.end_time) AS endTime
+    FROM lich_lam_viec llv
+    LEFT JOIN ca_lam ca ON ca.id = llv.ca_id
+    ORDER BY llv.ngay, llv.id
+  `);
 
   return rows;
 }
-
 async function getIndexData() {
   const [regions, units, employees, shifts, workSchedules] = await Promise.all([
     getRegionsData(),
@@ -1070,7 +1374,36 @@ async function getIndexData() {
     getWorkSchedulesData()
   ]);
 
-  return { regions, units, employees, shifts, workSchedules };
+  // 🔥 AUTO FIX DATA
+  for (const store of units) {
+    const hasEmployee = employees.some(e => e.storeCode === store.code);
+    const hasSchedule = workSchedules.some(ws => {
+      const emp = employees.find(e => e.id === ws.employeeId);
+      return emp && emp.storeCode === store.code;
+    });
+
+    if (!hasEmployee || !hasSchedule) {
+      console.log("⚠️ Auto tạo dữ liệu cho store:", store.code);
+
+      await createDefaultManagerForStore(dbPool, {
+        storeId: store.id,
+        storeCode: store.code,
+        managerName: store.manager || "Quản lý Store"
+      });
+    }
+  }
+
+  // 🔥 load lại sau khi tạo
+  const updatedEmployees = await getEmployeesData();
+  const updatedSchedules = await getWorkSchedulesData();
+
+  return {
+    regions,
+    units,
+    employees: updatedEmployees,
+    shifts,
+    workSchedules: updatedSchedules
+  };
 }
 
 
@@ -1140,53 +1473,80 @@ async function findRegionByName(regionName) {
 }
 
 async function createDefaultManagerForStore(connection, { storeId, storeCode, managerName }) {
-  const managerCode = `${storeCode}-QL`;
-  const [employeeInsert] = await connection.query(
-    `
-      INSERT INTO nhan_vien (ma_nv, ten_nv, don_vi_id, code, name, store_code, role)
-      VALUES (?, ?, ?, ?, ?, ?, ?)
-    `,
-    [managerCode, managerName, storeId, managerCode, managerName, storeCode, "Quản lý"]
-  );
 
-  const managerShiftId = await ensureManagerShift(connection);
-  const weekDates = getCurrentWeekDates();
+  // Tìm hoặc tạo nhân viên quản lý
+  const [exist] = await connection.query(`
+    SELECT id FROM nhan_vien
+    WHERE store_code = ? AND role = 'Quản lý'
+    LIMIT 1
+  `, [storeCode]);
 
-  for (const date of weekDates) {
-    await connection.query(
-      `
-        INSERT INTO lich_lam_viec (nhan_vien_id, ngay, ca_id, gio_vao, gio_ra)
-        VALUES (?, ?, ?, ?, ?)
-      `,
-      [employeeInsert.insertId, date, managerShiftId, "08:00:00", "17:30:00"]
-    );
+  let employeeId;
+
+  if (exist.length) {
+    employeeId = exist[0].id;
+  } else {
+    const finalName = managerName || "Quản lý Store";
+    const managerCode = `${storeCode}-QL`;
+    employeeId = `nv_${Date.now()}`;
+
+    await connection.query(`
+      INSERT INTO nhan_vien (id, code, name, store_code, role)
+      VALUES (?, ?, ?, ?, ?)
+    `, [employeeId, managerCode, finalName, storeCode, "Quản lý"]);
+  }
+
+  // Lấy id ca QLS
+  const shiftId = await ensureManagerShift(connection);
+
+  // Tạo lịch tuần hiện tại, bỏ qua ngày đã có
+  const today = new Date();
+  const startOfWeek = new Date(today);
+  const day = startOfWeek.getDay();
+  const diff = day === 0 ? -6 : 1 - day;
+  startOfWeek.setDate(startOfWeek.getDate() + diff);
+
+  for (let i = 0; i < 7; i++) {
+    const date = new Date(startOfWeek);
+    date.setDate(date.getDate() + i);
+
+    const yyyy = date.getFullYear();
+    const mm = String(date.getMonth() + 1).padStart(2, "0");
+    const dd = String(date.getDate()).padStart(2, "0");
+    const formattedDate = `${yyyy}-${mm}-${dd}`;
+
+    const [existSchedule] = await connection.query(`
+      SELECT id FROM lich_lam_viec
+      WHERE nhan_vien_id = ? AND ngay = ?
+      LIMIT 1
+    `, [employeeId, formattedDate]);
+
+    if (!existSchedule.length) {
+      await connection.query(`
+        INSERT INTO lich_lam_viec (nhan_vien_id, ngay, ca_id)
+        VALUES (?, ?, ?)
+      `, [employeeId, formattedDate, shiftId]);
+    }
   }
 }
-
 async function ensureManagerShift(connection) {
-  const [rows] = await connection.query(
-    `
-      SELECT id
-      FROM ca_lam
-      WHERE ma_ca = 'CA QLS'
-      LIMIT 1
-    `
-  );
+  const [rows] = await connection.query(`
+    SELECT id FROM ca_lam
+    WHERE ma_ca = 'CA QLS'
+    LIMIT 1
+  `);
 
   if (rows[0]?.id) {
     return rows[0].id;
   }
 
-  const [insertResult] = await connection.query(
-    `
-      INSERT INTO ca_lam (ma_ca, gio_vao, gio_ra)
-      VALUES ('CA QLS', '08:00:00', '17:30:00')
-    `
-  );
+  const [insertResult] = await connection.query(`
+    INSERT INTO ca_lam (ma_ca, name)
+    VALUES ('CA QLS', 'Ca quản lý')
+  `);
 
   return insertResult.insertId;
 }
-
 function getCurrentWeekDates() {
   const today = new Date();
   const monday = new Date(today);

@@ -1,30 +1,40 @@
 function handleCredentialResponse(response) {
-  const token = response.credential;
+  console.log("FULL RESPONSE:", response);
 
-  fetch("http://localhost:3000/api/auth/google", {
+  if (!response || !response.credential) {
+    alert("Google login chưa hoàn tất hoặc bị huỷ");
+    return;
+  }
+
+  const token = response.credential;
+  console.log("TOKEN:", token);
+
+  fetch("/api/auth/google", {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
     },
     body: JSON.stringify({ token })
   })
-  .then(res => res.json())
-  .then(user => {
-    console.log("USER:", user);
+  .then(async (res) => {
+    const data = await res.json();
 
-    // 🔥 LƯU USER
-    sessionStorage.setItem("user", JSON.stringify(user));
+    if (!res.ok) {
+      throw new Error(data.message || "Login failed");
+    }
 
-    // hiển thị success
-    document.getElementById("successMessage").style.display = "block";
+    return data;
+  })
+  .then(data => {
+    console.log("LOGIN OK:", data);
 
-    // chuyển trang
-    setTimeout(() => {
-      window.location.href = "index.html";
-    }, 1000);
+    sessionStorage.setItem("token", data.token);
+    sessionStorage.setItem("user", JSON.stringify(data.user));
+
+    window.location.href = "/";
   })
   .catch(err => {
-    alert("Lỗi đăng nhập");
-    console.error(err);
+    console.error("Login error:", err);
+    alert(err.message);
   });
 }

@@ -13,7 +13,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
+  flex-wrap: nowrap;
+  gap: 0.75rem;
   padding: 0.5rem 0;
 }
 
@@ -75,20 +76,47 @@ main {
 
 @media (max-width: 860px) {
   .header-inner {
-    flex-direction: column;
-    align-items: flex-start;
+    gap: 0.5rem;
   }
 
   .main-nav {
-    width: 100%;
-    justify-content: space-between;
+    gap: 0.75rem;
   }
 }
 
 @media (max-width: 640px) {
+  .header-inner {
+    gap: 0.35rem;
+    padding: 0.35rem 0;
+  }
+
   .main-nav {
-    flex-wrap: wrap;
-    gap: 0.75rem;
+    gap: 0.25rem;
+    flex-shrink: 0;
+  }
+
+  .brand img {
+    height: 32px !important;
+  }
+
+  /* Thu nhỏ nút Đăng nhập / Đăng xuất */
+  .site-header .button {
+    padding: 0.45rem 0.75rem;
+    font-size: 0.82rem;
+    border-radius: 999px;
+  }
+
+  /* Thu nhỏ user-info */
+  .site-header .user-info {
+    gap: 0.1rem;
+  }
+
+  #user-name {
+    font-size: 0.8rem;
+  }
+
+  #user-role {
+    font-size: 0.72rem;
   }
 }
 
@@ -111,7 +139,16 @@ main {
   line-height: 1.2;
 }
 
+#login-button {
+  flex-shrink: 0;
+  width: 110px;
+  padding: 0.55rem 0;
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
 #logout-button {
+  flex-shrink: 0;
   font-size: 0.875rem;
 }
 
@@ -132,6 +169,34 @@ main {
 .site-header .brand img {
   filter: none !important;
   opacity: 1 !important;
+}
+
+/* Nav icon/label responsive */
+.main-nav a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.nav-icon {
+  display: none;
+  flex-shrink: 0;
+  vertical-align: middle;
+}
+
+@media (max-width: 640px) {
+  .nav-icon {
+    display: block;
+  }
+
+  .nav-label {
+    display: none;
+  }
+
+  .main-nav a {
+    padding: 6px;
+    border-radius: 8px;
+  }
 }
 
 @media (prefers-color-scheme: dark), (prefers-color-scheme: light) {

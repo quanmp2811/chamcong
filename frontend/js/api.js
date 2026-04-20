@@ -157,6 +157,31 @@ export function deleteUser(email) {
   });
 }
 
+// ===== CA LÀM =====
+export function getShifts() {
+  return request("/ca-lam");
+}
+
+export function createShift(data) {
+  return request("/ca-lam", {
+    method: "POST",
+    body: JSON.stringify(data)
+  });
+}
+
+export function updateShift(code, data) {
+  return request(`/ca-lam/${encodeURIComponent(code)}`, {
+    method: "PUT",
+    body: JSON.stringify(data)
+  });
+}
+
+export function deleteShift(code) {
+  return request(`/ca-lam/${encodeURIComponent(code)}`, {
+    method: "DELETE"
+  });
+}
+
 // ===== CHẤM CÔNG =====
 export function chamCong(data) {
   return request("/cham-cong", {
