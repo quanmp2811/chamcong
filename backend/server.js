@@ -63,7 +63,7 @@ function authorizeAdmin(req, res, next) {
 
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "Content-Type");
+  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
   res.header(
     "Access-Control-Allow-Methods",
     "GET,POST,PUT,DELETE,OPTIONS"
@@ -502,27 +502,6 @@ app.delete("/api/stores/:code", authenticateToken, authorizeAdmin, async (req, r
     res.json({ ok: true, message: "Đã reset đơn vị (không xoá)" });
   } catch (error) {
     handleApiError(res, error, "Cannot soft delete store");
-  }
-});
-app.get("/api/khu-vuc", async (_req, res) => {
-  try {
-    ensureDatabaseConnected();
-
-    const [rows] = await dbPool.query(`
-      SELECT
-        id,
-        ma_khu_vuc AS code,
-        ten_khu_vuc AS name,
-        nguoi_quan_ly AS manager
-      FROM khu_vuc
-      WHERE ma_khu_vuc IS NOT NULL
-        AND ten_khu_vuc IS NOT NULL
-      ORDER BY ten_khu_vuc
-    `);
-
-    res.json(rows);
-  } catch (error) {
-    handleApiError(res, error, "Cannot load regions");
   }
 });
 
@@ -1000,20 +979,23 @@ app.post("/api/schedules", authenticateToken, async (req, res) => {
       LIMIT 1
     `, [nhan_vien_id, ngay]);
 
-    if (exist.length > 0) {
-      // 🔥 UPDATE nếu đã có
-      await dbPool.query(`
-        UPDATE lich_lam_viec
-        SET ca_id = ?, start_time = '08:00:00', end_time = '17:30:00'
-        WHERE id = ?
-      `, [shiftId, exist[0].id]);
+    const [[caLam]] = await dbPool.query(
+      "SELECT start_time, end_time FROM ca_lam WHERE id = ? LIMIT 1",
+      [shiftId]
+    );
+    const startTime = caLam?.start_time || "08:00:00";
+    const endTime   = caLam?.end_time   || "17:30:00";
 
+    if (exist.length > 0) {
+      await dbPool.query(
+        "UPDATE lich_lam_viec SET ca_id = ?, start_time = ?, end_time = ? WHERE id = ?",
+        [shiftId, startTime, endTime, exist[0].id]
+      );
     } else {
-      // 🔥 INSERT nếu chưa có
-      await dbPool.query(`
-        INSERT INTO lich_lam_viec (nhan_vien_id, ngay, ca_id, start_time, end_time)
-        VALUES (?, ?, ?, '08:00:00', '17:30:00')
-      `, [nhan_vien_id, ngay, shiftId]);
+      await dbPool.query(
+        "INSERT INTO lich_lam_viec (nhan_vien_id, ngay, ca_id, start_time, end_time) VALUES (?, ?, ?, ?, ?)",
+        [nhan_vien_id, ngay, shiftId, startTime, endTime]
+      );
     }
 
     res.json({ ok: true });

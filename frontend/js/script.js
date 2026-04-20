@@ -97,11 +97,9 @@ function initializeRealtime() {
   }
 
   const apiOrigin = window.APP_API_ORIGIN
-    || (window.location.port === '3000'
-      ? window.location.origin
-      : (!/^https?:$/.test(window.location.protocol)
-        ? 'http://localhost:3001'
-        : `${window.location.protocol}//${window.location.hostname || 'localhost'}:3001`));
+    || (window.location.protocol === 'file:'
+      ? 'http://localhost:3001'
+      : window.location.origin);
   const socketUrl = `${apiOrigin.replace(/^http/, 'ws')}/ws`;
   let socket = null;
   let reconnectTimer = null;
