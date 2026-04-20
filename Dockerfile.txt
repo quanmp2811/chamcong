@@ -1,0 +1,18 @@
+# dùng node chính thức
+FROM node:18
+
+# tạo thư mục app
+WORKDIR /app
+
+# copy package trước (tối ưu build)
+COPY backend/package*.json ./backend/
+RUN cd backend && npm install
+
+# copy toàn bộ code
+COPY . .
+
+# expose port
+EXPOSE 3000
+
+# chạy server
+CMD ["node", "backend/server.js"]

@@ -1,13 +1,13 @@
 const path = require("path");
 const http = require("http");
-const fs = require("fs");
+require("dotenv").config();
 const express = require("express");
 const jwt = require("jsonwebtoken");
 const { OAuth2Client } = require("google-auth-library");
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 const { WebSocketServer } = require("ws");
 
-loadEnvFile(path.resolve(__dirname, ".env"));
+console.log("CLIENT_ID:", process.env.GOOGLE_CLIENT_ID);
 
 const app = express();
 const server = http.createServer(app);
@@ -25,6 +25,10 @@ const DB_CONFIG = {
   connectionLimit: Number(process.env.DB_POOL_SIZE || 10),
   queueLimit: 0
 };
+
+app.listen(PORT, () => {
+  console.log("Server running on port", PORT);
+});
 app.get("/login", (req, res) => {
   res.sendFile(path.join(__dirname, "../frontend/login.html"));
 });
@@ -240,6 +244,7 @@ app.get("/api/khu-vuc", async (_req, res) => {
 
 app.post("/api/auth/google", async (req, res) => {
   const { token } = req.body;
+  console.log("TOKEN:", token);
 
   try {
     ensureDatabaseConnected();
@@ -251,12 +256,14 @@ app.post("/api/auth/google", async (req, res) => {
 
     const payload = ticket.getPayload();
 
+    const googleId = payload.sub;
     const email = payload.email;
     const name = payload.name;
+    const avatar = payload.picture || null;
 
     const [rows] = await dbPool.query(
-      "SELECT * FROM users WHERE email = ?",
-      [email]
+      "SELECT * FROM users WHERE google_id = ? OR email = ? LIMIT 1",
+      [googleId, email]
     );
 
     let user;
@@ -270,15 +277,27 @@ app.post("/api/auth/google", async (req, res) => {
         let store_code = null;
 
         await dbPool.query(
-          "INSERT INTO users (email, name, role, store_code) VALUES (?, ?, ?, ?)",
-          [email, name, role, store_code]
+          "INSERT INTO users (google_id, email, name, avatar, role, store_code) VALUES (?, ?, ?, ?, ?, ?)",
+          [googleId, email, name, avatar, role, store_code]
         );
 
-        user = { email, name, role, store_code };
+        user = { google_id: googleId, email, name, avatar, role, store_code };
       } else {
         res.status(403).json({ message: "Tài khoản không có quyền truy cập" });
         return;
       }
+    }
+
+    if (user.id) {
+      await dbPool.query(
+        `
+          UPDATE users
+          SET google_id = ?, email = ?, name = ?, avatar = ?
+          WHERE id = ?
+        `,
+        [googleId, email, name, avatar, user.id]
+      );
+      user = { ...user, google_id: googleId, email, name, avatar };
     }
 
     res.json({
@@ -857,11 +876,17 @@ async function ensureSchema() {
   await dbPool.query(`
     CREATE TABLE IF NOT EXISTS users (
       id INT AUTO_INCREMENT PRIMARY KEY,
+      google_id VARCHAR(255) UNIQUE,
       email VARCHAR(255) UNIQUE,
       name VARCHAR(255),
+      avatar TEXT,
+      store_code VARCHAR(64) DEFAULT NULL,
       role VARCHAR(50) DEFAULT 'user'
     )
   `);
+  await ensureColumn("users", "google_id", "VARCHAR(255) NULL");
+  await ensureColumn("users", "avatar", "TEXT NULL");
+  await ensureColumn("users", "store_code", "VARCHAR(64) NULL");
   await dbPool.query(`
     CREATE TABLE IF NOT EXISTS don_vi (
       id INT AUTO_INCREMENT PRIMARY KEY,
@@ -1177,34 +1202,6 @@ function getCurrentWeekDates() {
     const month = String(current.getMonth() + 1).padStart(2, "0");
     const date = String(current.getDate()).padStart(2, "0");
     return `${year}-${month}-${date}`;
-  });
-}
-
-function loadEnvFile(filePath) {
-  if (!fs.existsSync(filePath)) {
-    return;
-  }
-
-  const content = fs.readFileSync(filePath, "utf8");
-
-  content.split(/\r?\n/).forEach((line) => {
-    const trimmed = line.trim();
-    if (!trimmed || trimmed.startsWith("#")) {
-      return;
-    }
-
-    const separatorIndex = trimmed.indexOf("=");
-    if (separatorIndex === -1) {
-      return;
-    }
-
-    const key = trimmed.slice(0, separatorIndex).trim();
-    const rawValue = trimmed.slice(separatorIndex + 1).trim();
-    const value = rawValue.replace(/^['"]|['"]$/g, "");
-
-    if (key && process.env[key] === undefined) {
-      process.env[key] = value;
-    }
   });
 }
 
