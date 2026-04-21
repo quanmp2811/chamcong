@@ -1091,6 +1091,37 @@
       return result;
     }
 
+    function mergeScheduleDataWithLocal(dbData, localData) {
+      if (!localData || typeof localData !== "object") {
+        return dbData;
+      }
+
+      const merged = {};
+
+      Object.entries(dbData || {}).forEach(([region, dbStores]) => {
+        const localStores = Array.isArray(localData[region]) ? localData[region] : [];
+        const localStoresByCode = new Map(
+          localStores
+            .filter((store) => store && typeof store.code === "string")
+            .map((store) => [store.code, store])
+        );
+
+        merged[region] = (Array.isArray(dbStores) ? dbStores : []).map((dbStore) => {
+          const localStore = localStoresByCode.get(dbStore.code);
+          if (!localStore) {
+            return dbStore;
+          }
+
+          return {
+            ...dbStore,
+            employees: Array.isArray(localStore.employees) ? localStore.employees : dbStore.employees
+          };
+        });
+      });
+
+      return merged;
+    }
+
     function getHistory() {
       try {
         return JSON.parse(localStorage.getItem(historyStorageKey) || "[]");
@@ -1634,30 +1665,14 @@
       const editableWeek = isWeekInEditableRange();
     
       syncTimetableExportWeekInput(timetableWeekStart);
-    
-      // 🔥 đảm bảo có data theo ngày
-      ensureScheduleDates(selectedRegion, activeDates);
-    
-      // 🔥 FIX QUAN TRỌNG: KHÔNG ghi đè DB bằng localStorage
-      const saved = localStorage.getItem("scheduleData");
-    
-      if (saved) {
-        const localData = JSON.parse(saved);
-    
-        // 👉 CHỈ dùng local nếu có đúng region và có data
-        if (
-          localData[selectedRegion] &&
-          localData[selectedRegion].length > 0
-        ) {
-          scheduleData = localData;
-        }
-      }
-    
-      // 🔥 fallback nếu vẫn rỗng
+
       if (!scheduleData[selectedRegion]) {
         scheduleData[selectedRegion] = [];
       }
-    
+
+      // 🔥 đảm bảo có data theo ngày
+      ensureScheduleDates(selectedRegion, activeDates);
+
       // 👉 clone ra để render
       storeData = cloneData(scheduleData[selectedRegion]);
     
@@ -2563,8 +2578,29 @@
         closeRoleActionMenus();
         if (willOpen) {
           const rect = target.getBoundingClientRect();
-          menu.style.top = `${rect.bottom + 4}px`;
-          menu.style.left = `${rect.left}px`;
+          const spacing = 4;
+          const viewportPadding = 8;
+
+          menu.style.visibility = "hidden";
+          menu.style.display = "grid";
+          menu.style.top = "0";
+          menu.style.left = "0";
+
+          const menuRect = menu.getBoundingClientRect();
+          const fitsBelow = rect.bottom + spacing + menuRect.height <= window.innerHeight - viewportPadding;
+          const fitsRight = rect.left + menuRect.width <= window.innerWidth - viewportPadding;
+
+          const top = fitsBelow
+            ? rect.bottom + spacing
+            : Math.max(viewportPadding, rect.top - menuRect.height - spacing);
+          const left = fitsRight
+            ? rect.left
+            : Math.max(viewportPadding, window.innerWidth - menuRect.width - viewportPadding);
+
+          menu.style.display = "";
+          menu.style.visibility = "";
+          menu.style.top = `${top}px`;
+          menu.style.left = `${left}px`;
           menu.classList.add("is-open");
           roleCell?.classList.add("menu-open");
           storeTimetable?.classList.add("menu-open");
@@ -2623,11 +2659,23 @@
         REGION_SHEETS = (Array.isArray(indexData?.regions) ? indexData.regions : [])
           .map((region) => region.name)
           .filter(Boolean);
-        scheduleData = buildScheduleDataFromDb(indexData);
+        const dbScheduleData = buildScheduleDataFromDb(indexData);
+        let localScheduleData = null;
+
+        try {
+          localScheduleData = JSON.parse(localStorage.getItem("scheduleData") || "null");
+        } catch {
+          localScheduleData = null;
+        }
+
+        scheduleData = mergeScheduleDataWithLocal(dbScheduleData, localScheduleData);
         if (normalizeScheduleData(scheduleData)) {
           saveScheduleData();
         }
         renderRegionOptions();
+        if (!regionFilter.value || !REGION_SHEETS.includes(regionFilter.value)) {
+          regionFilter.value = REGION_SHEETS[0] || "";
+        }
       } catch (error) {
         REGION_SHEETS = [];
         scheduleData = {};
@@ -2758,27 +2806,6 @@
     initializeFromDatabase().finally(() => {
       loadSheetData();
     });
-    (async () => {
-      try {
-        const data = await fetchIndexData();
-    
-        console.log("DATA:", data); // 🔥 test
-    
-        // 🔥 THÊM Ở ĐÂY
-        scheduleData = buildScheduleDataFromDb(data);
-    
-        REGION_SHEETS = Object.keys(scheduleData);
-    
-        renderRegionOptions();
-    
-        regionFilter.value = REGION_SHEETS[0] || "";
-    
-        loadSheetData();
-    
-      } catch (err) {
-        console.error("Lỗi load dữ liệu:", err);
-      }
-    })();
     document.addEventListener("click", function (e) {
       const btn = e.target.closest("[data-store-action]");
       if (!btn) return;
