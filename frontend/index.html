@@ -1391,7 +1391,6 @@
           <thead>
             <tr>
               <th>Người sửa</th>
-              <th>Email</th>
               <th>Nhân sự</th>
               <th>Khu vực</th>
               <th>Cửa hàng</th>
@@ -1417,13 +1416,13 @@
                         aria-label="${escapeHtml(editorInfo.fullText)}"
                       >
                         <div class="user-name">${escapeHtml(editorInfo.name)}</div>
+                        ${editorInfo.email ? `<div class="user-email">${escapeHtml(editorInfo.email)}</div>` : ""}
                         <div class="user-tooltip" role="tooltip">
                           <div class="user-tooltip-name">${escapeHtml(editorInfo.name)}</div>
                           <div class="user-tooltip-email">${escapeHtml(editorInfo.email)}</div>
                         </div>
                       </div>
                     </td>
-                    <td><div class="history-email" title="${escapeHtml(editorInfo.email)}">${escapeHtml(editorInfo.email)}</div></td>
                     <td><span class="history-cell-strong">${escapeHtml(item.employee || "")}</span></td>
                     <td>${escapeHtml(item.region || "")}</td>
                     <td>${escapeHtml(item.store || "")}</td>
@@ -1906,21 +1905,20 @@
         year: "numeric"
       });
       const rows = [
-        [`LỊCH SỬ CHỈNH SỬ • ${region}`, "", "", "", "", "", "", ""],
-        [`Tháng ${monthLabel}`, "", "", "", "", "", "", ""],
-        ["Người sửa", "Email", "Nhân sự", "Cửa hàng", "Ngày", "Từ ca", "Sang ca", "Thời gian sửa"]
+        [`LỊCH SỬ CHỈNH SỬ • ${region}`, "", "", "", "", "", ""],
+        [`Tháng ${monthLabel}`, "", "", "", "", "", ""],
+        ["Người sửa", "Nhân sự", "Cửa hàng", "Ngày", "Từ ca", "Sang ca", "Thời gian sửa"]
       ];
       const merges = [
-        { s: { r: 0, c: 0 }, e: { r: 0, c: 7 } },
-        { s: { r: 1, c: 0 }, e: { r: 1, c: 7 } }
+        { s: { r: 0, c: 0 }, e: { r: 0, c: 6 } },
+        { s: { r: 1, c: 0 }, e: { r: 1, c: 6 } }
       ];
 
       if (historyItems.length) {
         historyItems.forEach((item) => {
           const editorInfo = getHistoryEditorParts(item);
           rows.push([
-            editorInfo.name,
-            editorInfo.email,
+            editorInfo.email ? `${editorInfo.name}\n${editorInfo.email}` : editorInfo.name,
             item.employee || "",
             item.store || "",
             item.dateLabel || formatDateLabel(item.date).day,
@@ -1930,16 +1928,15 @@
           ]);
         });
       } else {
-        rows.push(["", "", "", "", "", "", "", ""]);
-        rows.push([`Không có lịch sử chỉnh sửa trong tháng này.`, "", "", "", "", "", "", ""]);
-        merges.push({ s: { r: 4, c: 0 }, e: { r: 4, c: 7 } });
+        rows.push(["", "", "", "", "", "", ""]);
+        rows.push([`Không có lịch sử chỉnh sửa trong tháng này.`, "", "", "", "", "", ""]);
+        merges.push({ s: { r: 4, c: 0 }, e: { r: 4, c: 6 } });
       }
 
       const worksheet = XLSX.utils.aoa_to_sheet(rows);
       worksheet["!merges"] = merges;
       worksheet["!cols"] = [
-        { wch: 18 },
-        { wch: 24 },
+        { wch: 28 },
         { wch: 22 },
         { wch: 18 },
         { wch: 14 },
@@ -1950,7 +1947,7 @@
       worksheet["!rows"] = rows.map((row, rowIndex) => {
         if (rowIndex === 0) return { hpt: 28 };
         if (rowIndex === 1) return { hpt: 22 };
-        return { hpt: 24 };
+        return { hpt: 36 };
       });
       worksheet["!freeze"] = { xSplit: 0, ySplit: 3 };
 
