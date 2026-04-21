@@ -655,7 +655,7 @@ app.get("/api/ca-lam", authenticateToken, async (_req, res) => {
 
 app.post("/api/ca-lam", authenticateToken, authorizeAdmin, async (req, res) => {
   const { code, name, startTime, endTime } = req.body;
-  const scope = req.body.scope === "office" ? "office" : "store";
+  const scope = ["office", "store", "all"].includes(req.body.scope) ? req.body.scope : "store";
   if (!code || !name) return res.status(400).json({ ok: false, message: "Thiếu mã ca hoặc tên ca" });
   try {
     ensureDatabaseConnected();
@@ -674,7 +674,7 @@ app.post("/api/ca-lam", authenticateToken, authorizeAdmin, async (req, res) => {
 app.put("/api/ca-lam/:code", authenticateToken, authorizeAdmin, async (req, res) => {
   const oldCode = req.params.code;
   const { code, name, startTime, endTime } = req.body;
-  const scope = req.body.scope === "office" ? "office" : "store";
+  const scope = ["office", "store", "all"].includes(req.body.scope) ? req.body.scope : "store";
   if (!code || !name) return res.status(400).json({ ok: false, message: "Thiếu dữ liệu" });
   try {
     ensureDatabaseConnected();
