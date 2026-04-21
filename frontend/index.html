@@ -48,6 +48,53 @@
       #rotate-overlay { display: flex; }
       body > *:not(#rotate-overlay) { visibility: hidden; }
     }
+
+    /* Mobile store-actions dropdown */
+    .store-actions-mobile-wrap {
+      display: none;
+      position: relative;
+    }
+    .store-actions-mobile-toggle {
+      padding: 0.3rem 0.75rem;
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      cursor: pointer;
+      color: #334155;
+      line-height: 1;
+    }
+    .store-actions-mobile-toggle:disabled { opacity: 0.4; cursor: not-allowed; }
+    .store-actions-mobile-menu {
+      position: absolute;
+      top: calc(100% + 6px);
+      right: 0;
+      z-index: 9999;
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      box-shadow: 0 8px 24px rgba(0,0,0,.12);
+      padding: 4px;
+      min-width: 160px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .store-actions-mobile-menu[hidden] { display: none; }
+    .store-actions-mobile-menu .store-add-button {
+      display: block;
+      width: 100%;
+      text-align: left;
+      border-radius: 7px;
+      padding: 0.55rem 0.85rem;
+      font-size: 0.9rem;
+    }
+    @media (max-width: 1024px) and (orientation: landscape) {
+      .store-timetable-actions > .store-add-button { display: none; }
+      .store-actions-mobile-wrap { display: block; }
+    }
   </style>
 </head>
 <body class="page-lich-lam-viec">
@@ -1626,6 +1673,15 @@
               <button type="button" class="store-add-button" data-region="${selectedRegion}" data-store-action="add-security" data-store="${store.code}" ${isEditableWeek ? "" : "disabled"}>Thêm bảo vệ</button>
               <button type="button" class="store-add-button" data-region="${selectedRegion}" data-store-action="add-support" data-store="${store.code}" ${isEditableWeek ? "" : "disabled"}>Thêm hỗ trợ</button>
               <button type="button" class="store-add-button" data-region="${selectedRegion}" data-store-action="add-overtime" data-store="${store.code}" ${isEditableWeek ? "" : "disabled"}>Thêm NV tăng ca</button>
+              <div class="store-actions-mobile-wrap">
+                <button type="button" class="store-actions-mobile-toggle" data-store-mobile-toggle data-store="${store.code}" ${isEditableWeek ? "" : "disabled"}>···</button>
+                <div class="store-actions-mobile-menu" hidden>
+                  <button type="button" class="store-add-button" data-region="${selectedRegion}" data-store-action="add-employee" data-store="${store.code}" ${isEditableWeek ? "" : "disabled"}>Thêm nhân viên</button>
+                  <button type="button" class="store-add-button" data-region="${selectedRegion}" data-store-action="add-security" data-store="${store.code}" ${isEditableWeek ? "" : "disabled"}>Thêm bảo vệ</button>
+                  <button type="button" class="store-add-button" data-region="${selectedRegion}" data-store-action="add-support" data-store="${store.code}" ${isEditableWeek ? "" : "disabled"}>Thêm hỗ trợ</button>
+                  <button type="button" class="store-add-button" data-region="${selectedRegion}" data-store-action="add-overtime" data-store="${store.code}" ${isEditableWeek ? "" : "disabled"}>Thêm NV tăng ca</button>
+                </div>
+              </div>
             </div>
           </div>
           <div class="timetable-wrap">
@@ -2600,10 +2656,31 @@
       return window.confirm(message);
     }
 
+    function closeStoreActionMenus() {
+      document.querySelectorAll(".store-actions-mobile-menu:not([hidden])").forEach((m) => { m.hidden = true; });
+    }
+
+    document.addEventListener("click", (e) => {
+      if (!e.target.closest(".store-actions-mobile-wrap")) {
+        closeStoreActionMenus();
+      }
+    });
+
     function handleRoleActionClick(event) {
       if (!currentUser) return; // Require login for editing
 
       const target = event.target;
+
+      if (target instanceof HTMLButtonElement && target.hasAttribute("data-store-mobile-toggle")) {
+        if (target.disabled) return;
+        const menu = target.nextElementSibling;
+        if (!menu) return;
+        const isOpen = !menu.hidden;
+        closeStoreActionMenus();
+        menu.hidden = isOpen;
+        event.stopPropagation();
+        return;
+      }
 
       if (target instanceof HTMLButtonElement && target.hasAttribute("data-office-color-trigger")) {
         if (target.disabled) {
