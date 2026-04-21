@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 <head>
   <meta charset="UTF-8" />
@@ -38,6 +38,7 @@
     <aside class="config-sidebar app-sidepanel">
       <a href="cau-hinh.html" class="config-nav-item app-sidepanel-link active">Quản lý đơn vị</a>
       <a href="nguoi-dung.html" class="config-nav-item app-sidepanel-link">Quản lý người dùng</a>
+      <a href="lich-su.html" class="config-nav-item app-sidepanel-link">Lịch sử chỉnh sửa</a>
     </aside>
 
     <section class="config-main">
@@ -60,7 +61,7 @@
 
               <label class="store-field">
                 Người quản lý
-                <input type="text" id="region-manager" class="store-input" placeholder="Ví dụ: Nguyễn Văn A" />
+                <input type="text" id="region-manager" class="store-input" placeholder="VD: Nguyễn Văn A" />
               </label>
             </div>
 
@@ -202,6 +203,7 @@
       createRegion, updateRegion, deleteRegion,
       getShifts, createShift, updateShift, deleteShift, requireAdmin
     } from "./js/api.js";
+    import { appendShiftHistory, appendUnitHistory } from "./js/edit-history.js";
 
     const currentUser = requireAdmin();
     if (!currentUser) {
@@ -458,6 +460,24 @@ function renderRegionTable() {
       return input.value.trim();
     }
 
+    function buildStoreSummary(store) {
+      return {
+        mã: store.code || "",
+        tên: store.name || "",
+        khu_vực: store.region || "",
+        quản_lý: store.manager || ""
+      };
+    }
+
+    function buildShiftSummary(shift) {
+      return {
+        mã_ca: shift.code || "",
+        tên_ca: shift.name || "",
+        bắt_đầu: formatTime(shift.startTime) || "",
+        kết_thúc: formatTime(shift.endTime) || ""
+      };
+    }
+
     storeForm.addEventListener("submit", async (event) => {
       event.preventDefault();
 
@@ -484,6 +504,19 @@ function renderRegionTable() {
           name,
           region,
           manager: regionMeta.hideManagerField ? "" : manager
+        });
+        appendUnitHistory({
+          action: "Thêm đơn vị",
+          unitCode: code,
+          unitName: name,
+          region,
+          before: "",
+          after: buildStoreSummary({
+            code,
+            name,
+            region,
+            manager: regionMeta.hideManagerField ? "" : manager
+          })
         });
         await loadStores();
       } catch (error) {
@@ -542,6 +575,7 @@ function renderRegionTable() {
       const action = btn.dataset.action;
 
       const row = btn.closest("tr");
+      const existingStore = stores.find((store) => store.code === code);
 
       if (action === "cancel") {
         editingRowCode = null;
@@ -570,6 +604,14 @@ function renderRegionTable() {
 
         try {
           await updateStore(code, data);
+          appendUnitHistory({
+            action: "Sửa đơn vị",
+            unitCode: data.code,
+            unitName: data.name,
+            region: data.region,
+            before: buildStoreSummary(existingStore || {}),
+            after: buildStoreSummary(data)
+          });
           editingRowCode = null;
           await loadStores();
           renderStoreTable();
@@ -581,6 +623,14 @@ function renderRegionTable() {
       if (action === "delete") {
         try {
           await deleteStore(code);
+          appendUnitHistory({
+            action: "Xóa đơn vị",
+            unitCode: existingStore?.code || code,
+            unitName: existingStore?.name || "",
+            region: existingStore?.region || "",
+            before: buildStoreSummary(existingStore || { code }),
+            after: "Đã xóa"
+          });
           await loadStores();
           renderStoreTable();
         } catch (err) {
@@ -761,6 +811,13 @@ function renderRegionTable() {
       if (!code || !name) { setShiftStatus("Cần nhập mã ca và tên ca.", true); return; }
       try {
         await createShift({ code, name, startTime, endTime });
+        appendShiftHistory({
+          action: "Thêm ca",
+          shiftCode: code,
+          shiftName: name,
+          before: "",
+          after: buildShiftSummary({ code, name, startTime, endTime })
+        });
         await loadShifts();
         resetShiftForm();
         setShiftStatus(`Đã thêm ca ${code}.`);
@@ -774,6 +831,7 @@ function renderRegionTable() {
       const code = btn.dataset.code;
       const action = btn.dataset.action;
       const row = btn.closest("tr");
+      const existingShift = shifts.find((shift) => shift.code === code);
 
       if (action === "edit") { editingShiftCode = code; renderShiftTable(); return; }
       if (action === "cancel") { editingShiftCode = null; renderShiftTable(); return; }
@@ -787,6 +845,13 @@ function renderRegionTable() {
         };
         try {
           await updateShift(code, data);
+          appendShiftHistory({
+            action: "Sửa ca",
+            shiftCode: data.code,
+            shiftName: data.name,
+            before: buildShiftSummary(existingShift || {}),
+            after: buildShiftSummary(data)
+          });
           editingShiftCode = null;
           await loadShifts();
           setShiftStatus("Đã cập nhật ca.");
@@ -798,6 +863,13 @@ function renderRegionTable() {
       if (action === "delete") {
         try {
           await deleteShift(code);
+          appendShiftHistory({
+            action: "Xóa ca",
+            shiftCode: existingShift?.code || code,
+            shiftName: existingShift?.name || "",
+            before: buildShiftSummary(existingShift || { code }),
+            after: "Đã xóa"
+          });
           await loadShifts();
           setShiftStatus("Đã xóa ca.");
         } catch (err) {

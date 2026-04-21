@@ -104,28 +104,6 @@
 
         <div id="office-color-popover" class="office-color-popover" hidden></div>
 
-        <div class="schedule-editor">
-          <div class="schedule-editor-header">
-            <div>
-              <h2>Lịch Sử Chỉnh Sửa</h2>
-              <p>Hệ thống lưu lại người chỉnh sửa, nhân sự, cửa hàng, ngày và thay đổi ca làm/off ngay trong trình duyệt.</p>
-            </div>
-            <div class="export-panel">
-              <div class="export-controls">
-                <label class="export-field" for="export-month-input">
-                  Tháng xuất
-                  <input type="month" id="export-month-input" class="export-week-input" />
-                </label>
-                <button type="button" class="export-button" id="export-excel-button">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" aria-hidden="true">
-                    <path d="M160-80v-80h640v80H160Zm320-160L200-600h160v-280h240v280h160L480-240Zm0-130 116-150h-76v-280h-80v280h-76l116 150Zm0-150Z"/>
-                  </svg>
-                </button>
-              </div>
-            </div>
-          </div>
-          <div class="history-list" id="history-list"></div>
-        </div>
       </div>
     </div>
   </div>
@@ -1341,6 +1319,10 @@
     }
     
     async function renderHistory() {
+      if (!historyList) {
+        return;
+      }
+
       historyList.innerHTML = '<div class="empty-history">Đang tải...</div>';
 
       let history = [];
@@ -2826,4 +2808,3 @@
   <script src="js/script.js"></script>
 </body>
 </html>
-
