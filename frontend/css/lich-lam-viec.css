@@ -1013,7 +1013,7 @@ body.page-lich-lam-viec .office-sheet-preset-grid {
     }
 
     body.page-lich-lam-viec .timetable-name {
-      min-width: 190px;
+      min-width: 156px;
       color: #0f172a;
       font-weight: 600;
     }
@@ -1027,7 +1027,7 @@ body.page-lich-lam-viec .timetable tbody td:nth-child(n + 3) {
 
     body.page-lich-lam-viec .employee-name-input {
       width: 100%;
-      min-width: 180px;
+      min-width: 0;
       border: 1px solid #cbd5e1;
       background: #fff;
       color: #0f172a;
@@ -1035,8 +1035,11 @@ body.page-lich-lam-viec .timetable tbody td:nth-child(n + 3) {
       border-radius: 8px;
       font: inherit;
       font-weight: 600;
-      line-height: 1.35;
+      font-size: 0.75rem;
+      line-height: 1.1;
       outline: none;
+      position: relative;
+      z-index: 0;
     }
 
     body.page-lich-lam-viec .employee-name-input:focus {
