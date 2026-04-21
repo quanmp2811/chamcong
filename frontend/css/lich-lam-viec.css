@@ -342,7 +342,7 @@ body.page-lich-lam-viec .editor-select {
 
     body.page-lich-lam-viec .history-table th:nth-child(1),
 body.page-lich-lam-viec .history-table td:nth-child(1) {
-      width: 10%;
+      width: 11%;
     }
 
     body.page-lich-lam-viec .history-table th:nth-child(2),
@@ -372,7 +372,12 @@ body.page-lich-lam-viec .history-table td:nth-child(6) {
 
     body.page-lich-lam-viec .history-table th:nth-child(7),
 body.page-lich-lam-viec .history-table td:nth-child(7) {
-      width: 18%;
+      width: 16%;
+    }
+
+    body.page-lich-lam-viec .history-table th:nth-child(8),
+body.page-lich-lam-viec .history-table td:nth-child(8) {
+      width: 17%;
     }
 
     body.page-lich-lam-viec .history-table tbody td {
@@ -1015,9 +1020,9 @@ body.page-lich-lam-viec .office-sheet-preset-grid {
 
     body.page-lich-lam-viec .timetable thead th:nth-child(n + 3),
 body.page-lich-lam-viec .timetable tbody td:nth-child(n + 3) {
-      min-width: 170px;
-      padding-left: 10px;
-      padding-right: 10px;
+      min-width: 156px;
+      padding-left: 8px;
+      padding-right: 8px;
     }
 
     body.page-lich-lam-viec .employee-name-input {
@@ -1040,30 +1045,32 @@ body.page-lich-lam-viec .timetable tbody td:nth-child(n + 3) {
     }
 
     body.page-lich-lam-viec .shift-cell-select {
-      flex: 0 0 156px;
-      width: 156px;
-      min-width: 156px;
+      flex: 1 1 auto;
+      width: 100%;
+      min-width: 0;
       border: 1px solid #cbd5e1;
       background: #fff;
       color: #0f172a;
-      padding: 0.42rem 0.5rem;
+      padding: 0.6rem 0.75rem;
       border-radius: 7px;
       font: inherit;
       font-weight: 600;
       font-size: 0.75rem;
       line-height: 1.1;
       outline: none;
+      max-width: 100%;
     }
 
     body.page-lich-lam-viec .shift-cell-editor {
       display: flex;
       align-items: center;
       justify-content: center;
+      width: 100%;
     }
 
     body.page-lich-lam-viec .shift-cell-select.no-time {
-      flex: 0 0 156px;
-      width: 156px;
+      flex: 1 1 auto;
+      width: 100%;
       text-align: center;
       text-align-last: center;
     }

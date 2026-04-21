@@ -119,7 +119,12 @@
   <!-- SCRIPT -->
   <script type="module">
 
-    import { getStores, getUsers, createUser, deleteUser, updateUser } from "./js/api.js";
+    import { getStores, getUsers, createUser, deleteUser, updateUser, requireAdmin } from "./js/api.js";
+
+    const currentUser = requireAdmin();
+    if (!currentUser) {
+      throw new Error("Unauthorized");
+    }
 
     let users = [];
     let stores = [];

@@ -200,8 +200,13 @@
     import {
       createStore, deleteStore, getRegions, getStores, updateStore,
       createRegion, updateRegion, deleteRegion,
-      getShifts, createShift, updateShift, deleteShift
+      getShifts, createShift, updateShift, deleteShift, requireAdmin
     } from "./js/api.js";
+
+    const currentUser = requireAdmin();
+    if (!currentUser) {
+      throw new Error("Unauthorized");
+    }
 
     const REGION_METADATA = {
       "TPKD/QLV": {

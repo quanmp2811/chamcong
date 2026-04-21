@@ -3099,7 +3099,7 @@ body.page-lich-lam-viec .history-table td {
 
     body.page-lich-lam-viec .history-table th:nth-child(1),
 body.page-lich-lam-viec .history-table td:nth-child(1) {
-      width: 10%;
+      width: 11%;
     }
 
     body.page-lich-lam-viec .history-table th:nth-child(2),
@@ -3129,7 +3129,12 @@ body.page-lich-lam-viec .history-table td:nth-child(6) {
 
     body.page-lich-lam-viec .history-table th:nth-child(7),
 body.page-lich-lam-viec .history-table td:nth-child(7) {
-      width: 18%;
+      width: 16%;
+    }
+
+    body.page-lich-lam-viec .history-table th:nth-child(8),
+body.page-lich-lam-viec .history-table td:nth-child(8) {
+      width: 17%;
     }
 
     body.page-lich-lam-viec .history-table tbody td {
@@ -3733,9 +3738,9 @@ body.page-lich-lam-viec .timetable td {
 
     body.page-lich-lam-viec .timetable thead th:nth-child(n + 3),
 body.page-lich-lam-viec .timetable tbody td:nth-child(n + 3) {
-      min-width: 132px;
-      padding-left: 10px;
-      padding-right: 10px;
+      min-width: 156px;
+      padding-left: 8px;
+      padding-right: 8px;
     }
 
     body.page-lich-lam-viec .employee-name-input {
@@ -3758,19 +3763,20 @@ body.page-lich-lam-viec .timetable tbody td:nth-child(n + 3) {
     }
 
     body.page-lich-lam-viec .shift-cell-select {
-      flex: 0 0 82px;
-      width: 82px;
-      min-width: 82px;
+      flex: 1 1 auto;
+      width: 100%;
+      min-width: 0;
       border: 1px solid #cbd5e1;
       background: #fff;
       color: #0f172a;
-      padding: 0.48rem 0.45rem;
+      padding: 0.6rem 0.75rem;
       border-radius: 8px;
       font: inherit;
       font-weight: 600;
       font-size: 0.88rem;
       line-height: 1.2;
       outline: none;
+      max-width: 100%;
     }
 
     body.page-lich-lam-viec .shift-cell-editor {
@@ -3778,7 +3784,8 @@ body.page-lich-lam-viec .timetable tbody td:nth-child(n + 3) {
       align-items: center;
       flex-wrap: nowrap;
       gap: 4px;
-      min-width: 176px;
+      min-width: 0;
+      width: 100%;
     }
 
     body.page-lich-lam-viec .shift-cell-editor.no-time {
@@ -3786,9 +3793,9 @@ body.page-lich-lam-viec .timetable tbody td:nth-child(n + 3) {
     }
 
     body.page-lich-lam-viec .shift-cell-select.no-time {
-      flex: 0 0 112px;
-      width: 112px;
-      min-width: 112px;
+      flex: 1 1 auto;
+      width: 100%;
+      min-width: 0;
       text-align: center;
       text-align-last: center;
     }
@@ -4358,4 +4365,3 @@ body.page-cham-cong-nhan-vien .employee-detail-table td {
     body.page-cham-cong-nhan-vien .flatpickr-monthSelect-month { border-radius: 8px; }
     body.page-cham-cong-nhan-vien .flatpickr-monthSelect-month:hover { background: #e2e8f0; }
     body.page-cham-cong-nhan-vien .flatpickr-monthSelect-month.selected { background: #2563eb; border-color: #2563eb; }
-

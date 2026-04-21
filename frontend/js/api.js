@@ -15,7 +15,7 @@ export function requireLogin() {
   const user = getUser();
 
   if (!user || !user.email) {
-    window.location.href = "/login.html";
+    window.location.replace("/index.html");
     return null;
   }
 
@@ -28,8 +28,7 @@ export function requireAdmin() {
   if (!user) return;
 
   if (user.role !== "admin") {
-    alert("Bạn không có quyền truy cập");
-    window.location.href = "/";
+    window.location.replace("/index.html");
     return null;
   }
 
