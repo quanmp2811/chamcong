@@ -73,7 +73,7 @@
         </div>
 
         <div class="timetable-section">
-          <div class="timetable-section-header">
+          <div class="timetable-section-header" id="stats-section-header">
             <div class="timetable-section-copy">
               <h2>Thống Kê Nhân Sự Làm Việc</h2>
               <p id="stats-section-desc"></p>
@@ -93,7 +93,7 @@
             </div>
           </div>
           <div id="region-stats-table"></div>
-          <div class="timetable-section-header" style="border-top:1px solid #e2e8f0;margin-top:4px;padding-top:16px">
+          <div class="timetable-section-header" id="timetable-section-header" style="border-top:1px solid #e2e8f0;margin-top:4px;padding-top:16px">
             <div class="timetable-section-copy">
               <h2 id="timetable-title">Bảng Thời Gian Biểu</h2>
               <p id="timetable-description">Bạn có thể đổi trực tiếp ca làm của từng nhân sự trong bảng bên dưới.</p>
@@ -1488,20 +1488,31 @@
 
     function renderRegionStats() {
       const statsDiv = document.getElementById("region-stats-table");
+      const statsHeader = document.getElementById("stats-section-header");
+      const timetableHeader = document.getElementById("timetable-section-header");
       if (!statsDiv) return;
       const selectedRegion = regionFilter.value;
+      const locationColumnLabel = selectedRegion === "TPKD/QLV" ? "Địa điểm" : "Cửa hàng";
+      const statsDesc = document.getElementById("stats-section-desc");
+      const hideStats = selectedRegion === "TPKD/QLV";
+      if (statsHeader) statsHeader.style.display = hideStats ? "none" : "";
+      if (timetableHeader) timetableHeader.style.cssText = hideStats
+        ? "border-top:none;margin-top:0;padding-top:0"
+        : "border-top:1px solid #e2e8f0;margin-top:4px;padding-top:16px";
+      if (hideStats) {
+        if (statsDesc) statsDesc.textContent = "";
+        statsDiv.innerHTML = "";
+        return;
+      }
       if (!selectedRegion || !storeData.length) {
         statsDiv.innerHTML = "";
         return;
       }
       const activeDates = getActiveScheduleDates();
-
-      const statsDesc = document.getElementById("stats-section-desc");
-      if (statsDesc) statsDesc.textContent = `${selectedRegion} • Số nhân viên làm việc mỗi ngày theo từng cửa hàng (trừ OFF TUẦN / NGHỈ PHÉP)`;
+      if (statsDesc) statsDesc.textContent = `${selectedRegion} • Số nhân viên làm việc mỗi ngày theo từng ${selectedRegion === "TPKD/QLV" ? "địa điểm" : "cửa hàng"} (trừ OFF TUẦN / NGHỈ PHÉP)`;
 
       const totalCols = activeDates.length + 1;
-      const datePct = `${(80 / activeDates.length).toFixed(2)}%`;
-      const storePct = "20%";
+      const datePct = `${(84 / activeDates.length).toFixed(2)}%`;
 
       const headerCells = activeDates.map(date => {
         const label = formatDateLabel(date);
@@ -1519,9 +1530,9 @@
 
       statsDiv.innerHTML = `
         <div class="history-list">
-          <table class="history-table" style="table-layout:fixed;width:100%">
+          <table class="history-table region-stats-table" style="table-layout:fixed;width:100%">
             <thead>
-              <tr><th style="width:${storePct}">Cửa hàng</th>${headerCells}</tr>
+              <tr><th>${locationColumnLabel}</th>${headerCells}</tr>
             </thead>
             <tbody>${bodyRows}</tbody>
           </table>
@@ -1552,9 +1563,10 @@
       }
 
       const isEditableWeek = isWeekInEditableRange();
+      const officeDateWidth = `${(84 / activeDates.length).toFixed(2)}%`;
       const dateHeaders = activeDates.map((date) => {
         const label = formatDateLabel(date);
-        return `<th><div>${label.day}</div><div>${label.weekday}</div></th>`;
+        return `<th${isOfficeRegion ? ` style="width:${officeDateWidth}"` : ""}><div>${label.day}</div><div>${label.weekday}</div></th>`;
       }).join("");
 
       timetableBoard.innerHTML = `<div class="timetable-board-scroll">${accessibleStores.map((store) => `
@@ -1572,7 +1584,7 @@
             </div>
           </div>
           <div class="timetable-wrap">
-            <table class="timetable">
+            <table class="timetable${isOfficeRegion ? " timetable-office" : ""}">
               <thead>
                 <tr>
                   ${isOfficeRegion ? "" : "<th>Chức vụ</th>"}

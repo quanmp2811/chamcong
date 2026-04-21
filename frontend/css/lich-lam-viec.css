@@ -390,6 +390,16 @@ body.page-lich-lam-viec .history-table td:nth-child(9) {
       font-size: 0.9rem;
     }
 
+    body.page-lich-lam-viec .region-stats-table th:nth-child(1),
+body.page-lich-lam-viec .region-stats-table td:nth-child(1) {
+      width: auto;
+    }
+
+    body.page-lich-lam-viec .region-stats-table th:nth-child(n + 2),
+body.page-lich-lam-viec .region-stats-table td:nth-child(n + 2) {
+      width: auto;
+    }
+
     body.page-lich-lam-viec .history-cell-strong {
       color: #0f172a;
       font-weight: 700;
@@ -1026,6 +1036,42 @@ body.page-lich-lam-viec .office-sheet-preset-grid {
     body.page-lich-lam-viec .timetable thead th:nth-child(n + 3),
 body.page-lich-lam-viec .timetable tbody td:nth-child(n + 3) {
       min-width: 156px;
+      padding-left: 8px;
+      padding-right: 8px;
+    }
+
+    body.page-lich-lam-viec .timetable.timetable-office {
+      width: 100%;
+      min-width: 0;
+      table-layout: fixed;
+    }
+
+    body.page-lich-lam-viec .timetable.timetable-office thead th:nth-child(1),
+    body.page-lich-lam-viec .timetable.timetable-office tbody td:nth-child(1) {
+      left: 0;
+    }
+
+    body.page-lich-lam-viec .timetable.timetable-office thead th:nth-child(2),
+    body.page-lich-lam-viec .timetable.timetable-office tbody td:nth-child(2) {
+      position: static;
+      left: auto;
+      background: #fff;
+      z-index: auto;
+      box-shadow: none;
+    }
+
+    body.page-lich-lam-viec .timetable.timetable-office thead th:nth-child(2) {
+      background: #f8fbff;
+    }
+
+    body.page-lich-lam-viec .timetable.timetable-office .timetable-name {
+      width: auto;
+      min-width: 0;
+    }
+
+    body.page-lich-lam-viec .timetable.timetable-office thead th:nth-child(n + 2),
+    body.page-lich-lam-viec .timetable.timetable-office tbody td:nth-child(n + 2) {
+      min-width: 0;
       padding-left: 8px;
       padding-right: 8px;
     }
