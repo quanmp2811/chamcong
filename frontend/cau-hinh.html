@@ -158,6 +158,7 @@
               <label class="store-field">
                 Phạm vi
                 <select id="shift-scope" class="store-input">
+                  <option value="all">Tất cả</option>
                   <option value="store">Store</option>
                   <option value="office">TPKD/QLV</option>
                 </select>
@@ -471,7 +472,7 @@ function renderRegionTable() {
       return {
         mã_ca: shift.code || "",
         tên_ca: shift.name || "",
-        phạm_vi: shift.scope === "office" ? "TPKD/QLV" : "Store",
+        phạm_vi: formatShiftScope(shift.scope),
         bắt_đầu: formatTime(shift.startTime) || "",
         kết_thúc: formatTime(shift.endTime) || ""
       };
@@ -781,7 +782,9 @@ function renderRegionTable() {
     }
 
     function formatShiftScope(scope) {
-      return scope === "office" ? "TPKD/QLV" : "Store";
+      if (scope === "office") return "TPKD/QLV";
+      if (scope === "all") return "Tất cả";
+      return "Store";
     }
 
     function renderShiftTable() {
@@ -797,6 +800,7 @@ function renderRegionTable() {
               <td><input value="${escapeHtml(s.name)}" data-field="name" class="store-input"></td>
               <td>
                 <select data-field="scope" class="store-input">
+                  <option value="all" ${s.scope === "all" ? "selected" : ""}>Tất cả</option>
                   <option value="store" ${s.scope === "store" ? "selected" : ""}>Store</option>
                   <option value="office" ${s.scope === "office" ? "selected" : ""}>TPKD/QLV</option>
                 </select>
@@ -839,7 +843,7 @@ function renderRegionTable() {
       e.preventDefault();
       const code = shiftCodeInput.value.trim().toUpperCase();
       const name = shiftNameInput.value.trim();
-      const scope = shiftScopeInput.value === "office" ? "office" : "store";
+      const scope = ["office", "store", "all"].includes(shiftScopeInput.value) ? shiftScopeInput.value : "store";
       const startTime = shiftStartInput.value || null;
       const endTime = shiftEndInput.value || null;
       if (!code || !name) { setShiftStatus("Cần nhập mã ca và tên ca.", true); return; }
@@ -874,7 +878,7 @@ function renderRegionTable() {
         const data = {
           code: row.querySelector("[data-field='code']").value.trim().toUpperCase(),
           name: row.querySelector("[data-field='name']").value.trim(),
-          scope: row.querySelector("[data-field='scope']").value === "office" ? "office" : "store",
+          scope: (v => ["office", "store", "all"].includes(v) ? v : "store")(row.querySelector("[data-field='scope']").value),
           startTime: row.querySelector("[data-field='startTime']").value || null,
           endTime: row.querySelector("[data-field='endTime']").value || null
         };
