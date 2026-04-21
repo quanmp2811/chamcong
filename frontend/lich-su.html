@@ -117,8 +117,19 @@
       white-space: nowrap;
     }
   </style>
+  <style>
+    #rotate-overlay { display: none; position: fixed; inset: 0; z-index: 99999; background: #0a0f1e; flex-direction: column; align-items: center; justify-content: center; gap: 1.25rem; color: #fff; text-align: center; padding: 2rem; }
+    #rotate-overlay svg { width: 64px; height: 64px; color: #60a5fa; animation: rotate-hint 1.5s ease-in-out infinite alternate; }
+    @keyframes rotate-hint { from { transform: rotate(-20deg); } to { transform: rotate(20deg); } }
+    #rotate-overlay p { font-size: 1.1rem; font-weight: 500; opacity: 0.9; margin: 0; }
+    @media (max-width: 768px) and (orientation: portrait) { #rotate-overlay { display: flex; } body > *:not(#rotate-overlay) { visibility: hidden; } }
+  </style>
 </head>
 <body class="page-cau-hinh">
+  <div id="rotate-overlay" aria-live="polite">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 22h8"/><path d="M12 18v0"/></svg>
+    <p>Vui lòng xoay ngang điện thoại để xem lịch làm việc</p>
+  </div>
   <header class="site-header">
     <div class="container header-inner">
       <a href="index.html" class="brand">
