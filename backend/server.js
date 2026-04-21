@@ -1018,7 +1018,9 @@ app.get("/api/history", authenticateToken, async (req, res) => {
         khu_vuc AS region, cua_hang AS store,
         DATE_FORMAT(ngay, '%Y-%m-%d') AS dateLabel,
         tu_ca AS fromShift, sang_ca AS toShift,
-        nguoi_sua AS editor,
+        nguoi_sua AS editorName,
+        nguoi_sua_email AS editorEmail,
+        CONCAT_WS(' - ', nguoi_sua, nguoi_sua_email) AS editor,
         DATE_FORMAT(thoi_gian, '%H:%i:%s %d/%m/%Y') AS time
       FROM lich_su_chinh_sua
     `;
@@ -1043,13 +1045,15 @@ app.post("/api/history", authenticateToken, async (req, res) => {
   try {
     ensureDatabaseConnected();
 
-    const { nhan_vien_id, ten_nhan_vien, khu_vuc, cua_hang, ngay, tu_ca, sang_ca, nguoi_sua } = req.body;
+    const { nhan_vien_id, ten_nhan_vien, khu_vuc, cua_hang, ngay, tu_ca, sang_ca, nguoi_sua, nguoi_sua_email } = req.body;
+    const editorName = String(req.user?.name || nguoi_sua || "").trim();
+    const editorEmail = String(req.user?.email || nguoi_sua_email || "").trim() || null;
 
     await dbPool.query(`
       INSERT INTO lich_su_chinh_sua
-        (nhan_vien_id, ten_nhan_vien, khu_vuc, cua_hang, ngay, tu_ca, sang_ca, nguoi_sua)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    `, [nhan_vien_id, ten_nhan_vien, khu_vuc, cua_hang, ngay, tu_ca, sang_ca, nguoi_sua]);
+        (nhan_vien_id, ten_nhan_vien, khu_vuc, cua_hang, ngay, tu_ca, sang_ca, nguoi_sua, nguoi_sua_email)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `, [nhan_vien_id, ten_nhan_vien, khu_vuc, cua_hang, ngay, tu_ca, sang_ca, editorName, editorEmail]);
 
     res.json({ ok: true });
   } catch (err) {
@@ -1213,9 +1217,11 @@ async function ensureSchema() {
         tu_ca VARCHAR(50),
         sang_ca VARCHAR(50),
         nguoi_sua VARCHAR(255),
+        nguoi_sua_email VARCHAR(255),
         thoi_gian TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
+    await ensureColumn("lich_su_chinh_sua", "nguoi_sua_email", "VARCHAR(255) NULL");
 
   await dbPool.query(`
     CREATE TABLE IF NOT EXISTS ca_lam (

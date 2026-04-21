@@ -342,17 +342,17 @@ body.page-lich-lam-viec .editor-select {
 
     body.page-lich-lam-viec .history-table th:nth-child(1),
 body.page-lich-lam-viec .history-table td:nth-child(1) {
-      width: 11%;
+      width: 12%;
     }
 
     body.page-lich-lam-viec .history-table th:nth-child(2),
 body.page-lich-lam-viec .history-table td:nth-child(2) {
-      width: 16%;
+      width: 15%;
     }
 
     body.page-lich-lam-viec .history-table th:nth-child(3),
 body.page-lich-lam-viec .history-table td:nth-child(3) {
-      width: 10%;
+      width: 13%;
     }
 
     body.page-lich-lam-viec .history-table th:nth-child(4),
@@ -362,22 +362,27 @@ body.page-lich-lam-viec .history-table td:nth-child(4) {
 
     body.page-lich-lam-viec .history-table th:nth-child(5),
 body.page-lich-lam-viec .history-table td:nth-child(5) {
-      width: 10%;
+      width: 8%;
     }
 
     body.page-lich-lam-viec .history-table th:nth-child(6),
 body.page-lich-lam-viec .history-table td:nth-child(6) {
-      width: 12%;
+      width: 9%;
     }
 
     body.page-lich-lam-viec .history-table th:nth-child(7),
 body.page-lich-lam-viec .history-table td:nth-child(7) {
-      width: 12%;
+      width: 11%;
     }
 
     body.page-lich-lam-viec .history-table th:nth-child(8),
 body.page-lich-lam-viec .history-table td:nth-child(8) {
-      width: 17%;
+      width: 11%;
+    }
+
+    body.page-lich-lam-viec .history-table th:nth-child(9),
+body.page-lich-lam-viec .history-table td:nth-child(9) {
+      width: 12%;
     }
 
     body.page-lich-lam-viec .history-table tbody td {
@@ -1665,6 +1670,13 @@ body.page-cham-cong-nhan-vien .employee-detail-table td {
 .user-email {
   font-size: 12px;
   color: #666;
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.history-email {
   display: block;
   white-space: nowrap;
   overflow: hidden;
