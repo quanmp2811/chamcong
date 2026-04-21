@@ -3,19 +3,122 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Chấm công | Người dùng</title>
+  <title>Chấm công | Lịch sử chỉnh sửa</title>
   <link rel="icon" href="public/logo-jm-den.png" type="image/x-icon">
-
-  <!-- dùng chung css -->
   <link rel="stylesheet" href="./css/app.css" />
   <link rel="stylesheet" href="./css/nav.css" />
   <link rel="stylesheet" href="./css/footer.css" />
   <link rel="stylesheet" href="./css/cau-hinh.css" />
+  <style>
+    .history-page-shell {
+      display: grid;
+      gap: 24px;
+    }
+
+    .history-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      align-items: end;
+      justify-content: space-between;
+      margin-bottom: 18px;
+    }
+
+    .history-toolbar-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: end;
+    }
+
+    .history-field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-width: 180px;
+      font-size: 14px;
+      color: #334155;
+    }
+
+    .history-input {
+      min-height: 42px;
+      border: 1px solid #cbd5e1;
+      border-radius: 12px;
+      padding: 10px 14px;
+      background: #fff;
+      font: inherit;
+      color: #0f172a;
+    }
+
+    .history-table-wrap {
+      overflow: auto;
+      max-height: 420px;
+      border: 1px solid #e2e8f0;
+      border-radius: 18px;
+      background: #fff;
+    }
+
+    .history-table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 980px;
+    }
+
+    .history-table th,
+    .history-table td {
+      padding: 14px 16px;
+      border-bottom: 1px solid #e2e8f0;
+      text-align: left;
+      vertical-align: top;
+      font-size: 14px;
+    }
+
+    .history-table thead th {
+      position: sticky;
+      top: 0;
+      background: #f8fafc;
+      color: #0f172a;
+      font-weight: 700;
+      z-index: 1;
+    }
+
+    .history-table tbody tr:hover {
+      background: #f8fbff;
+    }
+
+    .history-strong {
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    .history-muted {
+      color: #64748b;
+      font-size: 13px;
+    }
+
+    .history-empty {
+      padding: 24px;
+      border: 1px dashed #cbd5e1;
+      border-radius: 16px;
+      text-align: center;
+      color: #64748b;
+      background: #f8fafc;
+    }
+
+    .history-tag {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: #e0f2fe;
+      color: #075985;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+  </style>
 </head>
-
 <body class="page-cau-hinh">
-
-  <!-- HEADER (GIỮ NGUYÊN) -->
   <header class="site-header">
     <div class="container header-inner">
       <a href="index.html" class="brand">
@@ -40,291 +143,295 @@
   </header>
 
   <main class="config-layout">
-
-    <!-- SIDEBAR (CHUNG) -->
     <aside class="config-sidebar app-sidepanel">
       <a href="cau-hinh.html" class="config-nav-item app-sidepanel-link">Quản lý đơn vị</a>
-      <a href="nguoi-dung.html" class="config-nav-item app-sidepanel-link active">Quản lý người dùng</a>
-      <a href="lich-su.html" class="config-nav-item app-sidepanel-link">Quản lý lịch sử chỉnh sửa</a>
+      <a href="nguoi-dung.html" class="config-nav-item app-sidepanel-link">Quản lý người dùng</a>
+      <a href="lich-su.html" class="config-nav-item app-sidepanel-link active">Lịch sử chỉnh sửa</a>
     </aside>
 
-    <!-- MAIN -->
     <section class="config-main">
-      <div class="config-shell">
-
+      <div class="config-shell history-page-shell">
         <article class="config-panel">
-          <h2>Quản lý người dùng</h2>
-
-          <!-- FORM -->
-          <form id="user-form">
-            <div class="store-form-grid">
-
-              <div class="store-field">
-                Email
-                <input type="email" id="user-email" class="store-input" />
-              </div>
-
-              <div class="store-field">
-                Họ tên
-                <input type="text" id="user-fullname" class="store-input" />
-              </div>
-
-              <div class="store-field">
-                Vai trò
-                <select id="user-role-select" class="store-input">
-                  <option value="admin">Admin</option>
-                  <option value="user">Quản lý</option>
-                </select>
-              </div>
-
-              <div class="store-field" id="store-field">
-                Đơn vị
-                <select id="user-store" class="store-input"></select>
-              </div>
-
+          <div class="history-toolbar">
+            <div>
+              <h2>Lịch Sử Chỉnh Sửa Lịch Làm Việc</h2>
+              <p>Theo dõi người chỉnh sửa, nhân sự, đơn vị, ngày áp dụng và thay đổi ca làm việc.</p>
             </div>
-
-            <div class="config-actions">
-              <button type="submit" class="config-button primary">Thêm người dùng</button>
+            <div class="history-toolbar-group">
+              <label class="history-field">
+                Tháng
+                <input type="month" id="schedule-history-month" class="history-input" />
+              </label>
+              <button type="button" id="schedule-history-refresh" class="config-button primary">Tải lại</button>
             </div>
-          </form>
-
-          <div id="user-status" class="config-status"></div>
-
-          <!-- TABLE -->
-          <table class="store-table">
-            <thead>
-              <tr>
-                <th>Username</th>
-                <th>Họ tên</th>
-                <th>Vai trò</th>
-                <th>Đơn vị</th>
-                <th>Thao tác</th>
-              </tr>
-            </thead>
-            <tbody id="user-table"></tbody>
-          </table>
-
+          </div>
+          <div id="schedule-history-status" class="config-status"></div>
+          <div id="schedule-history-container"></div>
         </article>
 
+        <article class="config-panel">
+          <div class="history-toolbar">
+            <div>
+              <h2>Lịch Sử Chỉnh Sửa Đơn Vị</h2>
+              <p>Ghi nhận thao tác thêm, sửa, xóa đơn vị cùng nội dung trước và sau khi thay đổi.</p>
+            </div>
+          </div>
+          <div id="unit-history-container"></div>
+        </article>
+
+        <article class="config-panel">
+          <div class="history-toolbar">
+            <div>
+              <h2>Lịch Sử Chỉnh Sửa Ca Làm Việc</h2>
+              <p>Ghi nhận đầy đủ thao tác thêm, sửa, xóa cấu hình ca làm việc và khung giờ.</p>
+            </div>
+          </div>
+          <div id="shift-history-container"></div>
+        </article>
       </div>
     </section>
   </main>
 
   <footer class="site-footer">
     <div class="container footer-inner">
-      <p>© 2026 chấm công</p>
+      <p>© 2026 chấm công. Thiết kế bởi Phạm Mạnh Quân 0862528119.</p>
+      <div class="footer-links">
+        <a href="index.html">Trang chủ</a>
+        <a href="#">Chính sách</a>
+      </div>
     </div>
   </footer>
 
-  <!-- SCRIPT -->
   <script type="module">
-
-    import { getStores, getUsers, createUser, deleteUser, updateUser, requireAdmin } from "./js/api.js";
+    import { requireAdmin } from "./js/api.js";
+    import {
+      escapeHtml,
+      getEditorDisplay,
+      getItemTimestamp,
+      getScheduleHistoryLocal,
+      getShiftHistory,
+      getUnitHistory
+    } from "./js/edit-history.js";
 
     const currentUser = requireAdmin();
     if (!currentUser) {
       throw new Error("Unauthorized");
     }
 
-    let users = [];
-    let stores = [];
-    let editingEmail = null;
+    const scheduleHistoryMonthInput = document.getElementById("schedule-history-month");
+    const scheduleHistoryContainer = document.getElementById("schedule-history-container");
+    const scheduleHistoryStatus = document.getElementById("schedule-history-status");
+    const unitHistoryContainer = document.getElementById("unit-history-container");
+    const shiftHistoryContainer = document.getElementById("shift-history-container");
 
-    const form = document.getElementById("user-form");
-    const table = document.getElementById("user-table");
-    const storeSelect = document.getElementById("user-store");
-    const roleSelect = document.getElementById("user-role-select");
-    const storeField = document.getElementById("store-field");
-    const status = document.getElementById("user-status");
-
-    function updateStoreFieldVisibility() {
-      if (!storeField) return;
-      if (roleSelect.value === "admin") {
-        storeSelect.value = "";
-        storeSelect.disabled = true;
-        storeField.style.display = "none";
-      } else {
-        storeSelect.disabled = false;
-        storeField.style.display = "";
-      }
+    function getCurrentMonthValue() {
+      const now = new Date();
+      return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
     }
 
-    // 🔥 khi đổi role
-    roleSelect.addEventListener("change", updateStoreFieldVisibility);
-    updateStoreFieldVisibility();
-    // load store vào dropdown
-    async function loadStoresUI() {
+    function setUserInfo() {
+      const userName = document.getElementById("user-name");
+      const userRole = document.getElementById("user-role");
+      const userInfo = document.getElementById("user-info");
+
+      if (!currentUser || !userName || !userRole || !userInfo) {
+        return;
+      }
+
+      userName.textContent = currentUser.name || "";
+      userRole.textContent = currentUser.role === "admin" ? "(Admin)" : `(${currentUser.role || "Người dùng"})`;
+      userInfo.style.display = "flex";
+    }
+
+    function renderEmpty(container, message) {
+      container.innerHTML = `<div class="history-empty">${escapeHtml(message)}</div>`;
+    }
+
+    function sortDesc(items) {
+      return items.slice().sort((a, b) => getItemTimestamp(b) - getItemTimestamp(a));
+    }
+
+    function normalizeMonthKey(item) {
+      const rawDate = String(item.date || item.ngay || item.dateLabel || "").trim();
+      if (/^\d{4}-\d{2}-\d{2}$/.test(rawDate)) {
+        return rawDate.slice(0, 7);
+      }
+      return "";
+    }
+
+    function formatScheduleDate(item) {
+      const rawDate = String(item.date || item.ngay || item.dateLabel || "").trim();
+      if (/^\d{4}-\d{2}-\d{2}$/.test(rawDate)) {
+        return new Date(`${rawDate}T00:00:00`).toLocaleDateString("vi-VN");
+      }
+      return rawDate;
+    }
+
+    async function loadScheduleHistory() {
+      scheduleHistoryStatus.textContent = "";
+      scheduleHistoryContainer.innerHTML = '<div class="history-empty">Đang tải dữ liệu...</div>';
+
+      const selectedMonth = scheduleHistoryMonthInput.value || getCurrentMonthValue();
+      let history = [];
+
       try {
-        const data = await getStores();
-        stores = data;
-        
-        storeSelect.innerHTML = `
-          <option value="">-- Chọn đơn vị --</option>
-          ${stores.map(s => `
-            <option value="${s.code}">${s.name}</option>
-          `).join("")}
-        `;
-      } catch (e) {
-        status.textContent = "Lỗi load stores";
+        const token = sessionStorage.getItem("token");
+        const response = await fetch("/api/history", {
+          headers: token ? { Authorization: `Bearer ${token}` } : {}
+        });
+        const json = await response.json();
+        if (json?.ok && Array.isArray(json.data)) {
+          history = json.data;
+        }
+      } catch (error) {
+        scheduleHistoryStatus.textContent = `Không tải được lịch sử từ API, đang dùng dữ liệu cục bộ.`;
+        scheduleHistoryStatus.classList.remove("error");
       }
-    }
 
-    // load users
-    async function loadUsers() {
-      try {
-        const data = await getUsers();
-        users = data;
-        render();
-      } catch (e) {
-        status.textContent = "Lỗi load users";
+      if (!history.length) {
+        history = getScheduleHistoryLocal();
       }
-    }
 
-    // render table
-    function render() {
-    table.innerHTML = users.map(u => {
-      const isEditing = editingEmail === u.email;
-      
-      if (isEditing) {
-        return `
-          <tr>
-            <td>${u.email}</td>
-            <td><input value="${u.name}" data-field="name" class="store-input" /></td>
-            <td>
-              <select data-field="role" class="store-input">
-                <option value="admin" ${u.role === 'admin' ? 'selected' : ''}>Admin</option>
-                <option value="user" ${u.role === 'user' ? 'selected' : ''}>Quản lý</option>
-              </select>
-            </td>
-            <td ${u.role === 'admin' ? 'style="display:none"' : ''}>
-              <select data-field="storeCode" class="store-input" ${u.role === 'admin' ? 'disabled' : ''}>
-                <option value="">Không</option>
-                ${stores.map(s => `<option value="${s.code}" ${u.storeCode === s.code ? 'selected' : ''}>${s.name}</option>`).join('')}
-              </select>
-            </td>
-            <td>
-              <button data-action="update" data-email="${u.email}">Lưu</button>
-              <button data-action="cancel">Hủy</button>
-            </td>
-          </tr>
-        `;
+      const filtered = sortDesc(
+        history.filter((item) => {
+          return normalizeMonthKey(item) === selectedMonth;
+        })
+      );
+
+      if (!filtered.length) {
+        renderEmpty(scheduleHistoryContainer, "Không có lịch sử chỉnh sửa lịch làm việc trong tháng đã chọn.");
+        return;
       }
-      
-      return `
-        <tr>
-          <td>${u.email}</td>
-          <td>${u.name}</td>
-          <td>${u.role === 'admin' ? 'Admin' : 'Quản lý'}</td>
-          <td>${u.storeCode ?? ""}</td>
-          <td>
-            <button data-action="edit" data-email="${u.email}">Sửa</button>
-            <button data-action="delete" data-email="${u.email}">Xóa</button>
-          </td>
-        </tr>
+
+      scheduleHistoryContainer.innerHTML = `
+        <div class="history-table-wrap">
+          <table class="history-table">
+            <thead>
+              <tr>
+                <th>Người sửa</th>
+                <th>Nhân sự</th>
+                <th>Khu vực</th>
+                <th>Đơn vị</th>
+                <th>Ngày</th>
+                <th>Từ ca</th>
+                <th>Sang ca</th>
+                <th>Thời gian sửa</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${filtered.map((item) => `
+                <tr>
+                  <td><span class="history-strong">${escapeHtml(getEditorDisplay(item))}</span></td>
+                  <td>${escapeHtml(item.employee || item.ten_nhan_vien || "")}</td>
+                  <td>${escapeHtml(item.region || item.khu_vuc || "")}</td>
+                  <td>${escapeHtml(item.store || item.cua_hang || "")}</td>
+                  <td>${escapeHtml(formatScheduleDate(item))}</td>
+                  <td>${escapeHtml(item.fromShift || item.tu_ca || "")}</td>
+                  <td>${escapeHtml(item.toShift || item.sang_ca || item.to_ca || "")}</td>
+                  <td>${escapeHtml(item.time || "")}</td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>
+        </div>
       `;
-    }).join("");
     }
 
-    // submit
-    form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-
-    const storeValue = document.getElementById("user-store").value;
-    const role = roleSelect.value;    
-    const user = {
-      email: document.getElementById("user-email").value.trim(),
-      name: document.getElementById("user-fullname").value.trim(),
-      role: role,
-      storeCode: role === "admin" ? null : (storeValue || null)
-    };
-      if (!user.email || !user.name || !user.role) {
-        status.textContent = "Nhập đầy đủ thông tin";
+    function renderUnitHistory() {
+      const history = sortDesc(getUnitHistory());
+      if (!history.length) {
+        renderEmpty(unitHistoryContainer, "Chưa có lịch sử chỉnh sửa đơn vị.");
         return;
       }
-    try {
-      await createUser(user);
-      await loadUsers();
-      form.reset();
-      status.textContent = "Đã thêm user";
-      updateStoreFieldVisibility();
-    } catch (err) {
-      status.textContent = err.message;
+
+      unitHistoryContainer.innerHTML = `
+        <div class="history-table-wrap">
+          <table class="history-table">
+            <thead>
+              <tr>
+                <th>Thao tác</th>
+                <th>Đơn vị</th>
+                <th>Khu vực</th>
+                <th>Trước thay đổi</th>
+                <th>Sau thay đổi</th>
+                <th>Người sửa</th>
+                <th>Thời gian</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${history.map((item) => `
+                <tr>
+                  <td><span class="history-tag">${escapeHtml(item.action || "")}</span></td>
+                  <td>
+                    <div class="history-strong">${escapeHtml(item.unitCode || "")}</div>
+                    <div class="history-muted">${escapeHtml(item.unitName || "")}</div>
+                  </td>
+                  <td>${escapeHtml(item.region || "")}</td>
+                  <td>${escapeHtml(item.before || "")}</td>
+                  <td>${escapeHtml(item.after || "")}</td>
+                  <td>${escapeHtml(getEditorDisplay(item))}</td>
+                  <td>${escapeHtml(item.time || "")}</td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>
+        </div>
+      `;
     }
-    });
-    // delete, edit, update
-    table.addEventListener("click", async (e) => {
-      const btn = e.target;
-      const action = btn.dataset.action;
-      const email = btn.dataset.email;
-      const row = btn.closest("tr");
 
-      if (action === "edit") {
-        editingEmail = email;
-        render();
+    function renderShiftHistory() {
+      const history = sortDesc(getShiftHistory());
+      if (!history.length) {
+        renderEmpty(shiftHistoryContainer, "Chưa có lịch sử chỉnh sửa ca làm việc.");
         return;
       }
 
-      if (action === "cancel") {
-        editingEmail = null;
-        render();
-        return;
-      }
+      shiftHistoryContainer.innerHTML = `
+        <div class="history-table-wrap">
+          <table class="history-table">
+            <thead>
+              <tr>
+                <th>Thao tác</th>
+                <th>Ca làm việc</th>
+                <th>Trước thay đổi</th>
+                <th>Sau thay đổi</th>
+                <th>Người sửa</th>
+                <th>Thời gian</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${history.map((item) => `
+                <tr>
+                  <td><span class="history-tag">${escapeHtml(item.action || "")}</span></td>
+                  <td>
+                    <div class="history-strong">${escapeHtml(item.shiftCode || "")}</div>
+                    <div class="history-muted">${escapeHtml(item.shiftName || "")}</div>
+                  </td>
+                  <td>${escapeHtml(item.before || "")}</td>
+                  <td>${escapeHtml(item.after || "")}</td>
+                  <td>${escapeHtml(getEditorDisplay(item))}</td>
+                  <td>${escapeHtml(item.time || "")}</td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
 
-      if (action === "update") {
-        const inputs = row.querySelectorAll("input");
-        const roleSelect = row.querySelector("select[data-field='role']");
-        const storeSelect = row.querySelector("select[data-field='storeCode']");
-
-        const data = {
-          name: inputs[0].value.trim(),
-          role: roleSelect.value,
-          storeCode: storeSelect.value || null
-        };
-
-        try {
-          await updateUser(email, data);
-          editingEmail = null;
-          await loadUsers();
-          status.textContent = "Đã cập nhật user";
-        } catch (err) {
-          status.textContent = err.message;
-        }
-        return;
-      }
-
-      if (action === "delete") {
-        try {
-          await deleteUser(email);
-          await loadUsers();
-          status.textContent = "Đã xóa user";
-        } catch (err) {
-          status.textContent = err.message;
-        }
-      }
+    document.getElementById("schedule-history-refresh").addEventListener("click", loadScheduleHistory);
+    scheduleHistoryMonthInput.addEventListener("change", loadScheduleHistory);
+    document.getElementById("logout-button").addEventListener("click", () => {
+      sessionStorage.removeItem("user");
+      sessionStorage.removeItem("token");
+      window.location.replace("/login.html");
     });
 
-    // Handle role change in edit mode
-    table.addEventListener("change", (e) => {
-      const target = e.target;
-      if (target.matches("select[data-field='role']")) {
-        const row = target.closest("tr");
-        const storeSelect = row.querySelector("select[data-field='storeCode']");
-        const storeTd = storeSelect.closest("td");
-        if (target.value === "admin") {
-          storeSelect.value = "";
-          storeSelect.disabled = true;
-          storeTd.style.display = 'none';
-        } else {
-          storeSelect.disabled = false;
-          storeTd.style.display = '';
-        }
-      }
-    });
-
-    await loadStoresUI();
-    await loadUsers();
-
+    scheduleHistoryMonthInput.value = getCurrentMonthValue();
+    setUserInfo();
+    renderUnitHistory();
+    renderShiftHistory();
+    await loadScheduleHistory();
   </script>
   <script src="js/script.js"></script>
 </body>
