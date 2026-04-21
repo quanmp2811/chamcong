@@ -964,8 +964,8 @@ body.page-lich-lam-viec .office-sheet-preset-grid {
       left: calc(100% + 6px);
       right: auto;
       transform: translateY(-50%);
-      z-index: 1000;
-      min-width: 160px;
+      z-index: 20000;
+      min-width: 168px;
       border: 1px solid #dbe3ee;
       background: #fff;
       box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
@@ -974,6 +974,8 @@ body.page-lich-lam-viec .office-sheet-preset-grid {
     }
 
     body.page-lich-lam-viec .role-action-menu.is-open {
+      position: fixed;
+      transform: none;
       display: grid;
       gap: 4px;
     }
@@ -1038,17 +1040,17 @@ body.page-lich-lam-viec .timetable tbody td:nth-child(n + 3) {
     }
 
     body.page-lich-lam-viec .shift-cell-select {
-      flex: 0 0 75px;
-      width: 75px;
-      min-width: 75px;
+      flex: 0 0 118px;
+      width: 118px;
+      min-width: 118px;
       border: 1px solid #cbd5e1;
       background: #fff;
       color: #0f172a;
-      padding: 0.42rem 0.4rem;
+      padding: 0.42rem 0.5rem;
       border-radius: 7px;
       font: inherit;
       font-weight: 600;
-      font-size: 0.77rem;
+      font-size: 0.75rem;
       line-height: 1.1;
       outline: none;
     }
@@ -1056,17 +1058,12 @@ body.page-lich-lam-viec .timetable tbody td:nth-child(n + 3) {
     body.page-lich-lam-viec .shift-cell-editor {
       display: flex;
       align-items: center;
-      flex-wrap: nowrap;
-      gap: 4px;
-    }
-
-    body.page-lich-lam-viec .shift-cell-editor.no-time {
       justify-content: center;
     }
 
     body.page-lich-lam-viec .shift-cell-select.no-time {
-      flex: 0 0 100px;
-      width: 100px;
+      flex: 0 0 118px;
+      width: 118px;
       text-align: center;
       text-align-last: center;
     }

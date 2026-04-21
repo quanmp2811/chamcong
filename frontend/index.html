@@ -11,8 +11,8 @@
   <link rel="stylesheet" href="css/lich-lam-viec.css" />
   <style>
     .site-header { z-index: 9100; position: sticky; top: 0; }
-    .role-action-menu { z-index: 9000; }
-    .role-action-menu.is-open { position: fixed !important; z-index: 9000 !important; }
+    .role-action-menu { z-index: 20000; }
+    .role-action-menu.is-open { position: fixed !important; z-index: 20000 !important; transform: none !important; }
   </style>
 </head>
 <body class="page-lich-lam-viec">
@@ -725,6 +725,48 @@
       // shiftValue is already the extracted time (e.g., "12:30" or "12:30 / 14:30")
       const parts = String(shiftValue || "").split("/");
       return parts[1]?.trim() || "";
+    }
+
+    function getConfiguredShiftTime(shiftCode) {
+      const entry = shiftsByCode[shiftCode];
+      if (!entry) {
+        return "";
+      }
+
+      const startTime = String(entry.startTime || "").trim();
+      const endTime = String(entry.endTime || "").trim();
+
+      if (startTime && endTime) {
+        return `${startTime} / ${endTime}`;
+      }
+
+      return startTime || endTime;
+    }
+
+    function getShiftDisplayTime(shiftCode, fallbackShiftValue = "") {
+      const configuredTime = getConfiguredShiftTime(shiftCode);
+      if (configuredTime) {
+        return configuredTime;
+      }
+
+      if (getShiftCode(fallbackShiftValue) === shiftCode) {
+        return getShiftTime(fallbackShiftValue);
+      }
+
+      return "";
+    }
+
+    function getShiftOptionLabel(shiftCode, fallbackShiftValue = "") {
+      const displayTime = getShiftDisplayTime(shiftCode, fallbackShiftValue);
+      return displayTime ? `${shiftCode} (${displayTime})` : shiftCode;
+    }
+
+    function getShiftTimeParts(shiftCode, fallbackShiftValue = "") {
+      const displayTime = getShiftDisplayTime(shiftCode, fallbackShiftValue);
+      return {
+        workTime: getShiftWorkTime(displayTime),
+        breakTime: getShiftBreakTime(displayTime)
+      };
     }
 
     function formatTimeInputValue(value) {
@@ -1488,13 +1530,11 @@
                       const availableShifts = getShiftOptionsForRole(employee.role);
                       const rawShift = normalizeLegacyShiftValue(employee.schedule[date] || "OFF TUẦN");
                       const shiftCode = getShiftCode(rawShift);
-                      const shiftTime = getShiftTime(rawShift);
-                      const shiftDefinition = SHIFT_DEFINITIONS[shiftCode] || SHIFT_DEFINITIONS["OFF TUẦN"];
                       return `
                         <td>
-                          <div class="shift-cell-editor${shiftDefinition.requiresTime ? "" : " no-time"}">
+                          <div class="shift-cell-editor">
                             <select
-                              class="shift-cell-select ${getShiftStyleClass(shiftCode)} ${shiftDefinition.requiresTime ? "" : "no-time"}"
+                              class="shift-cell-select ${getShiftStyleClass(shiftCode)}"
                               data-employee-id="${employee.id}"
                               data-date="${date}"
                               data-region="${selectedRegion}"
@@ -1502,46 +1542,8 @@
                               data-employee-index="${employeeIndex}"
                               ${isEditableWeek ? "" : "disabled"}
                             >
-                               ${availableShifts.map((option) => `<option value="${escapeHtml(option)}"${option === shiftCode ? " selected" : ""}>${escapeHtml(option)}</option>`).join("")}
+                               ${availableShifts.map((option) => `<option value="${escapeHtml(option)}"${option === shiftCode ? " selected" : ""}>${escapeHtml(getShiftOptionLabel(option, option === shiftCode ? rawShift : ""))}</option>`).join("")}
                             </select>
-                            ${shiftDefinition.requiresTime ? `
-                              <input
-                                type="text"
-                                class="shift-time-input"
-                                inputmode="numeric"
-                                maxlength="5"
-                                pattern="([01][0-9]|2[0-3]):[0-5][0-9]"
-                                placeholder="HH:MM"
-                                value="${escapeHtml(getShiftWorkTime(shiftTime))}"
-                                data-region="${selectedRegion}"
-                                data-store="${store.code}"
-                                data-employee-index="${employeeIndex}"
-                                data-date="${date}"
-                                data-shift-code="${escapeHtml(shiftCode)}"
-                                autocomplete="off"
-                                autocapitalize="off"
-                                spellcheck="false"
-                                ${isEditableWeek ? "" : "disabled"}
-                              />
-                              <input
-                                type="text"
-                                class="shift-break-input"
-                                inputmode="numeric"
-                                maxlength="5"
-                                pattern="([01][0-9]|2[0-3]):[0-5][0-9]"
-                                placeholder="HH:MM"
-                                value="${escapeHtml(getShiftBreakTime(shiftTime))}"
-                                data-region="${selectedRegion}"
-                                data-store="${store.code}"
-                                data-employee-index="${employeeIndex}"
-                                data-date="${date}"
-                                data-shift-code="${escapeHtml(shiftCode)}"
-                                autocomplete="off"
-                                autocapitalize="off"
-                                spellcheck="false"
-                                ${isEditableWeek ? "" : "disabled"}
-                              />
-                            ` : ""}
                           </div>
                         </td>
                       `;
@@ -2041,7 +2043,7 @@
       const employee = store.employees[employeeIndex];
       const previousShift = normalizeLegacyShiftValue(employee.schedule[date] || "OFF TUẦN");
       const nextShiftCode = target.value;
-      const previousTime = getShiftTime(previousShift);
+      const { workTime, breakTime } = getShiftTimeParts(nextShiftCode, previousShift);
 
       if (!isShiftAllowedForRole(employee.role, nextShiftCode)) {
         scheduleStatus.textContent = `${employee.role} không được phép chọn ca ${nextShiftCode}.`;
@@ -2050,7 +2052,7 @@
         return;
       }
 
-      const nextShift = formatShiftValue(nextShiftCode, previousTime);
+      const nextShift = formatShiftValue(nextShiftCode, workTime, breakTime);
 
       if (previousShift === nextShift) {
         target.className = `shift-cell-select ${getShiftStyleClass(nextShiftCode)}`;
