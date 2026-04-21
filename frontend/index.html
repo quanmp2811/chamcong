@@ -730,7 +730,7 @@
     function getConfiguredShiftCodesForScope(scope) {
       return configuredShiftCodes.filter((code) => {
         const entry = shiftsByCode[code];
-        return entry && entry.scope === scope;
+        return entry && (entry.scope === scope || entry.scope === "all");
       });
     }
 
@@ -1041,7 +1041,7 @@
       const shiftsById = new Map(shifts.map((shift) => [shift.id, shift]));
       shiftsByCode = Object.fromEntries(
         shifts.map(s => [s.code, {
-          scope: s.scope === "office" ? "office" : "store",
+          scope: ["office", "store", "all"].includes(s.scope) ? s.scope : "store",
           startTime: s.startTime ? String(s.startTime).slice(0, 5) : "",
           endTime: s.endTime ? String(s.endTime).slice(0, 5) : ""
         }])
@@ -1317,7 +1317,11 @@
     function getShiftOptionsForRole(role, region = "") {
       const regionScope = getShiftScopeForRegion(region);
       const configuredCodes = getConfiguredShiftCodesForScope(regionScope);
-      const fallbackScopedOptions = SHIFT_OPTIONS.filter((code) => shiftsByCode[code] ? shiftsByCode[code].scope === regionScope : true);
+      const matchScope = (code) => {
+        const entry = shiftsByCode[code];
+        return !entry || entry.scope === regionScope || entry.scope === "all";
+      };
+      const fallbackScopedOptions = SHIFT_OPTIONS.filter(matchScope);
 
       if (regionScope === "office") {
         return configuredCodes.length ? configuredCodes : ["OFF TUẦN"];
@@ -1328,14 +1332,14 @@
       }
 
       if (role === "Bảo vệ") {
-        return SECURITY_SHIFT_OPTIONS.filter((code) => shiftsByCode[code] ? shiftsByCode[code].scope === regionScope : true);
+        return SECURITY_SHIFT_OPTIONS.filter(matchScope);
       }
 
       if (role === "Hỗ trợ") {
-        return SUPPORT_SHIFT_OPTIONS.filter((code) => shiftsByCode[code] ? shiftsByCode[code].scope === regionScope : true);
+        return SUPPORT_SHIFT_OPTIONS.filter(matchScope);
       }
 
-      return STAFF_SHIFT_OPTIONS.filter((code) => shiftsByCode[code] ? shiftsByCode[code].scope === regionScope : true);
+      return STAFF_SHIFT_OPTIONS.filter(matchScope);
     }
 
     function isShiftAllowedForRole(role, shift, region = "") {
