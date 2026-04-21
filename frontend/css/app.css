@@ -3657,33 +3657,28 @@ body.page-lich-lam-viec .timetable td {
     body.page-lich-lam-viec .role-cell {
       display: flex;
       align-items: center;
-      justify-content: flex-start;
-      gap: 8px;
+      justify-content: space-between;
+      gap: 4px;
       position: relative;
       z-index: 1;
-      margin-right: 0;
+      margin-right: -6px;
     }
 
     body.page-lich-lam-viec .role-cell-label {
       min-width: 0;
       flex: 1 1 auto;
       line-height: 1.4;
-      display: flex;
-      align-items: center;
-      min-height: 28px;
     }
 
     body.page-lich-lam-viec .role-action-toggle {
-      order: -1;
-      border: 1px solid #cbd5e1;
-      background: #fff;
+      border: 0;
+      background: transparent;
       color: #475569;
-      width: 28px;
-      height: 28px;
+      width: 24px;
+      height: 24px;
       padding: 0;
-      border-radius: 8px;
+      border-radius: 0;
       font: inherit;
-      font-size: 0;
       font-weight: 700;
       line-height: 1;
       cursor: pointer;
@@ -3691,15 +3686,6 @@ body.page-lich-lam-viec .timetable td {
       align-items: center;
       justify-content: center;
       flex: 0 0 auto;
-    }
-
-    body.page-lich-lam-viec .role-action-toggle::before {
-      content: "";
-      width: 4px;
-      height: 4px;
-      border-radius: 999px;
-      background: currentColor;
-      box-shadow: 0 -6px 0 currentColor, 0 6px 0 currentColor;
     }
 
     body.page-lich-lam-viec .role-action-menu {
@@ -3739,50 +3725,6 @@ body.page-lich-lam-viec .timetable td {
       border-radius: 8px;
       font: inherit;
       cursor: pointer;
-    }
-
-    #rotate-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      z-index: 99999;
-      background: #0a0f1e;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 1.25rem;
-      color: #fff;
-      text-align: center;
-      padding: 2rem;
-    }
-
-    #rotate-overlay svg {
-      width: 64px;
-      height: 64px;
-      color: #60a5fa;
-      animation: rotate-hint 1.5s ease-in-out infinite alternate;
-    }
-
-    @keyframes rotate-hint {
-      from { transform: rotate(-20deg); }
-      to { transform: rotate(20deg); }
-    }
-
-    #rotate-overlay p {
-      margin: 0;
-      font-size: 1.1rem;
-      font-weight: 500;
-      opacity: 0.9;
-    }
-
-    @media (max-width: 768px) and (orientation: portrait) {
-      #rotate-overlay {
-        display: flex;
-      }
-
-      body > *:not(#rotate-overlay) {
-        visibility: hidden;
-      }
     }
 
     body.page-lich-lam-viec .role-action-button:hover {
