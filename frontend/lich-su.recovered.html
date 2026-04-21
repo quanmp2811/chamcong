@@ -1,12 +1,12 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Chấm công | Người dùng</title>
+  <title>Cháº¥m cÃ´ng | NgÆ°á»i dÃ¹ng</title>
   <link rel="icon" href="public/logo-jm-den.png" type="image/x-icon">
 
-  <!-- dùng chung css -->
+  <!-- dÃ¹ng chung css -->
   <link rel="stylesheet" href="./css/app.css" />
   <link rel="stylesheet" href="./css/nav.css" />
   <link rel="stylesheet" href="./css/footer.css" />
@@ -15,26 +15,26 @@
 
 <body class="page-cau-hinh">
 
-  <!-- HEADER (GIỮ NGUYÊN) -->
+  <!-- HEADER (GIá»® NGUYÃŠN) -->
   <header class="site-header">
     <div class="container header-inner">
       <a href="index.html" class="brand">
-        <img src="public/logo-jm.ico" alt="Logo Chấm công" style="height: 40px;">
+        <img src="public/logo-jm.ico" alt="Logo Cháº¥m cÃ´ng" style="height: 40px;">
       </a>
       <nav class="main-nav">
         <a href="index.html">
           <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-          <span class="nav-label"> Lịch làm việc</span>
+          <span class="nav-label"> Lá»‹ch lÃ m viá»‡c</span>
         </a>
         <a href="cau-hinh.html" class="active">
           <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-          <span class="nav-label"> Cấu hình</span>
+          <span class="nav-label"> Cáº¥u hÃ¬nh</span>
         </a>
       </nav>
       <div class="user-info" id="user-info" style="display: none; flex-direction: column; align-items: flex-end;">
         <span id="user-name" style="font-weight: 500;"></span>
         <span id="user-role" style="font-size: 0.85em;"></span>
-        <button id="logout-button" class="button button-secondary">Đăng xuất</button>
+        <button id="logout-button" class="button button-secondary">ÄÄƒng xuáº¥t</button>
       </div>
     </div>
   </header>
@@ -43,9 +43,9 @@
 
     <!-- SIDEBAR (CHUNG) -->
     <aside class="config-sidebar app-sidepanel">
-      <a href="cau-hinh.html" class="config-nav-item app-sidepanel-link">Quản lý đơn vị</a>
-      <a href="nguoi-dung.html" class="config-nav-item app-sidepanel-link active">Quản lý người dùng</a>
-      <a href="lich-su.html" class="config-nav-item app-sidepanel-link">Quản lý lịch sử chỉnh sửa</a>
+      <a href="cau-hinh.html" class="config-nav-item app-sidepanel-link">Quáº£n lÃ½ Ä‘Æ¡n vá»‹</a>
+      <a href="nguoi-dung.html" class="config-nav-item app-sidepanel-link active">Quáº£n lÃ½ ngÆ°á»i dÃ¹ng</a>
+      <a href="lich-su.html" class="config-nav-item app-sidepanel-link">Quáº£n lÃ½ lá»‹ch sá»­ chá»‰nh sá»­a</a>
     </aside>
 
     <!-- MAIN -->
@@ -53,7 +53,7 @@
       <div class="config-shell">
 
         <article class="config-panel">
-          <h2>Quản lý người dùng</h2>
+          <h2>Quáº£n lÃ½ ngÆ°á»i dÃ¹ng</h2>
 
           <!-- FORM -->
           <form id="user-form">
@@ -65,27 +65,27 @@
               </div>
 
               <div class="store-field">
-                Họ tên
+                Há» tÃªn
                 <input type="text" id="user-fullname" class="store-input" />
               </div>
 
               <div class="store-field">
-                Vai trò
+                Vai trÃ²
                 <select id="user-role-select" class="store-input">
                   <option value="admin">Admin</option>
-                  <option value="user">Quản lý</option>
+                  <option value="user">Quáº£n lÃ½</option>
                 </select>
               </div>
 
               <div class="store-field" id="store-field">
-                Đơn vị
+                ÄÆ¡n vá»‹
                 <select id="user-store" class="store-input"></select>
               </div>
 
             </div>
 
             <div class="config-actions">
-              <button type="submit" class="config-button primary">Thêm người dùng</button>
+              <button type="submit" class="config-button primary">ThÃªm ngÆ°á»i dÃ¹ng</button>
             </div>
           </form>
 
@@ -96,10 +96,10 @@
             <thead>
               <tr>
                 <th>Username</th>
-                <th>Họ tên</th>
-                <th>Vai trò</th>
-                <th>Đơn vị</th>
-                <th>Thao tác</th>
+                <th>Há» tÃªn</th>
+                <th>Vai trÃ²</th>
+                <th>ÄÆ¡n vá»‹</th>
+                <th>Thao tÃ¡c</th>
               </tr>
             </thead>
             <tbody id="user-table"></tbody>
@@ -113,7 +113,7 @@
 
   <footer class="site-footer">
     <div class="container footer-inner">
-      <p>© 2026 chấm công</p>
+      <p>Â© 2026 cháº¥m cÃ´ng</p>
     </div>
   </footer>
 
@@ -150,23 +150,23 @@
       }
     }
 
-    // 🔥 khi đổi role
+    // ðŸ”¥ khi Ä‘á»•i role
     roleSelect.addEventListener("change", updateStoreFieldVisibility);
     updateStoreFieldVisibility();
-    // load store vào dropdown
+    // load store vÃ o dropdown
     async function loadStoresUI() {
       try {
         const data = await getStores();
         stores = data;
         
         storeSelect.innerHTML = `
-          <option value="">-- Chọn đơn vị --</option>
+          <option value="">-- Chá»n Ä‘Æ¡n vá»‹ --</option>
           ${stores.map(s => `
             <option value="${s.code}">${s.name}</option>
           `).join("")}
         `;
       } catch (e) {
-        status.textContent = "Lỗi load stores";
+        status.textContent = "Lá»—i load stores";
       }
     }
 
@@ -177,7 +177,7 @@
         users = data;
         render();
       } catch (e) {
-        status.textContent = "Lỗi load users";
+        status.textContent = "Lá»—i load users";
       }
     }
 
@@ -194,18 +194,18 @@
             <td>
               <select data-field="role" class="store-input">
                 <option value="admin" ${u.role === 'admin' ? 'selected' : ''}>Admin</option>
-                <option value="user" ${u.role === 'user' ? 'selected' : ''}>Quản lý</option>
+                <option value="user" ${u.role === 'user' ? 'selected' : ''}>Quáº£n lÃ½</option>
               </select>
             </td>
             <td ${u.role === 'admin' ? 'style="display:none"' : ''}>
               <select data-field="storeCode" class="store-input" ${u.role === 'admin' ? 'disabled' : ''}>
-                <option value="">Không</option>
+                <option value="">KhÃ´ng</option>
                 ${stores.map(s => `<option value="${s.code}" ${u.storeCode === s.code ? 'selected' : ''}>${s.name}</option>`).join('')}
               </select>
             </td>
             <td>
-              <button data-action="update" data-email="${u.email}">Lưu</button>
-              <button data-action="cancel">Hủy</button>
+              <button data-action="update" data-email="${u.email}">LÆ°u</button>
+              <button data-action="cancel">Há»§y</button>
             </td>
           </tr>
         `;
@@ -215,11 +215,11 @@
         <tr>
           <td>${u.email}</td>
           <td>${u.name}</td>
-          <td>${u.role === 'admin' ? 'Admin' : 'Quản lý'}</td>
+          <td>${u.role === 'admin' ? 'Admin' : 'Quáº£n lÃ½'}</td>
           <td>${u.storeCode ?? ""}</td>
           <td>
-            <button data-action="edit" data-email="${u.email}">Sửa</button>
-            <button data-action="delete" data-email="${u.email}">Xóa</button>
+            <button data-action="edit" data-email="${u.email}">Sá»­a</button>
+            <button data-action="delete" data-email="${u.email}">XÃ³a</button>
           </td>
         </tr>
       `;
@@ -239,14 +239,14 @@
       storeCode: role === "admin" ? null : (storeValue || null)
     };
       if (!user.email || !user.name || !user.role) {
-        status.textContent = "Nhập đầy đủ thông tin";
+        status.textContent = "Nháº­p Ä‘áº§y Ä‘á»§ thÃ´ng tin";
         return;
       }
     try {
       await createUser(user);
       await loadUsers();
       form.reset();
-      status.textContent = "Đã thêm user";
+      status.textContent = "ÄÃ£ thÃªm user";
       updateStoreFieldVisibility();
     } catch (err) {
       status.textContent = err.message;
@@ -286,7 +286,7 @@
           await updateUser(email, data);
           editingEmail = null;
           await loadUsers();
-          status.textContent = "Đã cập nhật user";
+          status.textContent = "ÄÃ£ cáº­p nháº­t user";
         } catch (err) {
           status.textContent = err.message;
         }
@@ -297,7 +297,7 @@
         try {
           await deleteUser(email);
           await loadUsers();
-          status.textContent = "Đã xóa user";
+          status.textContent = "ÄÃ£ xÃ³a user";
         } catch (err) {
           status.textContent = err.message;
         }

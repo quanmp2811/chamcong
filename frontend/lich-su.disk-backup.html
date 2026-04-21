@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chấm công | Lịch sử chỉnh sửa</title>
+  <link rel="icon" href="public/logo-jm-den.png" type="image/x-icon">
+  <link rel="stylesheet" href="./css/app.css" />
+  <link rel="stylesheet" href="./css/nav.css" />
+  <link rel="stylesheet" href="./css/footer.css" />
+  <link rel="stylesheet" href="./css/cau-hinh.css" />
+  <style>
+    .history-page-shell {
+      display: grid;
+      gap: 24px;
+    }
+
+    .history-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      align-items: end;
+      justify-content: space-between;
+      margin-bottom: 18px;
+    }
+
+    .history-toolbar-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: end;
+    }
+
+    .history-field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-width: 180px;
+      font-size: 14px;
+      color: #334155;
+    }
+
+    .history-input {
+      min-height: 42px;
+      border: 1px solid #cbd5e1;
+      border-radius: 12px;
+      padding: 10px 14px;
+      background: #fff;
+      font: inherit;
+      color: #0f172a;
+    }
+
+    .history-table-wrap {
+      overflow: auto;
+      max-height: 420px;
+      border: 1px solid #e2e8f0;
+      border-radius: 18px;
+      background: #fff;
+    }
+
+    .history-table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 980px;
+    }
+
+    .history-table th,
+    .history-table td {
+      padding: 14px 16px;
+      border-bottom: 1px solid #e2e8f0;
+      text-align: left;
+      vertical-align: top;
+      font-size: 14px;
+    }
+
+    .history-table thead th {
+      position: sticky;
+      top: 0;
+      background: #f8fafc;
+      color: #0f172a;
+      font-weight: 700;
+      z-index: 1;
+    }
+
+    .history-table tbody tr:hover {
+      background: #f8fbff;
+    }
+
+    .history-strong {
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    .history-muted {
+      color: #64748b;
+      font-size: 13px;
+    }
+
+    .history-empty {
+      padding: 24px;
+      border: 1px dashed #cbd5e1;
+      border-radius: 16px;
+      text-align: center;
+      color: #64748b;
+      background: #f8fafc;
+    }
+
+    .history-tag {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: #e0f2fe;
+      color: #075985;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+  </style>
+</head>
+<body class="page-cau-hinh">
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="index.html" class="brand">
+        <img src="public/logo-jm.ico" alt="Logo Chấm công" style="height: 40px;">
+      </a>
+      <nav class="main-nav">
+        <a href="index.html">
+          <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          <span class="nav-label"> Lịch làm việc</span>
+        </a>
+        <a href="cau-hinh.html" class="active">
+          <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          <span class="nav-label"> Cấu hình</span>
+        </a>
+      </nav>
+      <div class="user-info" id="user-info" style="display: none; flex-direction: column; align-items: flex-end;">
+        <span id="user-name" style="font-weight: 500;"></span>
+        <span id="user-role" style="font-size: 0.85em;"></span>
+        <button id="logout-button" class="button button-secondary">Đăng xuất</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="config-layout">
+    <aside class="config-sidebar app-sidepanel">
+      <a href="cau-hinh.html" class="config-nav-item app-sidepanel-link">Quản lý đơn vị</a>
+      <a href="nguoi-dung.html" class="config-nav-item app-sidepanel-link">Quản lý người dùng</a>
+      <a href="lich-su.html" class="config-nav-item app-sidepanel-link active">Lịch sử chỉnh sửa</a>
+    </aside>
+
+    <section class="config-main">
+      <div class="config-shell history-page-shell">
+        <article class="config-panel">
+          <div class="history-toolbar">
+            <div>
+              <h2>Lịch Sử Chỉnh Sửa Lịch Làm Việc</h2>
+              <p>Theo dõi người chỉnh sửa, nhân sự, đơn vị, ngày áp dụng và thay đổi ca làm việc.</p>
+            </div>
+            <div class="history-toolbar-group">
+              <label class="history-field">
+                Tháng
+                <input type="month" id="schedule-history-month" class="history-input" />
+              </label>
+              <button type="button" id="schedule-history-refresh" class="config-button primary">Tải lại</button>
+            </div>
+          </div>
+          <div id="schedule-history-status" class="config-status"></div>
+          <div id="schedule-history-container"></div>
+        </article>
+
+        <article class="config-panel">
+          <div class="history-toolbar">
+            <div>
+              <h2>Lịch Sử Chỉnh Sửa Đơn Vị</h2>
+              <p>Ghi nhận thao tác thêm, sửa, xóa đơn vị cùng nội dung trước và sau khi thay đổi.</p>
+            </div>
+          </div>
+          <div id="unit-history-container"></div>
+        </article>
+
+        <article class="config-panel">
+          <div class="history-toolbar">
+            <div>
+              <h2>Lịch Sử Chỉnh Sửa Ca Làm Việc</h2>
+              <p>Ghi nhận đầy đủ thao tác thêm, sửa, xóa cấu hình ca làm việc và khung giờ.</p>
+            </div>
+          </div>
+          <div id="shift-history-container"></div>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <p>© 2026 chấm công. Thiết kế bởi Phạm Mạnh Quân 0862528119.</p>
+      <div class="footer-links">
+        <a href="index.html">Trang chủ</a>
+        <a href="#">Chính sách</a>
+      </div>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { requireAdmin } from "./js/api.js";
+    import {
+      escapeHtml,
+      getEditorDisplay,
+      getItemTimestamp,
+      getScheduleHistoryLocal,
+      getShiftHistory,
+      getUnitHistory
+    } from "./js/edit-history.js";
+
+    const currentUser = requireAdmin();
+    if (!currentUser) {
+      throw new Error("Unauthorized");
+    }
+
+    const scheduleHistoryMonthInput = document.getElementById("schedule-history-month");
+    const scheduleHistoryContainer = document.getElementById("schedule-history-container");
+    const scheduleHistoryStatus = document.getElementById("schedule-history-status");
+    const unitHistoryContainer = document.getElementById("unit-history-container");
+    const shiftHistoryContainer = document.getElementById("shift-history-container");
+
+    function getCurrentMonthValue() {
+      const now = new Date();
+      return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+    }
+
+    function setUserInfo() {
+      const userName = document.getElementById("user-name");
+      const userRole = document.getElementById("user-role");
+      const userInfo = document.getElementById("user-info");
+
+      if (!currentUser || !userName || !userRole || !userInfo) {
+        return;
+      }
+
+      userName.textContent = currentUser.name || "";
+      userRole.textContent = currentUser.role === "admin" ? "(Admin)" : `(${currentUser.role || "Người dùng"})`;
+      userInfo.style.display = "flex";
+    }
+
+    function renderEmpty(container, message) {
+      container.innerHTML = `<div class="history-empty">${escapeHtml(message)}</div>`;
+    }
+
+    function sortDesc(items) {
+      return items.slice().sort((a, b) => getItemTimestamp(b) - getItemTimestamp(a));
+    }
+
+    function normalizeMonthKey(item) {
+      const rawDate = String(item.date || item.ngay || item.dateLabel || "").trim();
+      if (/^\d{4}-\d{2}-\d{2}$/.test(rawDate)) {
+        return rawDate.slice(0, 7);
+      }
+      return "";
+    }
+
+    function formatScheduleDate(item) {
+      const rawDate = String(item.date || item.ngay || item.dateLabel || "").trim();
+      if (/^\d{4}-\d{2}-\d{2}$/.test(rawDate)) {
+        return new Date(`${rawDate}T00:00:00`).toLocaleDateString("vi-VN");
+      }
+      return rawDate;
+    }
+
+    async function loadScheduleHistory() {
+      scheduleHistoryStatus.textContent = "";
+      scheduleHistoryContainer.innerHTML = '<div class="history-empty">Đang tải dữ liệu...</div>';
+
+      const selectedMonth = scheduleHistoryMonthInput.value || getCurrentMonthValue();
+      let history = [];
+
+      try {
+        const token = sessionStorage.getItem("token");
+        const response = await fetch("/api/history", {
+          headers: token ? { Authorization: `Bearer ${token}` } : {}
+        });
+        const json = await response.json();
+        if (json?.ok && Array.isArray(json.data)) {
+          history = json.data;
+        }
+      } catch (error) {
+        scheduleHistoryStatus.textContent = `Không tải được lịch sử từ API, đang dùng dữ liệu cục bộ.`;
+        scheduleHistoryStatus.classList.remove("error");
+      }
+
+      if (!history.length) {
+        history = getScheduleHistoryLocal();
+      }
+
+      const filtered = sortDesc(
+        history.filter((item) => {
+          return normalizeMonthKey(item) === selectedMonth;
+        })
+      );
+
+      if (!filtered.length) {
+        renderEmpty(scheduleHistoryContainer, "Không có lịch sử chỉnh sửa lịch làm việc trong tháng đã chọn.");
+        return;
+      }
+
+      scheduleHistoryContainer.innerHTML = `
+        <div class="history-table-wrap">
+          <table class="history-table">
+            <thead>
+              <tr>
+                <th>Người sửa</th>
+                <th>Nhân sự</th>
+                <th>Khu vực</th>
+                <th>Đơn vị</th>
+                <th>Ngày</th>
+                <th>Từ ca</th>
+                <th>Sang ca</th>
+                <th>Thời gian sửa</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${filtered.map((item) => `
+                <tr>
+                  <td><span class="history-strong">${escapeHtml(getEditorDisplay(item))}</span></td>
+                  <td>${escapeHtml(item.employee || item.ten_nhan_vien || "")}</td>
+                  <td>${escapeHtml(item.region || item.khu_vuc || "")}</td>
+                  <td>${escapeHtml(item.store || item.cua_hang || "")}</td>
+                  <td>${escapeHtml(formatScheduleDate(item))}</td>
+                  <td>${escapeHtml(item.fromShift || item.tu_ca || "")}</td>
+                  <td>${escapeHtml(item.toShift || item.sang_ca || item.to_ca || "")}</td>
+                  <td>${escapeHtml(item.time || "")}</td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    function renderUnitHistory() {
+      const history = sortDesc(getUnitHistory());
+      if (!history.length) {
+        renderEmpty(unitHistoryContainer, "Chưa có lịch sử chỉnh sửa đơn vị.");
+        return;
+      }
+
+      unitHistoryContainer.innerHTML = `
+        <div class="history-table-wrap">
+          <table class="history-table">
+            <thead>
+              <tr>
+                <th>Thao tác</th>
+                <th>Đơn vị</th>
+                <th>Khu vực</th>
+                <th>Trước thay đổi</th>
+                <th>Sau thay đổi</th>
+                <th>Người sửa</th>
+                <th>Thời gian</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${history.map((item) => `
+                <tr>
+                  <td><span class="history-tag">${escapeHtml(item.action || "")}</span></td>
+                  <td>
+                    <div class="history-strong">${escapeHtml(item.unitCode || "")}</div>
+                    <div class="history-muted">${escapeHtml(item.unitName || "")}</div>
+                  </td>
+                  <td>${escapeHtml(item.region || "")}</td>
+                  <td>${escapeHtml(item.before || "")}</td>
+                  <td>${escapeHtml(item.after || "")}</td>
+                  <td>${escapeHtml(getEditorDisplay(item))}</td>
+                  <td>${escapeHtml(item.time || "")}</td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    function renderShiftHistory() {
+      const history = sortDesc(getShiftHistory());
+      if (!history.length) {
+        renderEmpty(shiftHistoryContainer, "Chưa có lịch sử chỉnh sửa ca làm việc.");
+        return;
+      }
+
+      shiftHistoryContainer.innerHTML = `
+        <div class="history-table-wrap">
+          <table class="history-table">
+            <thead>
+              <tr>
+                <th>Thao tác</th>
+                <th>Ca làm việc</th>
+                <th>Trước thay đổi</th>
+                <th>Sau thay đổi</th>
+                <th>Người sửa</th>
+                <th>Thời gian</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${history.map((item) => `
+                <tr>
+                  <td><span class="history-tag">${escapeHtml(item.action || "")}</span></td>
+                  <td>
+                    <div class="history-strong">${escapeHtml(item.shiftCode || "")}</div>
+                    <div class="history-muted">${escapeHtml(item.shiftName || "")}</div>
+                  </td>
+                  <td>${escapeHtml(item.before || "")}</td>
+                  <td>${escapeHtml(item.after || "")}</td>
+                  <td>${escapeHtml(getEditorDisplay(item))}</td>
+                  <td>${escapeHtml(item.time || "")}</td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    document.getElementById("schedule-history-refresh").addEventListener("click", loadScheduleHistory);
+    scheduleHistoryMonthInput.addEventListener("change", loadScheduleHistory);
+    document.getElementById("logout-button").addEventListener("click", () => {
+      sessionStorage.removeItem("user");
+      sessionStorage.removeItem("token");
+      window.location.replace("/login.html");
+    });
+
+    scheduleHistoryMonthInput.value = getCurrentMonthValue();
+    setUserInfo();
+    renderUnitHistory();
+    renderShiftHistory();
+    await loadScheduleHistory();
+  </script>
+  <script src="js/script.js"></script>
+</body>
+</html>
