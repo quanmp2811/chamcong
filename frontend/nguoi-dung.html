@@ -138,6 +138,10 @@
     const storeField = document.getElementById("store-field");
     const status = document.getElementById("user-status");
 
+    function confirmDelete(message) {
+      return window.confirm(message);
+    }
+
     function updateStoreFieldVisibility() {
       if (!storeField) return;
       if (roleSelect.value === "admin") {
@@ -294,6 +298,9 @@
       }
 
       if (action === "delete") {
+        if (!confirmDelete(`Xác nhận xóa người dùng ${email}?`)) {
+          return;
+        }
         try {
           await deleteUser(email);
           await loadUsers();

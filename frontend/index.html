@@ -2483,6 +2483,10 @@
       });
     }
 
+    function confirmDelete(message) {
+      return window.confirm(message);
+    }
+
     function handleRoleActionClick(event) {
       if (!currentUser) return; // Require login for editing
 
@@ -2604,6 +2608,9 @@
       }
 
       if (action === "delete") {
+        if (!confirmDelete(`Xác nhận xóa nhân sự ${employee.name || `#${employeeIndex + 1}`} tại ${storeCode}?`)) {
+          return;
+        }
         store.employees.splice(employeeIndex, 1);
         saveScheduleData();
         loadSheetData();

@@ -66,7 +66,8 @@
             </div>
 
             <div class="config-actions">
-              <button type="submit" class="config-button primary">Thêm khu vực</button>
+              <button type="submit" class="config-button primary" id="region-submit-button">Thêm khu vực</button>
+              <button type="button" class="config-button" id="region-cancel-button" style="display:none;">Hủy</button>
             </div>
           </form>
 
@@ -238,6 +239,9 @@
     const regionForm = document.getElementById("region-form");
     const regionCodeInput = document.getElementById("region-code");
     const regionNameInput = document.getElementById("region-name");
+    const regionManagerInput = document.getElementById("region-manager");
+    const regionSubmitButton = document.getElementById("region-submit-button");
+    const regionCancelButton = document.getElementById("region-cancel-button");
     const regionTableBody = document.getElementById("region-table-body");
     const regionStatus = document.getElementById("region-status");
 
@@ -371,22 +375,6 @@ function renderRegionTable() {
   }
 
   regionTableBody.innerHTML = regionsData.map((r) => {
-    const isEditing = editingRegionRow === r.code;
-
-    if (isEditing) {
-      return `
-        <tr>
-          <td><input value="${r.code}"></td>
-          <td><input value="${r.name}"></td>
-          <td><input value="${r.manager || ""}"></td>
-          <td>
-            <button data-action="update" data-code="${r.code}">Update</button>
-            <button data-action="cancel">Hủy</button>
-          </td>
-        </tr>
-      `;
-    }
-
     return `
       <tr>
         <td>${r.code}</td>
@@ -478,6 +466,35 @@ function renderRegionTable() {
       };
     }
 
+    function confirmDelete(message) {
+      return window.confirm(message);
+    }
+
+    function resetRegionForm() {
+      editingRegionCode = null;
+      editingRegionRow = null;
+      regionForm.reset();
+      regionSubmitButton.textContent = "Thêm khu vực";
+      regionCancelButton.style.display = "none";
+    }
+
+    function startEditRegion(code) {
+      const region = regionsData.find((item) => item.code === code);
+      if (!region) {
+        regionStatus.textContent = "Không tìm thấy khu vực để cập nhật";
+        return;
+      }
+
+      editingRegionCode = code;
+      editingRegionRow = code;
+      regionCodeInput.value = region.code || "";
+      regionNameInput.value = region.name || "";
+      regionManagerInput.value = region.manager || "";
+      regionSubmitButton.textContent = "Cập nhật khu vực";
+      regionCancelButton.style.display = "";
+      regionStatus.textContent = `Đang cập nhật khu vực ${code}`;
+    }
+
     storeForm.addEventListener("submit", async (event) => {
       event.preventDefault();
 
@@ -535,7 +552,7 @@ function renderRegionTable() {
 
       const code = regionCodeInput.value.trim();
       const name = regionNameInput.value.trim();
-      const manager = document.getElementById("region-manager").value.trim();
+      const manager = regionManagerInput.value.trim();
 
       if (!code || !name) {
         regionStatus.textContent = "Nhập đầy đủ";
@@ -544,22 +561,25 @@ function renderRegionTable() {
 
       try {
         if (editingRegionCode) {
-          console.log("DEBUG: Updating region with data:", { code, name, manager });
           await updateRegion(editingRegionCode, { code, name, manager });
+          regionStatus.textContent = `Đã cập nhật khu vực ${code}`;
         } else {
-          console.log("DEBUG: Creating region with data:", { code, name, manager });
           await createRegion({ code, name, manager });
+          regionStatus.textContent = `Đã thêm khu vực ${code}`;
         }
 
-        editingRegionCode = null;
-        regionForm.reset();
-
+        resetRegionForm();
         await loadRegionsUI();
         await loadRegions(); // update dropdown store luôn
 
       } catch (err) {
         regionStatus.textContent = err.message;
       }
+    });
+
+    regionCancelButton.addEventListener("click", () => {
+      resetRegionForm();
+      regionStatus.textContent = "";
     });
 
     storeRegionFilter.addEventListener("change", () => {
@@ -621,6 +641,9 @@ function renderRegionTable() {
       }
 
       if (action === "delete") {
+        if (!confirmDelete(`Xác nhận xóa đơn vị ${existingStore?.code || code}?`)) {
+          return;
+        }
         try {
           await deleteStore(code);
           appendUnitHistory({
@@ -643,42 +666,29 @@ function renderRegionTable() {
       const btn = e.target;
       const code = btn.dataset.code;
       const action = btn.dataset.action;
-      const row = btn.closest("tr");
 
       if (action === "edit") {
-        editingRegionRow = code;
-        renderRegionTable();
+        startEditRegion(code);
         return;
       }
 
       if (action === "cancel") {
-        editingRegionRow = null;
-        renderRegionTable();
+        resetRegionForm();
         return;
       }
 
-      if (action === "update") {
-        const inputs = row.querySelectorAll("input");
-
-        const data = {
-          code: inputs[0].value.trim(),
-          name: inputs[1].value.trim(),
-          manager: inputs[2] ? inputs[2].value.trim() : ""
-        };
-
-        try {
-          await updateRegion(code, data);
-          editingRegionRow = null;
-          await loadRegionsUI();
-        } catch (err) {
-          regionStatus.textContent = err.message;
-        }
-      }
-
       if (action === "delete") {
+        if (!confirmDelete(`Xác nhận xóa khu vực ${code}?`)) {
+          return;
+        }
         try {
           await deleteRegion(code);
+          if (editingRegionCode === code) {
+            resetRegionForm();
+          }
           await loadRegionsUI();
+          await loadRegions();
+          regionStatus.textContent = `Đã xóa khu vực ${code}`;
         } catch (err) {
           regionStatus.textContent = err.message;
         }
@@ -861,6 +871,9 @@ function renderRegionTable() {
       }
 
       if (action === "delete") {
+        if (!confirmDelete(`Xác nhận xóa ca ${existingShift?.code || code}?`)) {
+          return;
+        }
         try {
           await deleteShift(code);
           appendShiftHistory({
