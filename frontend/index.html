@@ -1384,12 +1384,21 @@
               .map((item) => `
                 <tr>
                   <td>
-                    <div class="user-cell" title="${item.editor}">
+                    <div
+                      class="user-cell"
+                      tabindex="0"
+                      title="${item.editor}"
+                      aria-label="${item.editor}"
+                    >
                       <div class="user-name">
                         ${(item.editor || "").split(" - ")[0]}
                       </div>
                       <div class="user-email">
                         ${(item.editor || "").split(" - ")[1] || ""}
+                      </div>
+                      <div class="user-tooltip" role="tooltip">
+                        <div class="user-tooltip-name">${(item.editor || "").split(" - ")[0]}</div>
+                        <div class="user-tooltip-email">${(item.editor || "").split(" - ")[1] || ""}</div>
                       </div>
                     </div>
                   </td>

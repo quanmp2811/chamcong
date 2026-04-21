@@ -1647,12 +1647,16 @@ body.page-cham-cong-nhan-vien .employee-detail-table td {
     body.page-cham-cong-nhan-vien .flatpickr-monthSelect-month.selected { background: #2563eb; border-color: #2563eb; }
 
 .user-cell {
+  position: relative;
   max-width: 180px;
+  width: 100%;
   cursor: pointer;
+  outline: none;
 }
 
 .user-name {
   font-weight: 500;
+  display: block;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1661,7 +1665,50 @@ body.page-cham-cong-nhan-vien .employee-detail-table td {
 .user-email {
   font-size: 12px;
   color: #666;
+  display: block;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.user-tooltip {
+  position: absolute;
+  left: calc(100% + 10px);
+  top: 50%;
+  transform: translateY(-50%);
+  min-width: 220px;
+  max-width: 320px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #0f172a;
+  color: #fff;
+  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.24);
+  text-align: left;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.16s ease, visibility 0.16s ease;
+  z-index: 30;
+}
+
+.user-cell:hover .user-tooltip,
+.user-cell:focus .user-tooltip,
+.user-cell:focus-within .user-tooltip {
+  opacity: 1;
+  visibility: visible;
+}
+
+.user-tooltip-name {
+  font-size: 0.92rem;
+  font-weight: 700;
+  line-height: 1.35;
+  word-break: break-word;
+}
+
+.user-tooltip-email {
+  margin-top: 4px;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  color: rgba(255, 255, 255, 0.82);
+  word-break: break-word;
 }
