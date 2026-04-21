@@ -194,6 +194,7 @@
     const SECURITY_SHIFT_OPTIONS = ["CA CG", "NGHỈ PHÉP"];
     const SUPPORT_SHIFT_OPTIONS = ["HỖ TRỢ", "OFF TUẦN", "NGHỈ PHÉP"];
     let shiftsByCode = {};
+    let configuredShiftCodes = [];
     const LEGACY_SHIFT_MAP = {
       QLS: "CA QLS",
       "CA QLS": "CA QLS",
@@ -678,7 +679,8 @@
 
     function getShiftCode(shiftValue) {
       const normalizedValue = String(shiftValue || "").trim();
-      return SHIFT_OPTIONS.find((code) => normalizedValue === code || normalizedValue.startsWith(`${code} (`)) || "OFF TUẦN";
+      const knownShiftCodes = [...new Set([...configuredShiftCodes, ...SHIFT_OPTIONS])];
+      return knownShiftCodes.find((code) => normalizedValue === code || normalizedValue.startsWith(`${code} (`)) || "OFF TUẦN";
     }
 
     function getShiftTime(shiftValue) {
@@ -719,6 +721,17 @@
       }
 
       return startTime || endTime;
+    }
+
+    function getShiftScopeForRegion(region) {
+      return region === "TPKD/QLV" ? "office" : "store";
+    }
+
+    function getConfiguredShiftCodesForScope(scope) {
+      return configuredShiftCodes.filter((code) => {
+        const entry = shiftsByCode[code];
+        return entry && entry.scope === scope;
+      });
     }
 
     function getShiftDisplayTime(shiftCode, fallbackShiftValue = "") {
@@ -913,7 +926,7 @@
             Object.keys(employee.schedule).forEach((date) => {
               let normalizedShift = normalizeLegacyShiftValue(employee.schedule[date]);
               const shiftCode = getShiftCode(normalizedShift);
-              const allowedShiftOptions = getShiftOptionsForRole(employee.role);
+              const allowedShiftOptions = getShiftOptionsForRole(employee.role, region);
 
               if (!allowedShiftOptions.includes(shiftCode)) {
                 if (employee.role === "Quản lý") {
@@ -1028,10 +1041,12 @@
       const shiftsById = new Map(shifts.map((shift) => [shift.id, shift]));
       shiftsByCode = Object.fromEntries(
         shifts.map(s => [s.code, {
+          scope: s.scope === "office" ? "office" : "store",
           startTime: s.startTime ? String(s.startTime).slice(0, 5) : "",
           endTime: s.endTime ? String(s.endTime).slice(0, 5) : ""
         }])
       );
+      configuredShiftCodes = shifts.map((shift) => shift.code).filter(Boolean);
       const employeesByStoreCode = new Map();
 
       employees.forEach((employee) => {
@@ -1299,24 +1314,32 @@
       return storeData;
     }
 
-    function getShiftOptionsForRole(role) {
+    function getShiftOptionsForRole(role, region = "") {
+      const regionScope = getShiftScopeForRegion(region);
+      const configuredCodes = getConfiguredShiftCodesForScope(regionScope);
+      const fallbackScopedOptions = SHIFT_OPTIONS.filter((code) => shiftsByCode[code] ? shiftsByCode[code].scope === regionScope : true);
+
+      if (regionScope === "office") {
+        return configuredCodes.length ? configuredCodes : ["OFF TUẦN"];
+      }
+
       if (role === "Quản lý") {
-        return MANAGER_SHIFT_OPTIONS;
+        return configuredCodes.length ? configuredCodes : fallbackScopedOptions;
       }
 
       if (role === "Bảo vệ") {
-        return SECURITY_SHIFT_OPTIONS;
+        return SECURITY_SHIFT_OPTIONS.filter((code) => shiftsByCode[code] ? shiftsByCode[code].scope === regionScope : true);
       }
 
       if (role === "Hỗ trợ") {
-        return SUPPORT_SHIFT_OPTIONS;
+        return SUPPORT_SHIFT_OPTIONS.filter((code) => shiftsByCode[code] ? shiftsByCode[code].scope === regionScope : true);
       }
 
-      return STAFF_SHIFT_OPTIONS;
+      return STAFF_SHIFT_OPTIONS.filter((code) => shiftsByCode[code] ? shiftsByCode[code].scope === regionScope : true);
     }
 
-    function isShiftAllowedForRole(role, shift) {
-      return getShiftOptionsForRole(role).includes(shift);
+    function isShiftAllowedForRole(role, shift, region = "") {
+      return getShiftOptionsForRole(role, region).includes(shift);
     }
 
     function canManageEmployeeRow(role) {
@@ -1504,6 +1527,7 @@
 
     function renderTimetableBoard() {
       const selectedRegion = regionFilter.value;
+      const isOfficeRegion = selectedRegion === "TPKD/QLV";
       const nameColumnLabel = selectedRegion === "TPKD/QLV" ? "Địa điểm" : "Nhân sự";
       if (!selectedRegion) {
         timetableBoard.innerHTML = `<div class="empty-history">Không có dữ liệu khu vực để hiển thị.</div>`;
@@ -1547,7 +1571,7 @@
             <table class="timetable">
               <thead>
                 <tr>
-                  <th>Chức vụ</th>
+                  ${isOfficeRegion ? "" : "<th>Chức vụ</th>"}
                   <th>${nameColumnLabel}</th>
                   ${dateHeaders}
                 </tr>
@@ -1555,39 +1579,41 @@
               <tbody>
                 ${store.employees.length ? store.employees.map((employee, employeeIndex) => `
                   <tr>
-                    <td class="timetable-role">
-                      <div class="role-cell">
-                        <span class="role-cell-label">${employee.role}</span>
-                        ${canManageEmployeeRow(employee.role) ? `
-                          <button
-                            type="button"
-                            class="role-action-toggle"
-                            data-region="${selectedRegion}"
-                            data-store="${store.code}"
-                            data-employee-index="${employeeIndex}"
-                            aria-label="Tác vụ nhân sự"
-                            ${isEditableWeek ? "" : "disabled"}
-                          >⋮</button>
-                          <div class="role-action-menu" data-region="${selectedRegion}" data-store="${store.code}" data-employee-index="${employeeIndex}">
-                            <button type="button" class="role-action-button" data-region="${selectedRegion}" data-role-action="add-employee" data-store="${store.code}" data-employee-index="${employeeIndex}">
-                              Thêm nhân viên
-                            </button>
-                            <button type="button" class="role-action-button" data-region="${selectedRegion}" data-role-action="add-security" data-store="${store.code}" data-employee-index="${employeeIndex}">
-                              Thêm bảo vệ
-                            </button>
-                            <button type="button" class="role-action-button" data-region="${selectedRegion}" data-role-action="add-support" data-store="${store.code}" data-employee-index="${employeeIndex}">
-                              Thêm hỗ trợ
-                            </button>
-                            <button type="button" class="role-action-button" data-region="${selectedRegion}" data-role-action="add-overtime" data-store="${store.code}" data-employee-index="${employeeIndex}">
-                              Thêm NV tăng ca
-                            </button>
-                            <button type="button" class="role-action-button role-action-delete" data-region="${selectedRegion}" data-role-action="delete" data-store="${store.code}" data-employee-index="${employeeIndex}">
-                              Xoá dòng hiện tại
-                            </button>
-                          </div>
-                        ` : ""}
-                      </div>
-                    </td>
+                    ${isOfficeRegion ? "" : `
+                      <td class="timetable-role">
+                        <div class="role-cell">
+                          <span class="role-cell-label">${employee.role}</span>
+                          ${canManageEmployeeRow(employee.role) ? `
+                            <button
+                              type="button"
+                              class="role-action-toggle"
+                              data-region="${selectedRegion}"
+                              data-store="${store.code}"
+                              data-employee-index="${employeeIndex}"
+                              aria-label="Tác vụ nhân sự"
+                              ${isEditableWeek ? "" : "disabled"}
+                            >⋮</button>
+                            <div class="role-action-menu" data-region="${selectedRegion}" data-store="${store.code}" data-employee-index="${employeeIndex}">
+                              <button type="button" class="role-action-button" data-region="${selectedRegion}" data-role-action="add-employee" data-store="${store.code}" data-employee-index="${employeeIndex}">
+                                Thêm nhân viên
+                              </button>
+                              <button type="button" class="role-action-button" data-region="${selectedRegion}" data-role-action="add-security" data-store="${store.code}" data-employee-index="${employeeIndex}">
+                                Thêm bảo vệ
+                              </button>
+                              <button type="button" class="role-action-button" data-region="${selectedRegion}" data-role-action="add-support" data-store="${store.code}" data-employee-index="${employeeIndex}">
+                                Thêm hỗ trợ
+                              </button>
+                              <button type="button" class="role-action-button" data-region="${selectedRegion}" data-role-action="add-overtime" data-store="${store.code}" data-employee-index="${employeeIndex}">
+                                Thêm NV tăng ca
+                              </button>
+                              <button type="button" class="role-action-button role-action-delete" data-region="${selectedRegion}" data-role-action="delete" data-store="${store.code}" data-employee-index="${employeeIndex}">
+                                Xoá dòng hiện tại
+                              </button>
+                            </div>
+                          ` : ""}
+                        </div>
+                      </td>
+                    `}
                     <td class="timetable-name">
                       <input
                         type="text"
@@ -1600,7 +1626,7 @@
                       />
                     </td>
                     ${activeDates.map((date) => {
-                      const availableShifts = getShiftOptionsForRole(employee.role);
+                      const availableShifts = getShiftOptionsForRole(employee.role, selectedRegion);
                       const rawShift = normalizeLegacyShiftValue(employee.schedule[date] || "OFF TUẦN");
                       const shiftCode = getShiftCode(rawShift);
                       return `
@@ -1624,7 +1650,7 @@
                   </tr>
                 `).join("") : `
                   <tr>
-                    <td colspan="${activeDates.length + 2}" class="empty-history">Store này đã có trong DB nhưng chưa có nhân viên hoặc lịch làm việc.</td>
+                    <td colspan="${activeDates.length + (isOfficeRegion ? 1 : 2)}" class="empty-history">Store này đã có trong DB nhưng chưa có nhân viên hoặc lịch làm việc.</td>
                   </tr>
                 `}
               </tbody>
@@ -1707,8 +1733,9 @@
     function buildExportWorksheetForRegion(region, dates) {
       ensureScheduleDates(region, dates);
       const storesInRegion = scheduleData[region] || [];
+      const isOfficeRegion = region === "TPKD/QLV";
       const nameColumnLabel = region === "TPKD/QLV" ? "Địa điểm" : "Nhân sự";
-      const totalColumns = dates.length + 2;
+      const totalColumns = dates.length + (isOfficeRegion ? 1 : 2);
       const rows = [];
       const merges = [];
 
@@ -1726,25 +1753,34 @@
 
       storesInRegion.forEach((store, storeIndex) => {
         const storeHeaderRowIndex = rows.length;
-        rows.push([store.code, `${region} • ${store.employees.length} nhân sự`, ...new Array(dates.length).fill("")]);
+        rows.push([store.code, `${region} • ${store.employees.length} nhân sự`, ...new Array(totalColumns - 2).fill("")]);
         merges.push({
           s: { r: storeHeaderRowIndex, c: 1 },
           e: { r: storeHeaderRowIndex, c: totalColumns - 1 }
         });
 
-        rows.push(["Chức vụ", nameColumnLabel, ...dates.map((date) => formatDateLabel(date).day)]);
-        rows.push(["", "", ...dates.map((date) => formatDateLabel(date).weekday)]);
+        rows.push(isOfficeRegion
+          ? [nameColumnLabel, ...dates.map((date) => formatDateLabel(date).day)]
+          : ["Chức vụ", nameColumnLabel, ...dates.map((date) => formatDateLabel(date).day)]);
+        rows.push(isOfficeRegion
+          ? ["", ...dates.map((date) => formatDateLabel(date).weekday)]
+          : ["", "", ...dates.map((date) => formatDateLabel(date).weekday)]);
 
         store.employees.forEach((employee) => {
           const weekShifts = dates.map((date) => {
             const rawShift = normalizeLegacyShiftValue(employee.schedule[date] || "");
             return formatShiftValue(getShiftCode(rawShift), getShiftTime(rawShift));
           });
-          rows.push([
-            employee.role,
-            employee.name,
-            ...weekShifts
-          ]);
+          rows.push(isOfficeRegion
+            ? [
+              employee.name,
+              ...weekShifts
+            ]
+            : [
+              employee.role,
+              employee.name,
+              ...weekShifts
+            ]);
         });
 
         if (storeIndex < storesInRegion.length - 1) {
@@ -1755,8 +1791,7 @@
       const worksheet = XLSX.utils.aoa_to_sheet(rows);
       worksheet["!merges"] = merges;
       worksheet["!cols"] = [
-        { wch: 16 },
-        { wch: 24 },
+        ...(isOfficeRegion ? [{ wch: 24 }] : [{ wch: 16 }, { wch: 24 }]),
         ...dates.map(() => ({ wch: 18 }))
       ];
       worksheet["!rows"] = rows.map((row, rowIndex) => {
@@ -1765,7 +1800,7 @@
         if (row.every((cell) => !cell)) return { hpt: 10 };
         return { hpt: 24 };
       });
-      worksheet["!freeze"] = { xSplit: 2, ySplit: 5 };
+      worksheet["!freeze"] = { xSplit: isOfficeRegion ? 1 : 2, ySplit: 5 };
 
       const titleStyle = createCellStyle({
         bold: true,
@@ -2105,7 +2140,7 @@
       const nextShiftCode = target.value;
       const { workTime, breakTime } = getShiftTimeParts(nextShiftCode, previousShift);
 
-      if (!isShiftAllowedForRole(employee.role, nextShiftCode)) {
+      if (!isShiftAllowedForRole(employee.role, nextShiftCode, region)) {
         scheduleStatus.textContent = `${employee.role} không được phép chọn ca ${nextShiftCode}.`;
         scheduleStatus.classList.add("error");
         loadSheetData();

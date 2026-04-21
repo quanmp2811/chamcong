@@ -643,7 +643,7 @@ app.get("/api/ca-lam", authenticateToken, async (_req, res) => {
   try {
     ensureDatabaseConnected();
     const [rows] = await dbPool.query(`
-      SELECT id, ma_ca AS code, name,
+      SELECT id, ma_ca AS code, name, scope,
         start_time AS startTime, end_time AS endTime
       FROM ca_lam ORDER BY id
     `);
@@ -655,14 +655,15 @@ app.get("/api/ca-lam", authenticateToken, async (_req, res) => {
 
 app.post("/api/ca-lam", authenticateToken, authorizeAdmin, async (req, res) => {
   const { code, name, startTime, endTime } = req.body;
+  const scope = req.body.scope === "office" ? "office" : "store";
   if (!code || !name) return res.status(400).json({ ok: false, message: "Thiếu mã ca hoặc tên ca" });
   try {
     ensureDatabaseConnected();
     const [exist] = await dbPool.query("SELECT 1 FROM ca_lam WHERE ma_ca = ? LIMIT 1", [code]);
     if (exist.length) return res.status(409).json({ ok: false, message: "Mã ca đã tồn tại" });
     await dbPool.query(
-      "INSERT INTO ca_lam (ma_ca, name, start_time, end_time) VALUES (?, ?, ?, ?)",
-      [code, name, startTime || null, endTime || null]
+      "INSERT INTO ca_lam (ma_ca, name, scope, start_time, end_time) VALUES (?, ?, ?, ?, ?)",
+      [code, name, scope, startTime || null, endTime || null]
     );
     res.json({ ok: true });
   } catch (error) {
@@ -673,14 +674,15 @@ app.post("/api/ca-lam", authenticateToken, authorizeAdmin, async (req, res) => {
 app.put("/api/ca-lam/:code", authenticateToken, authorizeAdmin, async (req, res) => {
   const oldCode = req.params.code;
   const { code, name, startTime, endTime } = req.body;
+  const scope = req.body.scope === "office" ? "office" : "store";
   if (!code || !name) return res.status(400).json({ ok: false, message: "Thiếu dữ liệu" });
   try {
     ensureDatabaseConnected();
     const [dup] = await dbPool.query("SELECT 1 FROM ca_lam WHERE ma_ca=? AND ma_ca<>?", [code, oldCode]);
     if (dup.length) return res.status(409).json({ ok: false, message: "Trùng mã ca" });
     const [result] = await dbPool.query(
-      "UPDATE ca_lam SET ma_ca=?, name=?, start_time=?, end_time=? WHERE ma_ca=?",
-      [code, name, startTime || null, endTime || null, oldCode]
+      "UPDATE ca_lam SET ma_ca=?, name=?, scope=?, start_time=?, end_time=? WHERE ma_ca=?",
+      [code, name, scope, startTime || null, endTime || null, oldCode]
     );
     if (!result.affectedRows) return res.status(404).json({ ok: false, message: "Không tìm thấy ca" });
     res.json({ ok: true });
@@ -1230,6 +1232,7 @@ async function ensureSchema() {
       name VARCHAR(255)
     )
   `);
+  await ensureColumn("ca_lam", "scope", "VARCHAR(32) NOT NULL DEFAULT 'store'");
   await ensureColumn("ca_lam", "start_time", "TIME NULL");
   await ensureColumn("ca_lam", "end_time", "TIME NULL");
 }
@@ -1311,6 +1314,7 @@ async function getShiftsData() {
     SELECT
       id,
       ma_ca AS code,
+      scope,
       name,
       start_time AS startTime,
       end_time AS endTime
