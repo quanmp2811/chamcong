@@ -947,28 +947,33 @@ body.page-lich-lam-viec .office-sheet-preset-grid {
     body.page-lich-lam-viec .role-cell {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      gap: 4px;
+      justify-content: flex-start;
+      gap: 8px;
       position: relative;
       z-index: 1;
-      margin-right: -6px;
+      margin-right: 0;
     }
 
     body.page-lich-lam-viec .role-cell-label {
       min-width: 0;
       flex: 1 1 auto;
       line-height: 1.4;
+      display: flex;
+      align-items: center;
+      min-height: 28px;
     }
 
     body.page-lich-lam-viec .role-action-toggle {
-      border: 0;
-      background: transparent;
+      order: -1;
+      border: 1px solid #cbd5e1;
+      background: #fff;
       color: #475569;
-      width: 24px;
-      height: 24px;
+      width: 28px;
+      height: 28px;
       padding: 0;
-      border-radius: 0;
+      border-radius: 8px;
       font: inherit;
+      font-size: 0;
       font-weight: 700;
       line-height: 1;
       cursor: pointer;
@@ -976,6 +981,15 @@ body.page-lich-lam-viec .office-sheet-preset-grid {
       align-items: center;
       justify-content: center;
       flex: 0 0 auto;
+    }
+
+    body.page-lich-lam-viec .role-action-toggle::before {
+      content: "";
+      width: 4px;
+      height: 4px;
+      border-radius: 999px;
+      background: currentColor;
+      box-shadow: 0 -6px 0 currentColor, 0 6px 0 currentColor;
     }
 
     body.page-lich-lam-viec .role-action-menu {

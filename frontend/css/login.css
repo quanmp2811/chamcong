@@ -689,3 +689,47 @@ body::before {
         color: #ffffff !important;
     }
 }
+
+#rotate-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    background: #0a0f1e;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.25rem;
+    color: #fff;
+    text-align: center;
+    padding: 2rem;
+}
+
+#rotate-overlay svg {
+    width: 64px;
+    height: 64px;
+    color: #60a5fa;
+    animation: rotate-hint 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes rotate-hint {
+    from { transform: rotate(-20deg); }
+    to { transform: rotate(20deg); }
+}
+
+#rotate-overlay p {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 500;
+    opacity: 0.9;
+}
+
+@media (max-width: 768px) and (orientation: portrait) {
+    #rotate-overlay {
+        display: flex;
+    }
+
+    body > *:not(#rotate-overlay) {
+        visibility: hidden;
+    }
+}
