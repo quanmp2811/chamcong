@@ -1015,7 +1015,7 @@ body.page-lich-lam-viec .office-sheet-preset-grid {
 
     body.page-lich-lam-viec .timetable thead th:nth-child(n + 3),
 body.page-lich-lam-viec .timetable tbody td:nth-child(n + 3) {
-      min-width: 1px;
+      min-width: 170px;
       padding-left: 10px;
       padding-right: 10px;
     }
@@ -1040,9 +1040,9 @@ body.page-lich-lam-viec .timetable tbody td:nth-child(n + 3) {
     }
 
     body.page-lich-lam-viec .shift-cell-select {
-      flex: 0 0 118px;
-      width: 118px;
-      min-width: 118px;
+      flex: 0 0 156px;
+      width: 156px;
+      min-width: 156px;
       border: 1px solid #cbd5e1;
       background: #fff;
       color: #0f172a;
@@ -1062,8 +1062,8 @@ body.page-lich-lam-viec .timetable tbody td:nth-child(n + 3) {
     }
 
     body.page-lich-lam-viec .shift-cell-select.no-time {
-      flex: 0 0 118px;
-      width: 118px;
+      flex: 0 0 156px;
+      width: 156px;
       text-align: center;
       text-align-last: center;
     }
