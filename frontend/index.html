@@ -1504,6 +1504,7 @@
 
     function renderTimetableBoard() {
       const selectedRegion = regionFilter.value;
+      const nameColumnLabel = selectedRegion === "TPKD/QLV" ? "Địa điểm" : "Nhân sự";
       if (!selectedRegion) {
         timetableBoard.innerHTML = `<div class="empty-history">Không có dữ liệu khu vực để hiển thị.</div>`;
         return;
@@ -1547,7 +1548,7 @@
               <thead>
                 <tr>
                   <th>Chức vụ</th>
-                  <th>Nhân sự</th>
+                  <th>${nameColumnLabel}</th>
                   ${dateHeaders}
                 </tr>
               </thead>
@@ -1706,6 +1707,7 @@
     function buildExportWorksheetForRegion(region, dates) {
       ensureScheduleDates(region, dates);
       const storesInRegion = scheduleData[region] || [];
+      const nameColumnLabel = region === "TPKD/QLV" ? "Địa điểm" : "Nhân sự";
       const totalColumns = dates.length + 2;
       const rows = [];
       const merges = [];
@@ -1730,7 +1732,7 @@
           e: { r: storeHeaderRowIndex, c: totalColumns - 1 }
         });
 
-        rows.push(["Chức vụ", "Nhân sự", ...dates.map((date) => formatDateLabel(date).day)]);
+        rows.push(["Chức vụ", nameColumnLabel, ...dates.map((date) => formatDateLabel(date).day)]);
         rows.push(["", "", ...dates.map((date) => formatDateLabel(date).weekday)]);
 
         store.employees.forEach((employee) => {
